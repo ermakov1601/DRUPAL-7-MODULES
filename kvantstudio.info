@@ -1,0 +1,27 @@
+name = KVANTSTUDIO
+description = "Library of functions."
+version = "1.35"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/settings
+
+files[] = kvantstudio.module
+files[] = kvantstudio.install
+files[] = kvantstudio.settings.inc
+
+dependencies[] = imageapi
+dependencies[] = imageapi_gd
+dependencies[] = imagecache_profiles
+dependencies[] = imagecache_canvasactions
+dependencies[] = transliteration
+dependencies[] = libraries
+dependencies[] = taxonomy
+dependencies[] = pathauto
+dependencies[] = mailsystem
+dependencies[] = mimemail
+dependencies[] = search
+dependencies[] = field
+dependencies[] = jquery_update
+dependencies[] = ctools
+dependencies[] = elements
+dependencies[] = modernizr

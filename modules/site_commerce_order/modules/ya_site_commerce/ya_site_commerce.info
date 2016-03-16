@@ -1,0 +1,7 @@
+name = Yandex SiteCommerce
+description = "Yandex.Money module for Drupal SiteCommerce."
+package = Yandex.Money
+core = 7.x
+version = 1.0
+dependencies[] = yamoney
+dependencies[] = site_commerce_order

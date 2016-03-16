@@ -1,0 +1,340 @@
+<?php
+
+/**
+ * @file
+ * The install file of module kvantstudio.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function kvantstudio_install() {
+  $t = get_t();
+
+  // Добавляем поля и индексы.
+  $schema = array();
+  kvantstudio_schema_alter($schema);
+  foreach ($schema as $table =>$tablespecs) {
+    if (isset($tablespecs['fields'])) {
+      foreach ($tablespecs['fields'] as $name => $spec) {
+        if (!db_field_exists($table, $name)) {
+          db_add_field($table, $name, $spec);
+        }
+      }
+    }
+    if (isset($tablespecs['indexes'])) {
+      foreach ($tablespecs['indexes'] as $name => $fields) {
+        $create_index = TRUE;
+        foreach ($fields as $field) {
+          if (!db_field_exists($table, $field)) {
+            $create_index = FALSE;
+          }
+        }
+        if ($create_index) {
+          db_add_index($table, $name, $fields);
+        }
+      }
+    }
+  }
+
+  // Каталог для хранения различных типов файлов.
+  $directory = file_default_scheme() . '://documents';
+  file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+  // Каталог для хранения изображений.
+  $directory =  file_default_scheme() . '://pictures';
+  file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+  // Создаем меню для размешения ссылок администрирования.
+  if (!db_query("SELECT COUNT(*) FROM {menu_custom} n WHERE n.menu_name = :menu_name", array(':menu_name' => 'kvantstudio-management-menu'))->fetchField()) {
+    $menu = array(
+      'menu_name' => 'kvantstudio-management-menu',
+      'title' => $t('Management of a site'),
+      'description' => $t('The menu of management of a site defines storage of links on pages of administration by modules which are included into the project kvantstudio.'),
+    );
+    drupal_write_record('menu_custom', $menu);
+
+    // Перестраиваем кэш меню.
+    menu_rebuild();
+  }
+
+  // Первоначальная настройка параметров по умолчанию.
+  _kvantstudio_settings_install();
+}
+
+/**
+ * Функция: первоначальная настройка параметров по умолчанию.
+ */
+function _kvantstudio_settings_install() {
+  variable_initialize();
+
+  // Параметры сторонних модулей.
+  variable_set('pathauto_node_pattern', '');
+  variable_set('pathauto_taxonomy_term_pattern', '');
+  variable_set('pathauto_transliterate', TRUE);
+
+  $site_mail = variable_get('site_mail');
+  variable_set('kvantstudio_manager_mail', $site_mail);
+  variable_set('kvantstudio_admin_mail', $site_mail);
+  variable_set('kvantstudio_developer_mail', 'developer@kvantstudio.ru');
+
+  // Настройка разрешений прав доступа по-умолчанию.
+  kvantstudio_default_role_permissions();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function kvantstudio_uninstall() {
+  // Устанавливаем по умолчанию систему отправки сообщений.
+  variable_set('mail_system', array('default-system' => 'DefaultMailSystem'));
+
+  // Удаляем служебные поля в таблицах.
+  db_drop_field('taxonomy_vocabulary', 'term_page_access_denied');
+  db_drop_field('taxonomy_term_data', 'term_page_access_denied');
+  db_drop_field('role', 'sysname');
+
+  // Удаляем меню и все его ссылки.
+  $menu = array(
+    'menu_name' => 'kvantstudio-management-menu',
+  );
+  menu_delete($menu);
+
+  // Удаляем переменные модуля.
+  db_delete('variable')
+    ->condition('name', 'kvantstudio_%', 'LIKE')
+    ->execute();
+
+  // Очистить все кэши.
+  drupal_flush_all_caches();
+
+  // Перестраиваем кэш меню.
+  menu_rebuild();
+}
+
+/**
+ * Global structure module update. Very importent!
+ */
+function kvantstudio_update_7000() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  variable_initialize();
+
+  // Определяем новые переменные.
+  variable_set('kvantstudio_manager_mail', variable_get('site_manager_mail'));
+  variable_set('kvantstudio_admin_mail', variable_get('site_admin_mail'));
+  variable_set('kvantstudio_developer_mail', 'developer@kvantstudio.ru');
+
+  // Удаляем переменные.
+  variable_del('site_developer_mail');
+  variable_del('site_manager_mail');
+  variable_del('site_admin_mail');
+  variable_del('kvantstudio_documents_directory');
+  variable_del('kvantstudio_images_directory');
+  variable_del('site_files_image_extensions');
+  variable_del('site_files_image_resolution');
+  variable_del('site_files_image_size');
+  variable_del('site_files_default_imagecache_preset');
+  variable_del('site_files_default_edit_imagecache_preset');
+  variable_del('site_files_extensions');
+  variable_del('site_files_size');
+  variable_del('site_cookie_count');
+  variable_del('site_developer_mail_allow', TRUE);
+
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language update.
+ */
+function kvantstudio_update_7001() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+  // Очищаем глобальный кэш.
+  cache_clear_all();
+}
+
+/**
+ * Language update.
+ */
+function kvantstudio_update_7002() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+  // Очищаем глобальный кэш.
+  cache_clear_all();
+}
+
+/**
+ * Update structure of "taxonomy_term_data" table.
+ */
+function kvantstudio_update_7003() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  // Добавляем поле проверки доступа к таблице taxonomy_vocabulary.
+  if (!db_field_exists('taxonomy_vocabulary', 'term_page_access_denied')) {
+    db_add_field('taxonomy_vocabulary', 'term_page_access_denied', array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'If true access to the page display term will be blocked.',
+    ));
+  }
+
+  // Добавляем поле проверки доступа к таблице taxonomy_term_data.
+  if (!db_field_exists('taxonomy_term_data', 'term_page_access_denied')) {
+    db_add_field('taxonomy_term_data', 'term_page_access_denied', array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'If true access to the page display term will be blocked.',
+    ));
+  }
+
+  // Очищаем глобальный кэш.
+  cache_clear_all();
+
+  return 'Add field term_page_access_denied to taxonomy_term_data table.';
+}
+
+/**
+ * Language update.
+ */
+function kvantstudio_update_7004() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  // Очищаем глобальный кэш.
+  cache_clear_all();
+}
+
+/**
+ * Language update.
+ */
+function kvantstudio_update_7005() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  // Очищаем глобальный кэш.
+  cache_clear_all();
+}
+
+/**
+ * Language update. Variables update.
+ */
+function kvantstudio_update_7006() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  variable_initialize();
+
+  $site_mail = variable_get('site_mail');
+
+  $manager_mail = variable_get('kvantstudio_manager_mail');
+  if (empty($manager_mail)) {
+    variable_set('kvantstudio_manager_mail', $site_mail);
+  }
+
+  $admin_mail = variable_get('kvantstudio_admin_mail');
+  if (empty($admin_mail)) {
+    variable_set('kvantstudio_admin_mail', $site_mail);
+  }
+
+  // Очищаем кэш переменных.
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language update. Variables update.
+ */
+function kvantstudio_update_7007() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  variable_initialize();
+
+  variable_del('kvantstudio_responsive_images');
+
+  // Очищаем кэш переменных.
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Permissions update.
+ */
+function kvantstudio_update_7008() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  // Настройка разрешений прав доступа по-умолчанию.
+  kvantstudio_default_role_permissions();
+
+  // Очищаем кэш переменных.
+  cache_clear_all();
+}
+
+/**
+ * Language update. Variables update.
+ */
+function kvantstudio_update_7009() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+}
+
+/**
+ * Scheme update.
+ */
+function kvantstudio_update_7010() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('kvantstudio'));
+  }
+
+  // Добавляем поля и индексы.
+  $schema = array();
+  kvantstudio_schema_alter($schema);
+  foreach ($schema as $table =>$tablespecs) {
+    if (isset($tablespecs['fields'])) {
+      foreach ($tablespecs['fields'] as $name => $spec) {
+        if (!db_field_exists($table, $name)) {
+          db_add_field($table, $name, $spec);
+        }
+      }
+    }
+    if (isset($tablespecs['indexes'])) {
+      foreach ($tablespecs['indexes'] as $name => $fields) {
+        $create_index = TRUE;
+        foreach ($fields as $field) {
+          if (!db_field_exists($table, $field)) {
+            $create_index = FALSE;
+          }
+        }
+        if ($create_index) {
+          db_add_index($table, $name, $fields);
+        }
+      }
+    }
+  }
+
+}

@@ -1,0 +1,12 @@
+name = Site send messages
+description = "Creation of messages on email."
+version = "1.7"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-send-messages
+
+dependencies[] = kvantstudio
+
+files[] = site_send_messages.install
+files[] = site_send_messages.module
+files[] = site_send_messages.admin.inc

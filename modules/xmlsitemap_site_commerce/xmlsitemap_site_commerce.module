@@ -1,0 +1,176 @@
+<?php
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function xmlsitemap_site_commerce_entity_info_alter(array &$entity_info) {
+  $entity_info['site_commerce']['label'] = t('Online store');
+  $entity_info['site_commerce']['bundle label'] = t('Types of products');
+  $entity_info['site_commerce']['xmlsitemap'] = array(
+    'process callback' => 'xmlsitemap_site_commerce_xmlsitemap_process_site_commerce_links',
+  );
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Process old site_commerces not found in the {xmlsitemap} table.
+ */
+function xmlsitemap_site_commerce_cron() {
+  xmlsitemap_site_commerce_xmlsitemap_index_links(xmlsitemap_var('batch_limit'));
+}
+
+/**
+ * Implements hook_xmlsitemap_index_links().
+ */
+function xmlsitemap_site_commerce_xmlsitemap_index_links($limit) {
+  if ($types = xmlsitemap_get_link_type_enabled_bundles('site_commerce')) {
+    $pids = db_query_range("SELECT n.pid FROM {site_commerce} n LEFT JOIN {xmlsitemap} x ON x.type = 'site_commerce' AND n.pid = x.id WHERE x.id IS NULL AND n.type IN (:types) ORDER BY n.pid DESC", 0, $limit, array(':types' => $types))->fetchCol();
+    xmlsitemap_site_commerce_xmlsitemap_process_site_commerce_links($pids);
+  }
+}
+
+/**
+ * Process site_commerce sitemap links.
+ *
+ * @param $pids
+ *   An array of site_commerce IDs.
+ */
+function xmlsitemap_site_commerce_xmlsitemap_process_site_commerce_links(array $pids) {
+  $site_commerces = site_commerce_load_multiple($pids);
+  foreach ($site_commerces as $site_commerce) {
+    $link = xmlsitemap_site_commerce_create_link($site_commerce);
+    xmlsitemap_link_save($link);
+  }
+}
+
+/**
+ * Implements hook_site_commerce_insert().
+ */
+function xmlsitemap_site_commerce_site_commerce_insert(stdClass $site_commerce) {
+  xmlsitemap_site_commerce_site_commerce_update($site_commerce);
+}
+
+/**
+ * Implements hook_site_commerce_update().
+ */
+function xmlsitemap_site_commerce_site_commerce_update(stdClass $site_commerce) {
+  $link = xmlsitemap_site_commerce_create_link($site_commerce);
+  xmlsitemap_link_save($link);
+}
+
+/**
+ * Implements hook_site_commerce_delete().
+ */
+function xmlsitemap_site_commerce_site_commerce_delete(stdClass $site_commerce) {
+  xmlsitemap_link_delete('site_commerce', $site_commerce->pid);
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function xmlsitemap_site_commerce_field_extra_fields() {
+  $extras = array();
+  foreach (site_commerce_type_get_names() as $type => $name) {
+    $extras['site_commerce'][$type]['form']['xmlsitemap'] = array(
+      'label' => t('XML sitemap'),
+      'description' => t('XML sitemap module element'),
+      'weight' => 30,
+    );
+  }
+  return $extras;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see site_commerce_type_form()
+ * @see xmlsitemap_add_link_bundle_settings()
+ */
+function xmlsitemap_site_commerce_form_site_commerce_type_form_alter(array &$form, array $form_state) {
+  $site_commerce_type = isset($form['#site_commerce_type']->type) ? $form['#site_commerce_type']->type : '';
+  module_load_include('inc', 'xmlsitemap', 'xmlsitemap.admin');
+  xmlsitemap_add_link_bundle_settings($form, $form_state, 'site_commerce', $site_commerce_type);
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Add the XML sitemap individual link options for a site_commerce.
+ *
+ * @see xmlsitemap_add_form_link_options()
+ */
+function xmlsitemap_site_commerce_form_site_commerce_form_alter(array &$form, array &$form_state) {
+  // Add the link options.
+  module_load_include('inc', 'xmlsitemap', 'xmlsitemap.admin');
+  xmlsitemap_add_form_link_options($form, 'site_commerce', $form['type']['#value'], $form['pid']['#value']);
+  $form['xmlsitemap']['#weight'] = 30;
+}
+
+/**
+ * Fetch all the timestamps for when a site_commerce was changed.
+ *
+ * @param $site_commerce
+ *   A site_commerce object.
+ * @return
+ *   An array of UNIX timestamp integers.
+ */
+function xmlsitemap_site_commerce_get_timestamps(stdClass $site_commerce) {
+  static $timestamps = array();
+
+  if (!isset($timestamps[$site_commerce->pid])) {
+    $timestamps[$site_commerce->pid] = db_query("SELECT n.changed FROM {site_commerce} n WHERE n.pid = :pid", array(':pid' => $site_commerce->pid))->fetchCol();
+  }
+
+  return $timestamps[$site_commerce->pid];
+}
+
+/**
+ * Create a sitemap link from a site_commerce.
+ *
+ * The link will be saved as $site_commerce->xmlsitemap.
+ *
+ * @param $site_commerce
+ *   A site_commerce object.
+ */
+function xmlsitemap_site_commerce_create_link(stdClass $site_commerce) {
+  if (!isset($site_commerce->xmlsitemap) || !is_array($site_commerce->xmlsitemap)) {
+    $site_commerce->xmlsitemap = array();
+    if ($site_commerce->pid && $link = xmlsitemap_link_load('site_commerce', $site_commerce->pid)) {
+      $site_commerce->xmlsitemap = $link;
+    }
+  }
+
+  $settings = xmlsitemap_link_bundle_load('site_commerce', $site_commerce->type);
+  $uri = entity_uri('site_commerce', $site_commerce);
+
+  $site_commerce->xmlsitemap += array(
+    'type' => 'site_commerce',
+    'id' => $site_commerce->pid,
+    'subtype' => $site_commerce->type,
+    'status' => $settings['status'],
+    'status_default' => $settings['status'],
+    'status_override' => 0,
+    'priority' => $settings['priority'],
+    'priority_default' => $settings['priority'],
+    'priority_override' => 0,
+  );
+
+  // Always recalculate changefreq and changecount.
+  $timestamps = xmlsitemap_site_commerce_get_timestamps($site_commerce);
+  $site_commerce->xmlsitemap['changefreq'] = $site_commerce->pid ? xmlsitemap_calculate_changefreq($timestamps) : 0;
+  $site_commerce->xmlsitemap['changecount'] = $site_commerce->pid ? count($timestamps) - 1 : 0;
+
+  // site_commerce access must be reset since it a user may have changed published status, etc.
+  //$access = &drupal_static('site_commerce_access');
+  //unset($access[0][$site_commerce->pid]);
+  //site_commerce_access_acquire_grants($site_commerce);
+
+  // The following values must always be checked because they are volatile.
+  $site_commerce->xmlsitemap['loc'] = $uri['path'];
+  $site_commerce->xmlsitemap['lastmod'] = count($timestamps) ? max($timestamps) : 0;
+  $site_commerce->xmlsitemap['access'] = 1;
+  $site_commerce->xmlsitemap['language'] = isset($site_commerce->language) ? $site_commerce->language : LANGUAGE_NONE;
+
+  return $site_commerce->xmlsitemap;
+}

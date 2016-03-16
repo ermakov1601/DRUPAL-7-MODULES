@@ -1,0 +1,8 @@
+name = Site FAQ
+description = "The module a question and the answer (FAQ)"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-faq
+files[] = site_faq.admin.inc
+dependencies[] = kvantstudio
+version = "1.2"

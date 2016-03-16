@@ -1,0 +1,11 @@
+name = XML sitemap site commerce
+description = "Integration the online store with the module xmlsitemap."
+version = "1.0"
+core = 7.x
+package = Kvantstudio
+
+dependencies[] = site_commerce
+dependencies[] = xmlsitemap
+
+files[] = xmlsitemap_site_commerce.module
+files[] = xmlsitemap_site_commerce.install

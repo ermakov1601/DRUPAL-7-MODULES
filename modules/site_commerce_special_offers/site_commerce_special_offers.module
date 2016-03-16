@@ -1,0 +1,376 @@
+<?php
+
+/**
+* @file
+* Главный файл модуля site_commerce_special_offers.
+*
+* Содержит в себе основные функции, которые реализуют
+* функционал спецпредложений интернет-магазина SiteCommerce на Drupal.
+*/
+
+/**
+ * Implements hook_menu().
+ */
+function site_commerce_special_offers_menu() {
+  // Меню: доступ к панели управления.
+  $items['admin/content/site-commerce-special-offers'] = array(
+    'title' => 'Special offers',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_commerce_special_offers_admin_content'),
+    'access callback' => 'site_commerce_edit_access',
+    'type' => MENU_CALLBACK,
+    'file' => 'site_commerce_special_offers.admin.inc',
+  );
+  $items['special-offers'] = array(
+    'title callback' => 'site_commerce_special_offers_title_callback',
+    'page callback' => 'site_commerce_catalog_special_offers',
+    'access callback' => 'site_commerce_view_access',
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu'
+  );
+  return $items;
+}
+
+/**
+ * Title callback.
+ */
+function site_commerce_special_offers_title_callback() {
+  return variable_get('site_commerce_special_offers_title', t('Special offers'));
+}
+
+/**
+* Формируем перечень спецпредложений.
+*/
+function site_commerce_special_offers_get_items() {
+  $items = array();
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_special_offers_vocabulary');
+  $tree = taxonomy_get_tree($vocabulary->vid);
+  foreach ($tree as $term) {
+    $term = taxonomy_term_load($term->tid);
+    $items[$term->alias] = $term->name;
+  }
+  return $items;
+}
+
+/**
+* Implementation of hook_taxonomy_term_insert($term).
+*/
+function site_commerce_special_offers_taxonomy_term_insert($term) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_special_offers_vocabulary');
+  if ($term->vid == $vocabulary->vid) {
+    $alias = '';
+    $parents = taxonomy_get_parents_all($term->tid);
+    while ($parents) {
+      $current = array_shift($parents);
+      if ($alias) {
+        $alias = $current->name . '/' . $alias;
+      }
+      else {
+        $alias = $current->name;
+      }
+    }
+
+    $alias = variable_get('site_commerce_special_offers_link', 'special-offers') . '/' . $alias;
+    $alias = kvantstudio_url_alias_correct($alias);
+
+    // Проверяем существует ли путь.
+    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+    if ($count) {
+    $result = db_update('url_alias')
+      ->fields(array(
+        'alias' => $alias,
+      ))
+      ->condition('source', 'taxonomy/term/' . $term->tid)
+      ->execute();
+    }
+    else {
+      // Если путь не создан.
+      $path = array();
+      $path['source'] = 'taxonomy/term/' . $term->tid;
+      $path['alias'] = $alias;
+      $path['language'] = LANGUAGE_NONE;
+      path_save($path);
+    }
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_update($term).
+*/
+function site_commerce_special_offers_taxonomy_term_update($term) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_special_offers_vocabulary');
+  if ($term->vid == $vocabulary->vid) {
+    $alias = '';
+    $parents = taxonomy_get_parents_all($term->tid);
+    while ($parents) {
+      $current = array_shift($parents);
+      if ($alias) {
+        $alias = $current->name . '/' . $alias;
+      }
+      else {
+        $alias = $current->name;
+      }
+    }
+
+    $alias = variable_get('site_commerce_special_offers_link', 'special-offers') . '/' . $alias;
+    $alias = kvantstudio_url_alias_correct($alias);
+
+    // Проверяем существует ли путь.
+    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+    if ($count) {
+    $result = db_update('url_alias')
+      ->fields(array(
+        'alias' => $alias,
+      ))
+      ->condition('source', 'taxonomy/term/' . $term->tid)
+      ->execute();
+    }
+    else {
+      // Если путь не создан.
+      $path = array();
+      $path['source'] = 'taxonomy/term/' . $term->tid;
+      $path['alias'] = $alias;
+      $path['language'] = LANGUAGE_NONE;
+      path_save($path);
+    }
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_delete.
+*/
+function site_commerce_special_offers_taxonomy_term_delete($term) {
+  path_taxonomy_term_delete($term);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function site_commerce_special_offers_theme($existing, $type, $theme, $path) {
+  return array(
+    // Темизация для site-commerce-block-novelties.tpl.php.
+    'site_commerce_block_special_offers_items' => array(
+      'variables' => array('items' => NULL, 'path_link' => NULL),
+      'template' => 'templates/site-commerce-block-special-offers-items',
+    ),
+    // Темизация для site-commerce-block-item-novelty.tpl.php.
+    'site_commerce_block_special_offers_item' => array(
+      'variables' => array('pid' => NULL, 'title' => NULL, 'image' => NULL, 'cost' => NULL, 'cart' => NULL),
+      'template' => 'templates/site-commerce-block-special-offers-item',
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * This hook declares what blocks are provided by the module.
+ */
+function site_commerce_special_offers_block_info() {
+  $blocks['positions'] = array(
+    'info' => t('Special offers'),
+    'status' => TRUE,
+    'region' => 'sidebar_first',
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function site_commerce_special_offers_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'positions':
+      if (site_commerce_view_access() && site_commerce_count_special_offers()) {
+        $block['subject'] = t('Special offers');
+        $block['content'] = array(
+          '#markup' => site_commerce_block_special_offers(),
+        );
+      }
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Содержимое блока спецпредложения.
+ */
+function site_commerce_block_special_offers() {
+  $output = '';
+
+  // Определяем перечень товаров.
+  $query = db_select('field_data_field_special_offer', 'n');
+  $query->fields('n', array('entity_id'));
+  $query->condition('n.view_block', 1);
+  $query->innerJoin('field_data_field_site_commerce_so_status', 't', 'n.field_special_offer_tid = t.entity_id');
+  $query->condition('t.entity_type', 'taxonomy_term');
+  $query->condition('t.bundle', 'site_commerce_special_offers_vocabulary');
+  $query->condition('t.field_site_commerce_so_status_value', 1);
+  $query->orderBy('entity_id', 'desc');
+  $result = $query->execute();
+
+  $pids = array();
+
+  foreach ($result as $row) {
+    $pids[] = $row->entity_id;
+  }
+
+  // Если есть товары.
+  if (count($pids)) {
+    // Определяется путь ссылки на страницу просмотра всех спецпредложений через hook_site_commerce_path_special_offers().
+    $path_array = module_invoke_all('site_commerce_path_special_offers');
+    if (empty($path_array)) {
+      $path = variable_get('site_commerce_special_offers_link', 'special-offers');
+    }
+    else {
+      $path = $path_array[0];
+    }
+
+    $output = theme('site_commerce_block_content', array('pids' => $pids, 'type_call' => 'special_offers', 'path' => $path));
+  }
+  return $output;
+}
+
+/**
+ * Подсчет кол-ва товаров в спецпредложении.
+ */
+function site_commerce_count_special_offers() {
+  // Выбираем таблицу.
+  $query = db_select('field_data_field_special_offer', 'n');
+  $query->fields('n', array('entity_id'));
+  $query->innerJoin('field_data_field_site_commerce_so_status', 't', 'n.field_special_offer_tid = t.entity_id');
+  $query->condition('t.entity_type', 'taxonomy_term');
+  $query->condition('t.bundle', 'site_commerce_special_offers_vocabulary');
+  $query->condition('t.field_site_commerce_so_status_value', 1);
+  $result = $query->execute();
+  $count_special_offers = $result->rowCount();
+  return $count_special_offers;
+}
+
+/**
+* Implementation of hook_kvantstudio_term_page().
+*/
+function site_commerce_special_offers_kvantstudio_special_offers_term_page($term) {
+  $value = array(
+    'module' => 'site_commerce_special_offers', // Имя модуля.
+    'file' => 'site_commerce_special_offers', // Файл в котором располагается функция реализующая отображение термина таксономии.
+    'extension' => 'module', // Расширение файла.
+    'function' => 'site_commerce_special_offers_term_page', // Функция, которая реализует отображение термина таксономии.
+  );
+  return $value;
+}
+
+/**
+ * Callback функция формирования страницы категории спецпредложения.
+ * $term: The taxonomy term.
+ */
+function site_commerce_special_offers_term_page($term) {
+  // Устанавливаем заголовок страницы.
+  drupal_set_title($term->name);
+
+  // Формируем алиас термина.
+  $parents = array_reverse(taxonomy_get_parents_all($tid));
+  if (empty($term->alias)) {
+    $term->alias = 'taxonomy/term/' . $term->tid;
+  }
+
+  // Формируем breadcrumb ссылки.
+  $breadcrumb = array();
+  $breadcrumb[] = l(t('Home'), '<front>');
+  $breadcrumb[] = l(site_commerce_catalog_title_callback(), variable_get('site_commerce_catalog_link', 'tovary'));
+  $breadcrumb[] = l(site_commerce_special_offers_title_callback(), variable_get('site_commerce_special_offers_link', 'special-offers'));
+  while (count($parents) - 1) {
+    $current = array_shift($parents);
+    $alias = db_query("SELECT n.alias FROM {url_alias} n WHERE n.source=:source", array(':source' => 'taxonomy/term/' . $current->tid))->fetchField();
+    $breadcrumb[] = l($current->name, $alias);
+  }
+  drupal_set_breadcrumb($breadcrumb);
+  drupal_add_feed('taxonomy/term/' . $term->tid . '/feed', 'RSS - ' . $term->name);
+
+  $output = '';
+
+  // Позволяем модулям изменить структуру taxonomy term.
+  $build = array(
+    '#term' => $term,
+  );
+  $type = 'taxonomy_term';
+  drupal_alter(array('taxonomy_term_view', 'entity_view'), $build, $type);
+
+  // Вывод описания категории.
+  if ($term->description) {
+    $output .= $term->description;
+  }
+
+  // Форма поиска.
+  if (variable_get('site_commerce_search_form', FALSE)) {
+    $output .= site_commerce_create_search_form('site_commerce');
+  }
+
+  // Вывод подкатегорий.
+  $output .= theme('site_commerce_under_category', array('tid' => $tid));
+
+  // Определяем есть ли новинки позиций у текущей категории.
+  (int) $novelties = db_query("SELECT COUNT(*) FROM {site_commerce} n WHERE n.tid = :tid AND n.sticky = :sticky", array(':tid' => $tid, ':sticky' => 1))->fetchField();
+
+  // Форма сортировки позиций.
+  // Если разрешено отображать позиции подкатегорий.
+  if (variable_get('site_commerce_allow_sort', TRUE) && variable_get('site_commerce_allow_view_positions_subcategories', TRUE)) {
+    $output .= theme('site_commerce_sort', array('title' => t('@value', array('@value' => $term->name)), 'tid' => $tid, 'novelties' => $novelties));
+  }
+
+  // Перечень позиций каталога для отображения.
+  $variables = site_commerce_get_pids_by_term($tid);
+
+  $output = theme('site_commerce_term', array('pids' => $variables['pids'], 'total' => $variables['total']));
+
+  return $output;
+}
+
+/**
+ * Callback функция формирования страницы "Спецпредложения".
+ * @param
+ * (int) $tid - термин спецпредложение. Если = 0, будут выведены все спецпредложения.
+ */
+function site_commerce_catalog_special_offers($tid = 0) {
+  $output = '';
+
+  // Формируем breadcrumb ссылки.
+  $breadcrumb = array();
+  $breadcrumb[] = l(t('Home'), '<front>');
+  $breadcrumb[] = l(site_commerce_catalog_title_callback(), variable_get('site_commerce_catalog_link', 'tovary'));
+  drupal_set_breadcrumb($breadcrumb);
+
+  // Устанавливаем заголовок страницы.
+  $title = site_commerce_special_offers_title_callback();
+  drupal_set_title($title);
+
+  // Форма поиска.
+  if (variable_get('site_commerce_search_form', TRUE)) {
+    $output .= site_commerce_create_search_form('site_commerce');
+  }
+
+  // Определяем есть ли новинки позиций у текущей категории.
+  $novelties = db_query("SELECT COUNT(n.pid) FROM {site_commerce} n WHERE n.tid = :tid AND n.sticky = :sticky", array(':tid' => $tid, ':sticky' => 1))->fetchField();
+
+  // Определяем количество позиций в категории.
+  // Если в текущей категории есть позиции, заносим ее в массив.
+  $count_positions_in_tid = db_query("SELECT COUNT(n.pid) FROM {site_commerce_taxonomy_index} n WHERE n.tid = :tid", array(':tid' => $tid))->fetchField();
+
+  // Форма сортировки позиций.
+  if ($count_positions_in_tid && variable_get('site_commerce_allow_sort', TRUE)) {
+    $output .= theme('site_commerce_sort', array('title' => $term->name, 'tid' => $tid, 'novelties' => $novelties));
+  }
+
+  // Перечень позиций каталога для отображения.
+  $variables = site_commerce_get_pids_by_term($tid, FALSE, TRUE);
+
+  if (count($variables['pids'])) {
+    $output .= theme('site_commerce_term', array('pids' => $variables['pids'], 'total' => $variables['total']));
+  }
+  else {
+    $output = t('Now the goods under the special price are absent.');
+  }
+
+  return $output;
+}

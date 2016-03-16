@@ -1,0 +1,19 @@
+name = Site news
+description = "Press center."
+version = "3.3"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-news
+
+dependencies[] = kvantstudio
+dependencies[] = php
+
+files[] = site_news.module
+files[] = site_news.install
+files[] = site_news.settings.inc
+files[] = site_news.category.inc
+files[] = site_news.tokens.inc
+files[] = templates/site-news.tpl.php
+
+; Подключаем css файлы.
+stylesheets[all][] = css/site_news.css

@@ -1,0 +1,193 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Файл установки модуля Site FAQ.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function site_faq_install() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  // Создаем словарь для категорий вопросов.
+  $vocabulary = taxonomy_vocabulary_load(variable_get('site_faq_vocabulary'));
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => t('The categories of questions'),
+      'machine_name' => 'site_faq_vocabulary',
+      'description' => t('The categories of questions'),
+      'hierarchy' => 1,
+      'module' => 'site_faq',
+      'weight' => -10,
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    variable_set('site_faq_vocabulary', $vocabulary->vid);
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function site_faq_uninstall() {
+  // Удаляем алиасы страниц.
+  $result = db_query('SELECT n.tid FROM {site_faq_questions} n');
+  foreach ($result as $row) {
+    db_delete('url_alias')->condition('source', 'site-faq/term/' . $row->tid)->execute();
+  }
+
+  // Удаляем словарь с категориями вопросов.
+  taxonomy_vocabulary_delete(variable_get('site_faq_vocabulary'));
+
+  // Удаляем переменные.
+  variable_del('site_faq_vocabulary');
+  variable_del('site_faq_count_on_page');
+  variable_del('site_faq_count_last_questions');
+  variable_del('site_faq_captcha');
+  variable_del('site_faq_messages_allow');
+  variable_del('site_faq_note');
+  variable_del('site_faq_fields');
+  variable_del('site_faq_fields_required');
+  variable_del('site_faq_view_title');
+  variable_del('site_faq_create_title');
+  variable_del('site_faq_link');
+  variable_del('site_faq_create_link');
+  variable_del('site_faq_vocabulary_default_tid');
+  variable_del('site_faq_view_count_category');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function site_faq_schema() {
+
+  // Таблица вопросов от пользователей
+  $schema['site_faq_questions'] = array(
+    'description' => 'Таблица вопросов модуля Site FAQ.',
+    'fields' => array(
+      'qid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique ID.',
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'default' => 0,
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: The {term_data}.tid.',
+      ),
+      'question' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'Question',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Дополнительные параметры вопроса.',
+      ),
+      'language' => array(
+        'type' => 'varchar',
+        'length'   => 32,
+        'not null' => FALSE,
+        'description' => 'The language for this data item.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Признак наличия ответов: 0 - нет, 1 - есть',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата регистрации.',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата обновления.',
+      ),
+    ),
+    'primary key' => array('qid'),
+  );
+
+  // Таблица ответов на вопросы от пользователей
+  $schema['site_faq_answers'] = array(
+    'description' => 'Таблица ответов на вопросы модуля Site FAQ.',
+    'fields' => array(
+      'aid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique ID.',
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => 0,
+        'description' => 'Идентификатор ответа родителя. Используется для цитирования на ответ.',
+      ),
+      'qid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: The {site_faq_questions}.nid.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => 0,
+        'description' => 'Идентификатор пользователя, который дал ответ. по умолчанию 0.',
+      ),
+      'answer' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Ответ',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата регистрации.',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата обновления.',
+      ),
+    ),
+    'primary key' => array('aid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Create new table site_send_messages_settings_form.
+ */
+function site_faq_update_7000() {
+  // Удаление поля таблицы.
+  db_drop_field('site_faq_questions', 'title');
+
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_faq'));
+  }
+
+  return 'The field title was deleted.';
+}

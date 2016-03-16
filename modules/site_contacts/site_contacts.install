@@ -1,0 +1,103 @@
+<?php
+
+/**
+ * @file
+ * Файл установки, обновления, удаления модуля - site_contacts.
+ */
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function site_contacts_uninstall() {
+  // Удаляем переменные модуля.
+  db_delete('variable')
+    ->condition('name', 'site_contacts_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language update.
+ */
+function site_contacts_update_7001() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_contacts'));
+  }
+}
+
+/**
+ * Language update and enable multi-languages support.
+ */
+function site_contacts_update_7002() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_contacts'));
+  }
+
+  global $language;
+
+  variable_set('site_contacts_name_' . $language->language, variable_get('site_contacts_name'));
+  variable_set('site_contacts_description_' . $language->language, variable_get('site_contacts_description'));
+  variable_set('site_contacts_postal_code_' . $language->language, variable_get('site_contacts_postal_code'));
+  variable_set('site_contacts_address_country_' . $language->language, variable_get('site_contacts_address_country'));
+  variable_set('site_contacts_address_region_' . $language->language, variable_get('site_contacts_address_region'));
+  variable_set('site_contacts_address_locality_' . $language->language, variable_get('site_contacts_address_locality'));
+  variable_set('site_contacts_street_address_' . $language->language, variable_get('site_contacts_street_address'));
+  variable_set('site_contacts_phone_' . $language->language, variable_get('site_contacts_telephone'));
+  variable_set('site_contacts_fax_number_' . $language->language, variable_get('site_contacts_fax_number'));
+  variable_set('site_contacts_email_' . $language->language, variable_get('site_contacts_email'));
+  variable_set('site_contacts_opening_hours_days_' . $language->language, variable_get('site_contacts_opening_hours_days'));
+  variable_set('site_contacts_opening_hours_time_' . $language->language, variable_get('site_contacts_opening_hours_time'));
+  variable_set('site_contacts_opening_hours_note_' . $language->language, variable_get('site_contacts_opening_hours_note'));
+  variable_set('site_contacts_management_' . $language->language, variable_get('site_contacts_management'));
+  variable_set('site_contacts_inn_' . $language->language, variable_get('site_contacts_inn'));
+  variable_set('site_contacts_kpp_' . $language->language, variable_get('site_contacts_kpp'));
+  variable_set('site_contacts_ogrn_' . $language->language, variable_get('site_contacts_ogrn'));
+  variable_set('site_contacts_okved_' . $language->language, variable_get('site_contacts_okved'));
+  variable_set('site_contacts_okpo_' . $language->language, variable_get('site_contacts_okpo'));
+  variable_set('site_contacts_okugu_' . $language->language, variable_get('site_contacts_okugu'));
+  variable_set('site_contacts_okato_' . $language->language, variable_get('site_contacts_okato'));
+  variable_set('site_contacts_bank_' . $language->language, variable_get('site_contacts_bank'));
+  variable_set('site_contacts_bank_address_' . $language->language, variable_get('site_contacts_bank_address'));
+  variable_set('site_contacts_bank_inn_' . $language->language, variable_get('site_contacts_bank_inn'));
+  variable_set('site_contacts_bank_ogrn_' . $language->language, variable_get('site_contacts_bank_ogrn'));
+  variable_set('site_contacts_bank_account_r_' . $language->language, variable_get('site_contacts_bank_account_r'));
+  variable_set('site_contacts_bank_account_k_' . $language->language, variable_get('site_contacts_bank_account_k'));
+  variable_set('site_contacts_bank_bik_' . $language->language, variable_get('site_contacts_bank_bik'));
+  variable_set('site_contacts_map_' . $language->language, variable_get('site_contacts_map'));
+
+  // Удаляем старые настройки.
+  variable_del('site_contacts_name');
+  variable_del('site_contacts_description');
+  variable_del('site_contacts_postal_code');
+  variable_del('site_contacts_address_country');
+  variable_del('site_contacts_address_region');
+  variable_del('site_contacts_address_locality');
+  variable_del('site_contacts_street_address');
+  variable_del('site_contacts_telephone');
+  variable_del('site_contacts_fax_number');
+  variable_del('site_contacts_email');
+  variable_del('site_contacts_management');
+  variable_del('site_contacts_opening_hours_days');
+  variable_del('site_contacts_opening_hours_time');
+  variable_del('site_contacts_opening_hours_note');
+  variable_del('site_contacts_url_ru');
+  variable_del('site_contacts_url_rf');
+  variable_del('site_contacts_url_com');
+  variable_del('site_contacts_inn');
+  variable_del('site_contacts_kpp');
+  variable_del('site_contacts_ogrn');
+  variable_del('site_contacts_okved');
+  variable_del('site_contacts_okpo');
+  variable_del('site_contacts_okugu');
+  variable_del('site_contacts_okato');
+  variable_del('site_contacts_bank');
+  variable_del('site_contacts_bank_address');
+  variable_del('site_contacts_bank_inn');
+  variable_del('site_contacts_bank_ogrn');
+  variable_del('site_contacts_bank_account_r');
+  variable_del('site_contacts_bank_account_k');
+  variable_del('site_contacts_bank_bik');
+  variable_del('site_contacts_map');
+}

@@ -1,0 +1,648 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Файл определения модуля - site_photogallery.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function site_photogallery_init() {
+  // Подключаем зависимые файлы.
+  drupal_add_css(drupal_get_path('module', 'site_photogallery') .'/css/site_photogallery.css');
+
+  // Подключаем библиотеку javascript модуля site_photogallery.js.
+  drupal_add_js(drupal_get_path('module', 'site_photogallery') . '/js/site_photogallery.js');
+}
+
+/**
+ * Implement hook_permission().
+ */
+function site_photogallery_permission() {
+  return array(
+    'administer site photogallery' => array(
+      'title' => 'Право на доступ к настройкам модуля',
+      'description' => 'Право дает возможность полного доступа к настройкам модуля site_photogallery.',
+    ),
+    'view site photogallery content' => array(
+      'title' => 'Право на просмотр содержимого',
+      'description' => 'Право дает возможность просматривать содержимое, которое относится к типу материалов фотоизображение.',
+    ),
+    'create site photogallery content' => array(
+      'title' => 'Право на создание содержимого',
+      'description' => 'Право дает возможность создавать содержимое, которое относится к типу материалов фотоизображение.',
+    ),
+    'edit site photogallery content' => array(
+      'title' => 'Право на редактирование содержимого',
+      'description' => 'Право дает возможность редактировать содержимое, которое относится к типу материалов фотоизображение.',
+    ),
+    'delete site photogallery content' => array(
+      'title' => 'Право на удаление содержимого',
+      'description' => 'Право дает возможность удалять содержимое, которое относится к типу материалов фотоизображение.',
+    ),
+  );
+}
+
+/**
+ * Implement hook_node_access().
+ */
+function site_photogallery_node_access($node, $op, $account) {
+  if ($op == 'view') {
+    if (user_access('view site photogallery content', $account)) {
+      return TRUE;
+    }
+  }
+  if ($op == 'create') {
+    if (user_access('create site photogallery content', $account)) {
+      return TRUE;
+    }
+  }
+  if ($op == 'update') {
+    if (user_access('edit site photogallery content', $account)) {
+      return TRUE;
+    }
+  }
+  if ($op == 'delete') {
+    if (user_access('delete site photogallery content', $account)) {
+      return TRUE;
+    }
+  }
+}
+
+/**
+ * Implement hook_node_info().
+ */
+function site_photogallery_node_info() {
+  return array(
+    'site_photogallery' => array(
+      'name' => t('Photo album'),
+      'base' => 'site_photogallery',
+      'description' => t('The photo album - the document which is used for the publication of images.'),
+    )
+  );
+}
+
+/**
+ * Implementation of hook_form().
+ */
+function site_photogallery_form($node, $form_state) {
+  return node_content_form($node, $form_state);
+}
+
+/**
+ * Implement hook_menu().
+ */
+function site_photogallery_menu() {
+  $items = array();
+
+  $items['admin/config/kvantstudio/site-photogallery'] = array(
+    'title' => 'Settings of the photo gallery',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_photogallery_settings_form'),
+    'access arguments' => array('administer site photogallery'),
+    'file' => 'site_photogallery.settings.inc',
+  );
+
+  $items['admin/config/kvantstudio/site-photogallery/settings'] = array(
+    'title' => 'Settings',
+    'access arguments' => array('administer site photogallery'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/config/kvantstudio/site-photogallery/photo-album-settings'] = array(
+    'title' => 'Settings of display of photo album',
+    'description' => 'Settings of photo album.',
+    'page callback' => 'site_photogallery_category_settings',
+    'page arguments' => array(5),
+    'access arguments' => array('administer site photogallery'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'site_photogallery.settings.inc',
+  );
+
+  $languages = language_list('enabled');
+  $languages = $languages[1];
+
+  foreach ($languages as $language) {
+    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $language->language);
+    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+    $items[$site_photogallery_link] = array(
+      'title' => variable_get('site_photogallery_catalog_title', 'Photo albums'),
+      'page callback' => 'site_photogallery_categories',
+      'access arguments' => array('view site photogallery content'),
+      'type' => MENU_NORMAL_ITEM,
+      'menu_name' => 'main-menu',
+      'file' => 'site_photogallery.category.inc',
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function site_photogallery_theme() {
+  return array(
+    'site_photogallery' => array(
+      'template' => 'site_photogallery',
+      'render element' => 'elements',
+    ),
+    'site_photogallery_terms' => array(
+      'variables' => array('tid' => NULL),
+      'file' => 'site_photogallery.category.inc',
+    ),
+    'site_photogallery_node' => array(
+      'variables' => array('node' => NULL),
+      'file' => 'site_photogallery.category.inc',
+    ),
+    'site_photogallery_images' => array(
+      'variables' => array('node' => NULL),
+      'file' => 'site_photogallery.category.inc',
+    ),
+    'site_photogallery_category_settings_form' => array(
+      'render element' => 'form',
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter(): node_form.
+ */
+function site_photogallery_form_node_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'site_photogallery_node_form' && module_exists('i18n_taxonomy')) {
+    $field_language = $form['field_site_photogallery_taxonomy']['#language'];
+    $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+    $field_language_values = $form['field_site_photogallery_taxonomy'][$field_language];
+    $field_language_values['#options'] = kvantstudio_select_terms($vocabulary->vid, FALSE, FALSE, "", $field_language);
+    $field_attributes = $form['field_site_photogallery_taxonomy']['#attributes'];
+
+    $form['field_site_photogallery_taxonomy'] = array(
+      '#type' => 'container',
+      '#attributes' => $field_attributes,
+      '#tree' => TRUE,
+      '#language' => $field_language,
+      '#access' => TRUE,
+      $field_language => $field_language_values,
+    );
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_load().
+*/
+function site_photogallery_taxonomy_term_load($terms) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+  foreach ($terms as $term) {
+    if ($vocabulary->vid == $term->vid) {
+      // Добавляем объекту термина алиас.
+      $alias = db_query("SELECT n.alias FROM {url_alias} n WHERE n.source = :source", array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+      $terms[$term->tid]->alias = $alias;
+
+      // Если отсутствует язык у термина, присваиваем ему параметр нейтрального языка.
+      if (!isset($terms[$term->tid]->language)) {
+        $terms[$term->tid]->language = 'und';
+      }
+    }
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_insert().
+*/
+function site_photogallery_taxonomy_term_insert($term) {
+  global $language;
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+  if ($term->vid == $vocabulary->vid) {
+    // Определяем язык термина.
+    $term->language = isset($term->language) ? $term->language : $language->language;
+
+    $alias = '';
+    $parents = taxonomy_get_parents_all($term->tid);
+    while ($parents) {
+      $current = array_shift($parents);
+      if ($alias) {
+        $alias = $current->name . '/' . $alias;
+      }
+      else {
+        $alias = $current->name;
+      }
+    }
+
+    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $term->language);
+    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+
+    $alias = kvantstudio_url_alias_correct($alias);
+    if ($site_photogallery_link <> $alias) {
+      $alias = $site_photogallery_link . '/' . $alias;
+    }
+    $alias = kvantstudio_url_alias_correct($alias);
+
+    // Проверяем существует ли путь.
+    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+    if ($count) {
+    $result = db_update('url_alias')
+      ->fields(array(
+        'alias' => $alias,
+        'language' => $term->language,
+      ))
+      ->condition('source', 'taxonomy/term/' . $term->tid)
+      ->execute();
+    }
+    else {
+      // Если путь не создан.
+      $path = array();
+      $path['source'] = 'taxonomy/term/' . $term->tid;
+      $path['alias'] = $alias;
+      $path['language'] = $term->language;
+      path_save($path);
+    }
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_update($term).
+*/
+function site_photogallery_taxonomy_term_update($term) {
+  global $language;
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+  if ($term->vid == $vocabulary->vid) {
+    // Определяем язык термина.
+    $term->language = isset($term->language) ? $term->language : $language->language;
+
+    $alias = '';
+    $parents = taxonomy_get_parents_all($term->tid);
+    while ($parents) {
+      $current = array_shift($parents);
+      if ($alias) {
+        $alias = $current->name . '/' . $alias;
+      }
+      else {
+        $alias = $current->name;
+      }
+    }
+
+    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $term->language);
+    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+
+    $alias = kvantstudio_url_alias_correct($alias);
+    if ($site_photogallery_link <> $alias) {
+      $alias = $site_photogallery_link . '/' . $alias;
+    }
+    $alias = kvantstudio_url_alias_correct($alias);
+
+    // Проверяем существует ли путь.
+    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+    if ($count) {
+    $result = db_update('url_alias')
+      ->fields(array(
+        'alias' => $alias,
+        'language' => $term->language,
+      ))
+      ->condition('source', 'taxonomy/term/' . $term->tid)
+      ->execute();
+    }
+    else {
+      // Если путь не создан.
+      $path = array();
+      $path['source'] = 'taxonomy/term/' . $term->tid;
+      $path['alias'] = $alias;
+      $path['language'] = $term->language;
+      path_save($path);
+    }
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_delete.
+*/
+function site_photogallery_taxonomy_term_delete($term) {
+  // Выбираем перечень всех содержимого принадлежащих категории.
+  $result = db_query('SELECT n.nid FROM {taxonomy_index} n WHERE n.tid = :tid', array(':tid' => $term->tid));
+  foreach ($result as $row) {
+    node_delete($row->nid);
+  }
+  path_taxonomy_term_delete($term);
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function site_photogallery_node_view($node, $view_mode, $langcode) {
+  if ($node->type == 'site_photogallery' && $view_mode == 'full') {
+    // Создаем обьекты термина.
+    $field_items = field_get_items('node', $node, 'field_site_photogallery_taxonomy');
+    if ($field_items) {
+      $field_first_item = reset($field_items);
+      $tid = $field_first_item['tid'];
+    }
+    $term = taxonomy_term_load($tid);
+    $parents = array_reverse(taxonomy_get_parents_all($tid));
+    if (empty($term->alias)) {
+      $term->alias = 'taxonomy/term/' . $term->tid;
+    }
+
+    // Количество терминов.
+    $term_data = site_photogallery_taxonomy_tree('site_photogallery_vocabulary');
+
+    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $langcode);
+    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+
+    // Формируем breadcrumb ссылки.
+    $breadcrumb = array();
+    $breadcrumb[] = l(t('Home'), '<front>');
+    $breadcrumb[] = l(t(variable_get('site_photogallery_catalog_title', 'Photo albums')), $site_photogallery_link);
+    if ($term_data) {
+      while (count($parents) - 1) {
+        $current = array_shift($parents);
+        $alias = db_query("SELECT n.alias FROM {url_alias} n WHERE n.source=:source", array(':source' => 'taxonomy/term/' . $current->tid))->fetchField();
+        $breadcrumb[] = l(t($current->name), $alias);
+      }
+      $breadcrumb[] = l(t('@value', array('@value' => $term->name)), $term->alias);
+    }
+    drupal_set_breadcrumb($breadcrumb);
+
+    $node->content += array(
+      '#theme' => 'site_photogallery',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+      '#language' => $langcode,
+    );
+  }
+}
+
+/**
+ * Return rendered taxonomy tree.
+ */
+function site_photogallery_taxonomy_tree($vocabulary_name) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+  $terms = taxonomy_get_tree($vocabulary->vid);
+  if (count($terms) > 1) {
+    return theme('item_list', array('items' => _site_photogallery_taxonomy_tree($terms)));
+  }
+  else {
+    return "";
+  }
+}
+
+/**
+ * Helper for site_photogallery_taxonomy_tree()
+ */
+function _site_photogallery_taxonomy_tree($terms, $parent = 0) {
+  global $language;
+  $items = array();
+  foreach ($terms as $term) {
+    if (isset($term->language)) {
+      if (in_array($parent, $term->parents) && $term->language == $language->language) {
+        $link = l(t('@value', array('@value' => $term->name)), 'taxonomy/term/' . $term->tid);
+        $items[] = array(
+          'data' => $link,
+          'children' => _site_photogallery_taxonomy_tree($terms, $term->tid),
+        );
+      }
+    }
+    else {
+      if (in_array($parent, $term->parents)) {
+        $link = l(t('@value', array('@value' => $term->name)), 'taxonomy/term/' . $term->tid);
+        $items[] = array(
+          'data' => $link,
+          'children' => _site_photogallery_taxonomy_tree($terms, $term->tid),
+        );
+      }
+    }
+  }
+  return $items;
+}
+
+/**
+ * Process variables for site_photogallery.tpl.php
+ *
+ * Most themes utilize their own copy of node.tpl.php. The default is located
+ * inside "modules/node/node.tpl.php". Look in there for the full list of
+ * variables.
+ *
+ * The $variables array contains the following arguments:
+ * - $node
+ * - $view_mode
+ * - $page
+ *
+ * @see site_photogallery.tpl.php
+ */
+function template_preprocess_site_photogallery(&$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  // Provide a distinct $teaser boolean.
+  $variables['teaser'] = $variables['view_mode'] == 'teaser';
+  $variables['node'] = $variables['elements']['#node'];
+  $node = $variables['node'];
+
+  $variables['date']      = format_date($node->created);
+  $variables['name']      = theme('username', array('account' => $node));
+
+  $uri = entity_uri('node', $node);
+  $variables['node_url']  = url($uri['path'], $uri['options']);
+  $variables['title']     = check_plain($node->title);
+  $variables['page']      = $variables['view_mode'] == 'full' && node_is_page($node);
+
+  // Flatten the node object's member fields.
+  $variables = array_merge((array) $node, $variables);
+
+  // Helpful $content variable for templates.
+  $variables += array('content' => array());
+  foreach (element_children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  // Make the field variables available with the appropriate language.
+  field_attach_preprocess('node', $node, $variables['content'], $variables);
+
+  // Display post information only on certain node types.
+  if (variable_get('node_submitted_' . $node->type, TRUE)) {
+    $variables['display_submitted'] = TRUE;
+    $variables['submitted'] = t('Submitted by !username on !datetime', array('!username' => $variables['name'], '!datetime' => $variables['date']));
+    $variables['user_picture'] = theme_get_setting('toggle_node_user_picture') ? theme('user_picture', array('account' => $node)) : '';
+  }
+  else {
+    $variables['display_submitted'] = FALSE;
+    $variables['submitted'] = '';
+    $variables['user_picture'] = '';
+  }
+
+  // Gather node classes.
+  $variables['classes_array'][] = drupal_html_class('node-' . $node->type);
+  if ($variables['promote']) {
+    $variables['classes_array'][] = 'node-promoted';
+  }
+  if ($variables['sticky']) {
+    $variables['classes_array'][] = 'node-sticky';
+  }
+  if (!$variables['status']) {
+    $variables['classes_array'][] = 'node-unpublished';
+  }
+  if ($variables['teaser']) {
+    $variables['classes_array'][] = 'node-teaser';
+  }
+  if (isset($variables['preview'])) {
+    $variables['classes_array'][] = 'node-preview';
+  }
+
+  // Clean up name so there are no underscores.
+  $variables['theme_hook_suggestions'][] = 'node__' . $node->type;
+  $variables['theme_hook_suggestions'][] = 'node__' . $node->nid;
+}
+
+/**
+ * Implementation of hook_node_presave().
+ */
+function site_photogallery_node_presave($node) {
+  if ($node->type == 'site_photogallery') {
+    // Язык содержимого страницы.
+    $language = isset($node->language) ? $node->language : LANGUAGE_NONE;
+
+    // Категория.
+    $field_items = field_get_items('node', $node, 'field_site_photogallery_taxonomy');
+    if ($field_items) {
+      $field_first_item = reset($field_items);
+      $tid = $field_first_item['tid'];
+    }
+
+    // Пытаемся получить алиас. Удаляем существующий алиас.
+    $source = 'node/' . $node->nid;
+    $node->path = path_load(array('source' => $source));
+    if (isset($node->path['pid'])) {
+      path_delete($node->path['pid']);
+      unset($node->path);
+    }
+
+    // Создаем новый алиас.
+    // Определяем существует ли такой путь в системе.
+    // Предотвращаем создание одинаковых путей в одной категории.
+    $parents = taxonomy_get_parents_all($tid);
+    $taxonomy_alias = '';
+    while ($parents) {
+      $current = array_shift($parents);
+      if ($taxonomy_alias) {
+        $taxonomy_alias = $current->name . '/' . $taxonomy_alias;
+      }
+      else {
+        $taxonomy_alias = $current->name;
+      }
+    }
+    $title = kvantstudio_title_correct($node->title);
+    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $language);
+    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+    $taxonomy_alias = kvantstudio_url_alias_correct($taxonomy_alias);
+    if ($site_photogallery_link <> $taxonomy_alias) {
+      $alias = $site_photogallery_link . '/' . $taxonomy_alias . '/' . $title;
+    }
+    else {
+      $alias = $site_photogallery_link . '/' . $title;
+    }
+    $alias = kvantstudio_url_alias_correct($alias);
+    $node->path['alias'] = $alias;
+    $node->path['source'] = 'node/' . $node->nid;
+    $node->path['language'] = $language;
+    $pid = db_query('SELECT n.pid FROM {url_alias} n WHERE n.alias = :alias', array(':alias' => $node->path['alias']))->fetchField();
+    if ($pid) {
+      $node->path['alias'] = $node->path['alias'] . '-' . $node->nid;
+    }
+
+    path_save($node->path);
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * This hook declares what blocks are provided by the module.
+ */
+function site_photogallery_block_info() {
+  $blocks['site_photogallery_last_nodes'] = array(
+    'info' => t('Latest photo albums'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ *
+ * This hook declares configuration options for blocks provided by this module.
+ */
+function site_photogallery_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'site_photogallery_last_nodes') {
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function site_photogallery_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+  case 'site_photogallery_last_nodes':
+    $block['content'] = site_photogallery_block_last_news_content($delta);
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Функция: формирование содержимого блоков.
+ * $delta - массив ноды.
+ * @return
+ *   Содержимое блока в виде HTML.
+ */
+function site_photogallery_block_last_news_content($delta) {
+  switch ($delta) {
+    // Формируем контент для блока последние новости.
+    case 'site_photogallery_last_nodes':
+      // Если запрещено отображать новости.
+      if (user_access('administer site photogallery') || user_access('view site photogallery content')) {
+        // Количество сообщений в блоке.
+        $limit = variable_get('site_photogallery_block_limit_nodes', '5');
+
+        // Получаем перечень полей ноды.
+        $query = db_select('node', 'n');
+        $query->fields('n', array('nid'));
+        $query->condition('n.type', 'site_photogallery');
+        $query->orderBy('n.nid', 'DESC');
+        $query->range(0, $limit);
+        $result = $query->execute();
+
+        $output = '';
+
+        $i = 0;// Счетчик кол-ва содержимого.
+
+        foreach ($result as $row) {
+          $node = node_load($row->nid);
+          $output .= '<li>';
+          $output .= '<div class="site-photogallery-block-date">' . format_date($node->created, 'short') . '</div>';
+          if (isset($node->field_site_photogallery_image['und'][0]) && variable_get('site_photogallery_image_in_block')) {
+            //$output .= kvantstudio_theme_image_field($node->field_site_photogallery_image['und'][0]);
+            $variables = array(
+              'data' => $node->field_site_photogallery_image['und'][0],
+              'field_name' => NULL,
+              'image_style' => variable_get('site_photogallery_default_imagecache_preset_in_block', 'thumbnail'),
+            );
+            $output .= '<div class="site-photogallery-block-image">' . theme('kvantstudio_image_field', $variables) . '</div>';
+          }
+          $output .= '<div class="site-photogallery-block-title">' . l($node->title, 'node/' . $node->nid, array('attributes' => array('class' => array('site-photogallery-block-link')))) . '</div>';
+          if (variable_get('site_photogallery_node_summary_in_block')) {
+            $output .= kvantstudio_node_summary($node);
+          }
+          $output .= '</li>';
+
+          $i++;
+        }
+
+        // Формируем оформление блока.
+        if (empty($i)) {
+          $output = '<p class="site-photogallery-block-info">' . t('Photo albums are not added yet.') . '</p>';
+        }
+        return $output;
+      }
+  }
+}

@@ -1,0 +1,244 @@
+<?php
+
+/**
+* @file
+* Библиотека установки/удаления/обновления модуля site commerce order.
+*/
+
+/**
+ * Implements hook_install().
+ */
+function site_commerce_order_install() {
+  // Создаем словари для модуля.
+  _site_commerce_order_create_vocabularies();
+
+  // Первоначальная настройка параметров по умолчанию.
+  _site_commerce_order_settings_install();
+}
+
+/**
+ * Функция: создание словарей.
+ */
+function _site_commerce_order_create_vocabularies() {
+  $t = get_t();
+
+  $vocabularies = array();
+
+  // Создаем словарь для категорий.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_order_itself_export');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('Items of delivery of orders'),
+      'machine_name' => 'site_commerce_order_itself_export',
+      'hierarchy' => 1,
+      'module' => 'site_commerce_order',
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['site_commerce_order_itself_export'] = $vocabulary->vid;
+  }
+  else {
+    $vocabularies['site_commerce_order_itself_export'] = $vocabulary->vid;
+  }
+
+  return $vocabularies;
+}
+
+/**
+ * Функция: первоначальная настройка параметров по умолчанию.
+ */
+function _site_commerce_order_settings_install() {
+  $values = array();
+  foreach (site_commerce_order_stage_delivery() as $type_delivery => $key) {
+    $values[] = $type_delivery;
+  }
+  variable_set('site_commerce_order_ways_of_delivery', $values);
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  site_commerce_order_default_role_permissions();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function site_commerce_order_uninstall() {
+  // Удаляем переменные модуля.
+  db_delete('variable')
+    ->condition('name', 'site_commerce_order_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function site_commerce_order_schema() {
+  $schema = array();
+
+  $schema['site_commerce_orders'] = array(
+    'description' => 'Таблица для размещения заказов.',
+    'fields' => array(
+      'oid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор заказа.',
+      ),
+      'number' => array(
+        'description' => 'Номер заказа, который отображается в уведомлениях.',
+        'type' => 'varchar',
+        'length' => 50,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid corresponding to a session, or 0 for anonymous user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Информация о доставке.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Статус заказа.',
+      ),
+      'status_delivery' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Статус доставки заказа.',
+      ),
+      'sum' => array(
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 2,
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Стоимость.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата регистрации заказа.',
+      ),
+      'password' => array(
+        'type' => 'varchar',
+        'length'   => 50,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Пароль на просмотр заказа.',
+      ),
+      'hostname' => array(
+        'type' => 'varchar',
+        'length'   => 50,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'IP с которого зарегистрирован заказ.',
+      ),
+    ),
+    'foreign keys' => array(
+      'site_commerce_order_orders_users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('oid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_order_update_7000() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_order'));
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_order_update_7001() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_order'));
+  }
+}
+
+/**
+ * Language and role permissions update.
+ */
+function site_commerce_order_update_7002() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_order'));
+  }
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  site_commerce_order_default_role_permissions();
+
+  return 'Role permissions updated';
+}
+
+/**
+ * Language and vocabularies update.
+ */
+function site_commerce_order_update_7003() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_order'));
+  }
+
+  // Создаем словари для модуля.
+  _site_commerce_order_create_vocabularies();
+
+  return 'Vocabularies created.';
+}
+
+/**
+ * Language and vocabularies update.
+ */
+function site_commerce_order_update_7004() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_order'));
+  }
+  site_commerce_order_default_role_permissions();
+  cache_clear_all();
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_order_update_7005() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_order'));
+  }
+
+  // Создаем новое поле.
+  $schema = array(
+    'type' => 'numeric',
+    'precision' => 10,
+    'scale' => 2,
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Стоимость.',
+  );
+  db_add_field('site_commerce_orders', 'sum', $schema);
+
+  return 'Language and db structure of site commerce orders updated.';
+}

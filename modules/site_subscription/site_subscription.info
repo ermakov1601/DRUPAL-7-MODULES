@@ -1,0 +1,11 @@
+name = Site subscription
+description = "Creating subscription and mailing of materials."
+version = "1.0"
+core = 7.x
+package = Kvantstudio
+
+files[] = site_subscription.module
+files[] = site_subscription.install
+
+; Подключение css файлов.
+stylesheets[all][] = css/site_subscription.css

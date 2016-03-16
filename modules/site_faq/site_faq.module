@@ -1,0 +1,372 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Модуль - FAQ: вопрос-ответ.
+ */
+
+/**
+ * Implement hook_init().
+ */
+function site_faq_init() {
+  // Проверяем поступление новых вопросов.
+  if (select_count_term_faq(0, 0)) {
+    kvantstudio_set_message(l(t('New questions') . ' - ' . select_count_term_faq(0, 0), 'site-faq/questions'));
+  }
+}
+
+///**
+// * Проверка прав доступа
+// */
+//function site_faq_access($op, $entity, $account = NULL, $entity_type = 'site_faq') {
+//  return user_access('site faq settings');
+//}
+
+/**
+ * Implement hook_permission().
+ * site faq settings - позволяет администрировать вопросы и ответы.
+ * access content - позволяет просматривать страницу вопросы и ответы.
+ * site faq create questions - позволяет создавать вопрос.
+ * site faq edit own questions - позволяет редактировать свой собственный вопрос.
+ */
+function site_faq_permission() {
+  return array(
+    'site faq settings' => array(
+      'title' => 'Право на доступ к настройкам модуля',
+      'description' => 'Право дает возможность полного доступа к настройкам модуля site faq.',
+    ),
+    'site faq create questions' => array(
+      'title' => 'Право на создание вопросов',
+      'description' => 'Право дает возможность просматривать содержимое, которое относится к типу материалов новость.',
+    ),
+    'site faq delete questions' => array(
+      'title' => 'Право на удаление вопросов',
+      'description' => 'Право дает возможность удалять вопросы пользователей.',
+    )
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function site_faq_menu() {
+
+  $items = array();
+
+  $items['admin/config/kvantstudio/site-faq'] = array(
+    'title' => 'Settings FAQ',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_faq_adjustments_form'),
+    'access arguments' => array('site faq settings'),
+    'file' => 'site.faq.admin.inc',
+  );
+
+  $items[variable_get('site_faq_link', 'otvety')] = array(
+    'title' => variable_get('site_faq_view_title', 'Questions and answers'),
+    'description' => 'On this page you can familiarize with answers to your questions.',
+    'page callback' => 'site_faq_view',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu',
+    'file' => 'includes/site.faq.view.inc',
+    'weight' => 9,
+  );
+
+  $items['site-faq/term/%'] = array(
+    'title' => variable_get('site_faq_view_title', 'Questions and answers'),
+    'description' => 'You can ask a question interesting you, the answer we shall publish on a site.',
+    'page callback' => 'site_faq_taxonomy_term_page',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/site.faq.view.inc',
+  );
+
+  $items[variable_get('site_faq_create_link', 'zadat-vopros')] = array(
+    'title' => variable_get('site_faq_create_title', 'To ask a question'),
+    'description' => 'You can ask a question interesting you, the answer we shall publish on a site.',
+    'page callback' => 'site_faq_create',
+    'access arguments' => array('site faq create questions'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/site.faq.create.inc',
+  );
+
+  $items['site-faq/questions'] = array(
+    'title' => 'New questions',
+    'page callback' => 'site_faq_questions',
+    'access arguments' => array('site faq settings'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/site.faq.questions.inc',
+  );
+
+  $items['site-faq/edit'] = array(
+    'title' => 'To edit a question and the answer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_faq_edit_form', 2),
+    'access arguments' => array('site faq settings'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/site.faq.edit.inc',
+  );
+
+  $items['site-faq/delete-confirm'] = array(
+    'title' => 'Подтвердите удаление вопроса',
+    'description' => 'Подтверждение удаления вопроса пользователя',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_faq_delete_confirm_form', 2),
+    'access arguments' => array('site faq delete questions'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/site.faq.edit.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Функция удаления вопроса.
+ */
+function site_faq_delete_question($qid) {
+  db_delete('site_faq_questions')
+    ->condition('qid', $qid)
+    ->execute();
+
+  db_delete('site_faq_answers')
+    ->condition('qid', $qid)
+    ->execute();
+}
+
+/**
+* Implementation of hook_taxonomy_term_insert().
+*/
+function site_faq_taxonomy_term_insert($term) {
+  $vid = variable_get('site_faq_vocabulary', 0);
+  $vid_term = db_query('SELECT n.vid FROM {taxonomy_term_data} n WHERE n.tid = :tid', array(':tid' => $term->tid))->fetchField();
+
+  if ($vid == $vid_term) {
+    $alias = db_query('SELECT n.name FROM {taxonomy_term_data} n WHERE n.tid = :tid', array(':tid' => $term->tid))->fetchField();
+    $parents = taxonomy_get_parents($term->tid);
+    while ($parents) {
+      $current = array_shift($parents);
+      $alias = $current->name . '/' . $alias;
+    }
+
+    $alias = variable_get('site_faq_link', 'otvety') . '/' . $alias;
+    $alias = transliteration_get(str_replace (' ', '-', $alias));
+    $alias = mb_strtolower($alias, "UTF-8");
+
+    // Проверяем существует ли путь.
+    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+    if ($count) {
+      $result = db_update('url_alias')
+      ->fields(array(
+        'alias' => $alias,
+        'language' => 'ru',
+      ))
+      ->condition('source', 'taxonomy/term/' . $term->tid)
+      ->execute();
+    } else {
+      // Если путь не создан.
+      $path = array();
+      $path['source'] = 'taxonomy/term/' . $term->tid;
+      $path['alias'] = $alias;
+      $path['language'] = 'ru';
+      path_save($path);
+    }
+
+    // Удаляем дубликат алиаса термина.
+    //path_delete(array('source' => 'taxonomy/term/' . $term->tid));
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_update($term).
+*/
+function site_faq_taxonomy_term_update($term) {
+  $vid = variable_get('site_faq_vocabulary', 0);
+  $vid_term = db_query('SELECT n.vid FROM {taxonomy_term_data} n WHERE n.tid = :tid', array(':tid' => $term->tid))->fetchField();
+  if ($vid == $vid_term) {
+    $alias = db_query('SELECT n.name FROM {taxonomy_term_data} n WHERE n.tid = :tid', array(':tid' => $term->tid))->fetchField();
+    $parents = taxonomy_get_parents($term->tid);
+    while ($parents) {
+      $current = array_shift($parents);
+      $alias = $current->name . '/' . $alias;
+    }
+
+    $alias = variable_get('site_faq_link', 'otvety') . '/' . $alias;
+    $alias = transliteration_get(str_replace (' ', '-', $alias));
+    $alias = mb_strtolower($alias, "UTF-8");
+
+    // Проверяем существует ли путь.
+    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+    if ($count) {
+    $result = db_update('url_alias')
+      ->fields(array(
+        'alias' => $alias,
+        'language' => 'ru',
+      ))
+      ->condition('source', 'taxonomy/term/' . $term->tid)
+      ->execute();
+    } else {
+      // Если путь не создан.
+      $path = array();
+      $path['source'] = 'taxonomy/term/' . $term->tid;
+      $path['alias'] = $alias;
+      $path['language'] = 'ru';
+      path_save($path);
+    }
+
+    // Удаляем дубликат алиаса термина.
+    //path_delete(array('source' => 'taxonomy/term/' . $term->tid));
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_delete.
+*/
+function site_faq_taxonomy_term_delete($term) {
+  $vid = variable_get('site_faq_vocabulary', 0);
+  if ($vid == $term->vid) {
+    // Выбираем перечень всех вопросов принадлежащих категории.
+    $result = db_query('SELECT n.nid FROM {site_faq_questions} n WHERE n.tid = :tid', array(':tid' => $term->tid));
+    foreach ($result as $row) {
+      node_delete($row->nid);
+      db_delete('site_faq_questions')->condition('nid', $row->nid)->execute();
+      db_delete('site_faq_answers')->condition('nid', $row->nid)->execute();
+      path_delete(array('source' => 'taxonomy/term/' . $term->tid));
+    }
+  }
+}
+
+/**
+ * Функция: количество вопросов в той или иной категории в зависимости от статуса.
+ */
+function select_count_term_faq($tid, $status = '%') {
+  if ($tid == 0)return db_query("SELECT COUNT(*) FROM {site_faq_questions} n WHERE n.status LIKE :status", array(':status' => $status))->fetchField();
+  if ($tid > 0)return db_query("SELECT COUNT(*) FROM {site_faq_questions} n WHERE n.tid=:tid AND n.status LIKE :status", array(':tid' => $tid, ':status' => $status))->fetchField();
+}
+
+/**
+ * Функция: формирование перечня терминов словаря по его идентификатору.
+ * (int) $vid - идентификатор словаря.
+ */
+function kvantstudio_select_terms_faq($vid) {
+  // Проверка входных данных.
+  if ($vid && !is_numeric($vid)) return;
+  $subcategories = array();
+  $subcategories[0] = t('It is not chosen');
+  $tree = taxonomy_get_tree($vid);
+  foreach ($tree as $term) {
+    $depth = "";
+    for($i = 0; $i <= $term->depth; $i++) {
+      if ($i > 0) $depth .= ' --- ';
+    }
+    $count = select_count_term_faq($term->tid, 1);
+
+    if ($count || count(taxonomy_get_children($term->tid))) {
+      if ($count && variable_get('site_faq_view_count_category', false)) {
+        $term->name = $term->name . " (" . t('it is set questions - @count', array('@count' => $count)) . ")";
+      }
+      $subcategories[$term->tid] = $depth . $term->name;
+    }
+  }
+  return $subcategories;
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * This hook declares what blocks are provided by the module.
+ */
+function site_faq_block_info() {
+    $blocks['last_faq'] = array(
+      'info' => t('Last questions'),
+      'cache' => DRUPAL_CACHE_PER_ROLE,
+    );
+    return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ *
+ * This hook declares configuration options for blocks provided by this module.
+ */
+function site_faq_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'last_faq') {
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function site_faq_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+  case 'last_faq':
+    $block['content'] = last_faq_content($delta);
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Функция: формирование содержимого блоков.
+ * $delta - массив ноды.
+ * @return
+ *   Содержимое блока в виде HTML.
+ */
+function last_faq_content($delta) {
+  $output = '';
+  switch ($delta) {
+    // Формируем контент для блока последние вопросы.
+    case 'last_faq':
+      // Подключаем файлы.
+      drupal_add_css(drupal_get_path('module', 'site_faq') .'/css/site_faq.css');
+
+      $output .= '<div class="title-block"><h1>'.t('Last questions').'</h1><img src="/sites/all/modules/kvantstudio/modules/site_faq/images/faq.png" alt="'.t('To ask a question').'" width="16" height="16" align="absmiddle">&nbsp;' . l(t('To ask a question'), variable_get('site_faq_create_link', 'zadat-vopros')) . '</div>';
+
+
+      // Выполняем запрос перечня вопросов и ответов.
+      $query = db_select('site_faq_questions', 'q');
+      $query->fields('q', array('tid', 'nid'));
+      $query->condition('q.status', '1');
+      $query->orderBy('q.nid', 'DESC');
+      $query->range(0, variable_get('site_faq_count_last_questions', 5));
+      $result = $query->execute();
+
+      $i = 0;
+
+      foreach ($result as $row) {
+
+        $i++;
+
+        if(strtolower(gettype($i/2)) == 'double') {
+          $class_tr = "site-faq-even";
+        } else {
+          $class_tr = "site-faq-odd";
+        }
+
+        $tid = $row->tid;
+        $nid = $row->nid;
+
+        // Формируем ссылки.
+        $link = '<span class="site-faq-annotation"><a href="/site-faq/view/' . $tid . '/' . $nid . '">'.t('Read more').'</a></span>';
+
+        $node = node_load($nid);
+        $title = check_plain($node->title);
+
+        $output .= '
+        <div class="question '.$class_tr.'">
+          <span class="title-faq">' . $title . '</span>
+          <div align="right">' . $link . '</div>
+        </div>
+        ';
+
+      }
+
+      return $output;
+    break;
+  }
+}

@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Главный файл модуля site_commerce_yml_export.
+ *
+ * Файл содержит основные функции, которые реализуют функционал создания YML файла для Yandex.market.
+ * Используется совместно с модулем интернет-магазина SiteCommerce - это разработка студии KVANTSTUDIO.RU.
+ * По всем вопросам обращайтесь по адресу info@kvantstudio.ru.
+*/
+
+/**
+ * Implements hook_menu().
+ */
+function site_commerce_yml_export_menu() {
+  $items = array();
+
+  $items['site-commerce-yml-products.xml'] = array(
+    'title' => 'YML export',
+    'page callback' => 'site_commerce_yml_export_get_xml',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+
+  $items['admin/config/kvantstudio/site-commerce-yml-export'] = array(
+    'title' => 'Settings of YML export for Yandex.market',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_commerce_yml_export_admin_settings'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer site commerce'),
+  );
+
+  return $items;
+}
+
+/**
+ * Формирует страницу настроек модуля. Форма настроек.
+ */
+function site_commerce_yml_export_admin_settings() {
+  $form = array();
+  
+  $form['site_commerce_yml_export_types'] = array(
+    '#required' => TRUE,
+    '#type' => 'checkboxes',
+    '#options' => site_commerce_type_get_names(),
+    '#default_value' => variable_get('site_commerce_yml_export_types', array('site_commerce_basic')),
+    '#title' => t('Select product types for export'),
+  );
+  
+  $url = url('site-commerce-yml-products.xml', array('absolute' => TRUE));
+  $form['generated_url'] = array(
+    '#type' => 'item',  
+    '#title' => t("Generated file"),
+    '#markup' => $url . ' (' . l(t("View"), $url) . ')',
+    '#description' => t("Use this url in Yandex.Market"),
+  );
+  
+  $form['#submit'][] = 'site_commerce_yml_export_admin_settings_submit';
+
+  return system_settings_form($form);
+}
+function site_commerce_yml_export_admin_settings_submit($form, $form_state) {}
+
+/**
+ * Формирует страницу YML файла.
+ */
+function site_commerce_yml_export_get_xml() {
+  // Получаем перечень доступных типов товаров.
+  $site_commerce_types = variable_get('site_commerce_yml_export_types', array('site_commerce_basic'));
+  if (empty($site_commerce_types)) {
+    die('Please select at least one product type on YML export settings page.');
+  }
+
+  // Формирует перечень словарей для типов товаров.
+  $vids = array();
+  foreach ($site_commerce_types as $name) {
+    $type = site_commerce_type_load($name);
+    $vids[] = $type->categories_vocabulary;
+  }
+
+  // Перечень всех товаров.
+  $pids = db_query("SELECT pid FROM {site_commerce} WHERE type IN (:site_commerce_types) AND disabled=:disabled", array(':site_commerce_types' => $site_commerce_types, ':disabled' => 0))->fetchCol();
+
+  // Перечень категорий товаров.
+  $categories = db_query("SELECT d.tid, d.name, h.* FROM {taxonomy_term_data} d LEFT JOIN {taxonomy_term_hierarchy} h USING(tid) WHERE d.vid IN (:vids)", array(':vids' => $vids))->fetchAllAssoc('tid');
+
+  // Версия магазина.
+  $result = db_query("SELECT n.info FROM {system} n WHERE n.type = :type AND n.name = :name", array(':type' => 'module', ':name' => 'site_commerce'))->fetchField();
+  $info = unserialize($result);
+
+  // Выводит содержимое на страницу.
+  header('Content-type: application/xhtml+xml; charset=utf-8');
+  echo theme('site_commerce_yml_products', array('pids' => $pids, 'categories' => $categories, 'version' => $info['version']));
+  exit();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function site_commerce_yml_export_theme() {
+  return array(
+    'site_commerce_yml_products' => array(
+      'variables' => array('pids' => NULL, 'categories' => NULL, 'version' => NULL),
+      'template' => 'site-commerce-yml-products',
+    ));
+}
+
+/**
+ * Очищает строку от запрещенных символов для Yandex.Market.
+ */
+function site_commerce_yml_export_safe($str) {
+  $rep = array(
+    '"' => '&quot;',
+    '&' => '&amp;',
+    '>' => '&gt;',
+    '<' => '&lt;',
+    "'" => '&apos;'
+  );
+  
+  return strtr($str, $rep);
+}

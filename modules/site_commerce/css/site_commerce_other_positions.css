@@ -1,0 +1,32 @@
+.site-commerce-other-positions {
+  margin-top: 2em;
+}
+
+.site-commerce-other-positions__items {
+  margin: 0;
+  padding: 0;
+}
+
+.site-commerce-other-positions__item {
+  vertical-align: top;
+  text-align: center;
+  margin: 0 1em 2em 0;
+}
+
+.site-commerce-other-positions__title {
+  margin: 0 0 1em 0;
+}
+
+.site-commerce-cost_other-position {
+  font-size: 1.5em;
+}
+
+@media screen and (min-width: 980px) {
+  .site-commerce-other-positions__item {
+      vertical-align: top;
+      text-align: center;
+      margin: 0px 1em 2em 0px;
+      width: 150px;
+      display: inline-block;
+  }
+}

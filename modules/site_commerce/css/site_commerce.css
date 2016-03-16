@@ -1,0 +1,162 @@
+.site-commerce__header-code {
+  margin: 0 0 1em 0;
+}
+
+.site-commerce__header-image-main {
+  text-align: center;
+}
+
+.site-commerce__header-actions {
+  text-align: center;
+}
+
+.site-commerce-cost_basic-card {
+  font-size: 2em;
+}
+
+.site-commerce-actions__button_card {
+  padding: 10px !important;
+  font-weight: bold !important;
+  font-size: 1.4em;
+  width: 250px;
+}
+
+.site-commerce-parametrs {
+  text-align: center;
+}
+
+.site-commerce-select-add:before {
+  content: url("../images/select_add.png");
+  display: block;
+  height: 16px;
+  left: 5px;
+  position: absolute;
+  top: 8px;
+  width: 16px;
+}
+
+.site-commerce-select-add .link-js {
+  background: none;
+  text-decoration: none;
+}
+
+.site-commerce-select-add:link, .site-commerce-select-add:visited {
+  background: #0074BD;
+  color: #00FFFF;
+  display: inline-block;
+  padding: 5px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  width: 240px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  transition: all 0.5s ease 0s;
+  margin-bottom: 1em;
+}
+
+.site-commerce-select-add:hover {
+  background-color: #005285;
+}
+
+.site-commerce-content__description {
+  margin: 0 0 2em 0;
+}
+
+.site-commerce-content__switcher {
+  margin: 0 0 -4px;
+  display: inline-block;
+  position: relative;
+  vertical-align: text-bottom;
+  outline: #fff solid 4px;
+}
+
+.site-commerce-content__switcher span {
+  color: #333;
+}
+
+.site-commerce-content__switcher-item {
+  display: inline-block;
+  position: relative;
+  color: #333;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.site-commerce-content__switcher-item:first-child a {
+  border-radius: 3px 0 0 3px;
+}
+
+.site-commerce-content__switcher-item:last-child a {
+  border-radius: 0 3px 3px 0;
+}
+
+.site-commerce-content__switcher-link {
+  padding: 3px 12px;
+  display: inline-block;
+  position: relative;
+  border-radius: 3px;
+  border: 0;
+  color: #555555 !important;
+  -webkit-box-shadow: 0 1px 0 #c3c3c3;
+  box-shadow: 0 1px 0 #c3c3c3;
+  text-decoration: none;
+  background: #ededed; /* Old browsers */
+  background: -moz-linear-gradient(top,  #ededed 0, #dadada 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0,#ededed), color-stop(100%,#dadada)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #ededed 0,#dadada 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #ededed 0,#dadada 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #ededed 0,#dadada 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #ededed 0,#dadada 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#dadada',GradientType=0 ); /* IE6-9 */
+}
+
+.site-commerce-content__switcher-link:hover {
+  text-decoration: none;
+  background: #efefef; /* Old browsers */
+  background: -moz-linear-gradient(top,  #efefef 0, #ededed 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0,#efefef), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #efefef 0,#ededed 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #efefef 0,#ededed 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #efefef 0,#ededed 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #efefef 0,#ededed 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+}
+
+.site-commerce-content__switcher-link_detail {
+  text-decoration: none !important;
+  border: 0;
+}
+
+.site-commerce-content__switcher-link_detail:hover {
+  text-decoration: none !important;
+}
+
+.site-commerce-content__switcher-link_active {
+  background: #555;
+  cursor: default;
+  pointer-events: none;
+  color: #fff !important;
+  text-shadow: none;
+  -webkit-box-shadow: 0 1px 0 #505050,inset 0 1px 3px rgba(0,0,0,.5);
+  box-shadow: 0 1px 0 #505050,inset 0 1px 3px rgba(0,0,0,.5);
+}
+
+.site-commerce__link_image {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (min-width: 980px) {
+  .site-commerce__header-images {
+    float: left;
+    width: 50%;
+  }
+
+  .site-commerce__header-actions {
+    float: right;
+    width: 45%;
+  }
+
+}

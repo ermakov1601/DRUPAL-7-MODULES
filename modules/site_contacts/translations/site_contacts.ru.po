@@ -1,0 +1,285 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_contacts.admin.inc: n/a
+#  site_contacts.settings.inc: n/a
+#  site_contacts.module: n/a
+#  site_contacts.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-12-20 18:37+0500\n"
+"PO-Revision-Date: 2015-12-20 18:37+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#: site_contacts.admin.inc:15 site_contacts.settings.inc:30 site_contacts.module:190
+msgid "The general information"
+msgstr "Общая информация"
+
+#: site_contacts.admin.inc:22 site_contacts.settings.inc:37
+msgid "The name of the organization"
+msgstr "Название организации"
+
+#: site_contacts.admin.inc:29 site_contacts.settings.inc:44
+msgid "The description of the organization"
+msgstr "Описание организации"
+
+#: site_contacts.admin.inc:37 site_contacts.settings.inc:52
+msgid "The postal index"
+msgstr "Почтовый индекс"
+
+#: site_contacts.admin.inc:43 site_contacts.settings.inc:58
+msgid "The country"
+msgstr "Страна"
+
+#: site_contacts.admin.inc:49 site_contacts.settings.inc:64
+msgid "Region"
+msgstr "Область"
+
+#: site_contacts.admin.inc:55 site_contacts.settings.inc:70
+msgid "City"
+msgstr "Город"
+
+#: site_contacts.admin.inc:61 site_contacts.settings.inc:76
+msgid "Street, the house, body, structure and т. Item (that is the address to within a building)"
+msgstr "Улица, дом, корпус, строение и т. п. (то есть адрес с точностью до здания)"
+
+#: site_contacts.admin.inc:69 site_contacts.settings.inc:84 site_contacts.module:119
+msgid "Phone"
+msgstr "Телефон"
+
+#: site_contacts.admin.inc:71 site_contacts.settings.inc:86
+msgid "Preferential format: {a code of the country} ({a code of city}) {number}, for example: 7(890) 123-45-67"
+msgstr "Предпочтительный формат: +{код страны} ({код города}) {номер}, например: +7 (890) 123-45-67"
+
+#: site_contacts.admin.inc:76 site_contacts.settings.inc:91 site_contacts.module:124
+msgid "Fax"
+msgstr "Факс"
+
+#: site_contacts.admin.inc:82 site_contacts.settings.inc:97 site_contacts.module:130
+msgid "E-mail"
+msgstr "E-mail"
+
+#: site_contacts.admin.inc:90 site_contacts.settings.inc:118
+msgid "Days of work"
+msgstr "Дни работы"
+
+#: site_contacts.admin.inc:93 site_contacts.settings.inc:121
+msgid "Mo"
+msgstr "Пн"
+
+#: site_contacts.admin.inc:94 site_contacts.settings.inc:122
+msgid "Tu"
+msgstr "Вт"
+
+#: site_contacts.admin.inc:95 site_contacts.settings.inc:123
+msgid "We"
+msgstr "Ср"
+
+#: site_contacts.admin.inc:96 site_contacts.settings.inc:124
+msgid "Th"
+msgstr "Чт"
+
+#: site_contacts.admin.inc:97 site_contacts.settings.inc:125
+msgid "Fr"
+msgstr "Пт"
+
+#: site_contacts.admin.inc:98 site_contacts.settings.inc:126
+msgid "Sa"
+msgstr "Сб"
+
+#: site_contacts.admin.inc:99 site_contacts.settings.inc:127
+msgid "Su"
+msgstr "Вс"
+
+#: site_contacts.admin.inc:101 site_contacts.settings.inc:129
+msgid "Choose days on which you work."
+msgstr "Выберите дни, по которым Вы работаете."
+
+#: site_contacts.admin.inc:105 site_contacts.settings.inc:133 site_contacts.module:173
+msgid "Operating time"
+msgstr "Время работы"
+
+#: site_contacts.admin.inc:111 site_contacts.settings.inc:139
+msgid "The note on an operating time"
+msgstr "Примечание о времени работы"
+
+#: site_contacts.admin.inc:118 site_contacts.settings.inc:145
+msgid "The address of a site in zone RU"
+msgstr "Адрес сайта в зоне RU"
+
+#: site_contacts.admin.inc:120;127;134 site_contacts.settings.inc:147;154;161
+msgid "Specify the name of a site without www."
+msgstr "Укажите название сайта без www."
+
+#: site_contacts.admin.inc:125 site_contacts.settings.inc:152
+msgid "The address of a site in zone РФ"
+msgstr "Адрес сайта в зоне РФ"
+
+#: site_contacts.admin.inc:132 site_contacts.settings.inc:159
+msgid "The address of a site in zone COM"
+msgstr "Адрес сайта в зоне COM"
+
+#: site_contacts.admin.inc:140 site_contacts.settings.inc:191 site_contacts.module:248
+msgid "Requisites of the organization"
+msgstr "Реквизиты организации"
+
+#: site_contacts.admin.inc:146 site_contacts.settings.inc:197 site_contacts.module:251
+msgid "INN"
+msgstr "ИНН"
+
+#: site_contacts.admin.inc:152 site_contacts.settings.inc:203 site_contacts.module:255
+msgid "KPP"
+msgstr "КПП"
+
+#: site_contacts.admin.inc:158;214 site_contacts.settings.inc:209;271 site_contacts.module:259;329
+msgid "OGRN"
+msgstr "ОГРН"
+
+#: site_contacts.admin.inc:164 site_contacts.settings.inc:221 site_contacts.module:267
+msgid "OKVED"
+msgstr "ОКВЭД"
+
+#: site_contacts.admin.inc:170 site_contacts.settings.inc:227 site_contacts.module:271
+msgid "OKPO"
+msgstr "ОКПО"
+
+#: site_contacts.admin.inc:176 site_contacts.settings.inc:233 site_contacts.module:275
+msgid "OKUGU"
+msgstr "ОКУГУ"
+
+#: site_contacts.admin.inc:182 site_contacts.settings.inc:239 site_contacts.module:279
+msgid "OKATO"
+msgstr "ОКАТО"
+
+#: site_contacts.admin.inc:189 site_contacts.settings.inc:246 site_contacts.module:314
+msgid "Bank requisites"
+msgstr "Банковские реквизиты"
+
+#: site_contacts.admin.inc:195 site_contacts.settings.inc:252 site_contacts.module:317
+msgid "Bank"
+msgstr "Банк"
+
+#: site_contacts.admin.inc:201 site_contacts.settings.inc:258 site_contacts.module:321
+msgid "The address of bank"
+msgstr "Адрес банка"
+
+#: site_contacts.admin.inc:208 site_contacts.settings.inc:265 site_contacts.module:325
+msgid "INN/KPP of bank"
+msgstr "ИНН/КПП банка"
+
+#: site_contacts.admin.inc:220 site_contacts.settings.inc:277 site_contacts.module:333
+msgid "r/account"
+msgstr "р/счет"
+
+#: site_contacts.admin.inc:226 site_contacts.settings.inc:283 site_contacts.module:337
+msgid "k/account"
+msgstr "к/счет"
+
+#: site_contacts.admin.inc:232 site_contacts.settings.inc:289 site_contacts.module:341
+msgid "BIK"
+msgstr "БИК"
+
+#: site_contacts.admin.inc:240 site_contacts.settings.inc:297
+msgid "Adjustments of a card of travel"
+msgstr "Настройки карты проезда"
+
+#: site_contacts.admin.inc:246 site_contacts.settings.inc:303
+msgid "JavaScript a code for an insert of a sitemap"
+msgstr "JavaScript код для вставки карты сайта"
+
+#: site_contacts.admin.inc:247 site_contacts.settings.inc:304
+msgid "Code for an insert a Yandex of a card or Google card."
+msgstr "Код для вставки Яндекс карты или Google карты."
+
+#: site_contacts.settings.inc:25
+msgid "On your site includes several languages. In order to provide contact information for another language and go for it again, go to the settings. If your site does not require multi-language support, disable unused languages."
+msgstr ""
+"На Вашем сайте включено несколько языков. Для того чтобы указать контактную информацию для другого языка переключитесь на него и заново зайдите в эти настройки. Если на сайте не требуется многоязыковая поддержка, отключите "
+"неиспользуемые языки."
+
+#: site_contacts.settings.inc:103 site_contacts.module:136
+msgid "Skype"
+msgstr "Skype"
+
+#: site_contacts.settings.inc:109
+msgid "YouTube"
+msgstr "YouTube"
+
+#: site_contacts.settings.inc:111
+msgid "Full reference to the channel YouTube. For example, http //www.youtube.com/channel/UCauHuMfq47WpBPjZJhYiWCw"
+msgstr "Полная ссылка на канал YouTube. Например, http://www.youtube.com/channel/UCauHuMfq47WpBPjZJhYiWCw"
+
+#: site_contacts.settings.inc:166
+msgid "Other information"
+msgstr "Прочая информация"
+
+#: site_contacts.settings.inc:175 site_contacts.module:203
+msgid "Management"
+msgstr "Руководство"
+
+#: site_contacts.settings.inc:181
+msgid "Information on a management of the organization"
+msgstr "Информации о руководстве организации"
+
+#: site_contacts.settings.inc:185
+msgid "HTML a code carrying the information about a management of the organization, a photo, the description, the contact information."
+msgstr "HTML код содержащий информацию о руководстве организации, фото, описание, контактная информация."
+
+#: site_contacts.settings.inc:215 site_contacts.module:263
+msgid "OGRNIP"
+msgstr "ОГРНИП"
+
+#: site_contacts.module:14
+msgid "Administer site contacts settings"
+msgstr "Настройки модуля контакты"
+
+#: site_contacts.module:63
+msgid "Home"
+msgstr "Главная"
+
+#: site_contacts.module:142
+msgid "Visit our channel on YouTube"
+msgstr "Посетите наш канал на YouTube"
+
+#: site_contacts.module:193
+msgid "Print card"
+msgstr "Распечатать визитную карточку"
+
+#: site_contacts.module:214
+msgid "Card of travel"
+msgstr "Карта проезда"
+
+#: site_contacts.module:27
+msgid "Adjustments - contacts"
+msgstr "Настройки - контакты"
+
+#: site_contacts.module:28
+msgid "Page on which adjustments of the module are displayed."
+msgstr "Страница с настройками модуля"
+
+#: site_contacts.module:36
+msgid "Contacts"
+msgstr "Контакты"
+
+#: site_contacts.module:37 site_contacts.info:0
+msgid "Contacts and requisites of the organization."
+msgstr "Контакты и реквизиты организации."
+
+#: site_contacts.info:0
+msgid "Site contacts"
+msgstr "Site contacts"
+
+#: site_contacts.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"

@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall schema and functions for the xmlsitemap_site_commerce module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function xmlsitemap_site_commerce_uninstall() {
+  drupal_load('module', 'site_commerce');
+  drupal_load('module', 'xmlsitemap');
+  $site_commerce_types = array_keys(site_commerce_type_get_names());
+  foreach ($site_commerce_types as $site_commerce_type) {
+    xmlsitemap_link_bundle_delete('site_commerce', $site_commerce_type);
+  }
+}

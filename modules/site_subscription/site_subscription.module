@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Модуль - site_subscription.
+ */
+
+/**
+ * Форма создания или редактирования курса.
+ */
+function site_subscription_form($form, &$form_state) {
+  global $user;
+
+  $form = array();
+
+  $form['#attributes'] = array(
+    'id' => 'site-subscription-form',
+    'class' => array(''),
+    'enctype' => 'multipart/form-data',
+  );
+
+  $form['mail'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('E-mail address'),
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#default_value' => "",
+    '#attributes' => array('placeholder' => t('For example, «ivanov@gmail.com»'), 'class' => array('site-subscription-form__item')),
+  );
+
+  $form['types'] = array(
+    '#title' => t('Categories subscription'),
+    '#type' => 'checkboxes',
+    '#options' => kvantstudio_select_terms('site_subscription_types', FALSE),
+  );
+
+  // Now we add our submit button, for submitting the form results.
+  // The 'actions' wrapper used here isn't strictly necessary for tabledrag,
+  // but is included as a Form API recommended practice.
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Subscribe'),
+    '#attributes' => array('class' => array('site-subscription-form__button site-subscription-form__button_submit')),
+  );
+
+  return $form;
+}
+
+/**
+ * Validate site_subscription_form form submissions.
+ */
+function site_subscription_form_validate($form, &$form_state) {
+  $mail = trim($form_state['values']['mail']);
+
+  // Проверка mail на корректность ввода.
+  if (!valid_email_address($mail)) {
+    form_set_error('mail', t('The e-mail address %mail is not valid.', array('%mail' => $mail)));
+  }
+}
+
+/**
+  * Handles the submission of the final stage
+  *
+  * Sends an email to the user confirming their entry
+  *
+  * @param type $form
+  * @param type $form_state
+  */
+function site_subscription_form_submit($form, &$form_state) {
+  global $user;
+
+  require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+
+  // Загружаем аккаунт текущего пользователя.
+  $account = new StdClass();
+  $account = user_load($user->uid);
+
+  // Получаем значения параметров из формы.
+  $types = $form_state['values']['types'];
+  $mail = trim($form_state['values']['mail']);
+
+  foreach ($types as $tid) {
+    if ($tid) {
+      // Сохраняет значение в БД.
+      $table = 'site_subscriptions';
+
+      $subid = db_select($table, 'n')
+        ->fields('n', array('subid'))
+        ->condition('n.mail', $mail)
+        ->condition('n.tid', $tid)
+        ->execute()
+        ->fetchField();
+      if (!$subid) {
+        $data = array(
+          'uid' => $account->uid,
+          'tid' => $tid,
+          'mail' => $mail,
+          'created' => REQUEST_TIME,
+          'hash' => "unsubscribe-" . $mail . "-" . kvantstudio_random_string(30),
+        );
+
+        $primary_keys = array();
+
+        drupal_write_record($table, $data, $primary_keys);
+      }
+    }
+  }
+
+  // Формируем html тело сообщения.
+  $body = t('New subscriber in your site @mail', array('@mail' => $mail));
+
+  // Регистрация в системном журнале.
+  watchdog('New subscriber', '@value', array('@value' => $body));
+
+  $subject = t('New subscriber.');
+
+  // Отправка сообщения.
+  kvantstudio_mail_send(array(
+    'module'      => 'kvantstudio',
+    'key'         => 'kvantstudio_info_mail',
+    'to'          => 'info@kadry365.ru',
+    'from'        => 'noreply@kadry365.ru',
+    'subject'     => $subject,
+    'body'        => $body,
+    'set_message' => FALSE,
+    'attachments' => array(),
+  ));
+
+  drupal_set_message(t("Thank you! You have successfully signed up for the newsletter."));
+}

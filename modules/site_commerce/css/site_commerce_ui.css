@@ -1,0 +1,43 @@
+/* Оформление высплывающего блока при добавлении позиции в корзину. */
+.site-commerce-addedtocart {
+  border-bottom: 1px solid #D9D9D9;
+  box-shadow: 0 0.625 1.25em #EBEBEB;
+  margin: 0;
+  padding: 0 1.25em 1.25em;
+  text-align: center;
+}
+.site-commerce-addedtocart .title {
+  font-size: 1.25em;
+  display: block;
+}
+.site-commerce-addedtocart .site-commerce-addedtocart-img {
+  float: left;
+  margin: 0 1em 0 0;
+}
+.site-commerce-addedtocart .site-commerce-addedtocart-about {
+  vertical-align: top;
+}
+.site-commerce-addedtocart .subheader {
+  display: block;
+  font-size: 1em !important;
+  line-height: 1.5em;
+  padding-bottom: 0.75em;
+}
+.site-commerce-actions-order-confirm {
+  line-height: 2em;
+  padding-top: 0.5em;
+}
+.site-commerce-actions-order-confirm .item {
+  display: inline-block;
+  padding-right: 1.25em;
+  vertical-align: top;
+}
+.site-commerce-actions-order-confirm .item .site-commerce-goto-buy {
+  background: -moz-linear-gradient(left center , #FF6600, #FF6600 60%, rgba(0, 0, 0, 0) 60%) repeat-x scroll 0 95% / 5px 1px rgba(0, 0, 0, 0);
+  font-weight: normal;
+  border: none;
+  color: #FF6600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}

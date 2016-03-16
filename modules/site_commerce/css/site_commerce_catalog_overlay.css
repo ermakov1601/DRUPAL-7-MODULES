@@ -1,0 +1,114 @@
+.site-commerce-catalog__search-form {
+  margin: 0 0 2em 0;
+}
+
+.site-commerce-catalog__categories {
+  margin: 2em 0 2em 0;
+}
+
+.site-commerce-categories,
+.site-commerce-category {
+  margin: 0;
+  padding: 0;
+}
+
+.site-commerce-categories__item {
+  position: relative;
+  margin: 0 0 1em 0;
+  padding: 1em;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border: #F0F0F0 solid 1px;
+  background: #FFFFFF;
+}
+
+.site-commerce-category__item_root {
+  position: relative;
+  text-align: center;
+}
+
+.site-commerce-category-title {
+  font-size: 1.5em;
+}
+
+.site-commerce-category__item_children-root {
+  visibility: hidden;
+}
+
+.site-commerce-category__item_children {
+  margin: 1em 0 0 0;
+  font-size: 1em;
+}
+
+.site-commerce-category-children-image {
+  display: inline-block;
+  padding-right: 5px;
+  vertical-align: middle;
+}
+
+@media screen and (max-width: 640px) {
+  .site-commerce-categories__item {
+    height: auto !important;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .site-commerce-categories__item {
+    float: left;
+    max-width: 250px;
+    margin-right: 10px;
+  }
+
+  .site-commerce-category__item_root {
+    width: 100%;
+    height: auto;
+  }
+
+  .site-commerce-category__item_childrens {
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: #F0F0F0 solid 1px;
+    background: #F7F7F7;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    box-shadow: 0 0 0 5px #F0F0F0;
+  }
+
+  .site-commerce-categories__item:hover .site-commerce-category__item_childrens {
+    z-index: 9999;
+    opacity: 1;
+    box-shadow: 0 0 0 5px #F0F0F0;
+    transition: opacity 0.3s, height 0.3s, box-shadow 0.3s;
+  }
+
+  .site-commerce-category__item_children-root {
+    visibility: visible;
+    font-weight: 700;
+  }
+
+  .site-commerce-category__item_children {
+    margin: 0.5em;
+  }
+
+  .site-commerce-category-children-image {
+    padding-right: 5px;
+    vertical-align: middle;
+    float: left;
+  }
+}
+
+@media screen and (min-width: 980px) {
+  .site-commerce-categories__item {
+    width: 25%;
+  }
+
+  .site-commerce-categories__item:hover .site-commerce-category__item_childrens {
+    height: auto;
+  }
+}

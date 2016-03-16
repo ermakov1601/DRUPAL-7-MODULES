@@ -1,0 +1,350 @@
+<?php
+
+/**
+ * @file
+ * Модуль контакты и координаты.
+ */
+
+/**
+ * Implement hook_permission().
+ */
+function site_contacts_permission() {
+  return array(
+    'administer site contacts settings' => array(
+      'title' => t('Administer site contacts settings'),
+    )
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function site_contacts_menu() {
+
+  $items = array();
+
+  $items['admin/config/kvantstudio/site-contacts'] = array(
+    'title' => 'Adjustments - contacts',
+    'description' => 'Page on which adjustments of the module are displayed.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_contacts_settings_form'),
+    'access arguments' => array('administer site contacts settings'),
+    'file' => 'site_contacts.settings.inc',
+  );
+
+  $items['kontakty'] = array(
+    'title' => 'Contacts',
+    'description' => 'Contacts and requisites of the organization.',
+    'page callback' => '_site_contacts_data',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu',
+    'weight' => 50,
+  );
+
+  return $items;
+}
+
+/**
+ * Функция: контакты и координаты в режиме пользователя.
+ */
+function _site_contacts_data() {
+  global $language;
+
+  // Подключаем зависимые файлы.
+  drupal_add_css(drupal_get_path('module', 'site_contacts') . '/css/site_contacts.css');
+
+  // Переменная для хранения данных формы.
+  $output = '';
+  $output_data = '';  
+
+  // Формируем breadcrumb ссылки.
+  $breadcrumb = array();
+  $breadcrumb[] = l(t('Home'), '<front>');
+  drupal_set_breadcrumb($breadcrumb);
+
+  /**
+   * Контакты и координаты.
+   */
+
+  // Признак заполнения раздела, 0 - раздел не заполнен и не выводим заголовок.
+  $empty_partition = 0;
+
+  $output_data .= '<div id="card" itemscope itemtype="http://schema.org/Organization">';
+
+    // Название организации и описание.
+    $output_data .= '<div class="site-contacts-organization">';
+      if (variable_get('site_contacts_name_' . $language->language)) {
+        $output_data .= '<span class="site-contacts-organization-name" itemprop="name">' . variable_get('site_contacts_name_' . $language->language) . '</span>';
+        $empty_partition++;
+      }
+      if (variable_get('site_contacts_description_' . $language->language, '')) {
+        $output_data .= '<span class="site-contacts-organization-description" itemprop="description">' . variable_get('site_contacts_description_' . $language->language) . '</span>';
+        $empty_partition++;
+      }
+    $output_data .= '</div>';
+
+    // Контактные данные.
+    $output_data .= '<div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">';
+      // Почтовый индекс.
+      if (variable_get('site_contacts_postal_code_' . $language->language)) {
+        $output_data .= '<span itemprop="postalCode">' . variable_get('site_contacts_postal_code_' . $language->language) . '</span>, ';
+        $empty_partition++;
+      }
+      // Страна.
+      if (variable_get('site_contacts_address_country_' . $language->language)) {
+        $output_data .= '<span itemprop="addressCountry">' . variable_get('site_contacts_address_country_' . $language->language) . '</span>';
+        $empty_partition++;
+      }
+      // Регион.
+      if (variable_get('site_contacts_address_region_' . $language->language)) {
+        $output_data .= ', <span itemprop="addressRegion">' . variable_get('site_contacts_address_region_' . $language->language) . '</span>';
+        $empty_partition++;
+      }
+      // Город.
+      if (variable_get('site_contacts_address_locality_' . $language->language)) {
+        $output_data .= ', <span itemprop="addressLocality">' . variable_get('site_contacts_address_locality_' . $language->language) . '</span>';
+        $empty_partition++;
+      }
+      // Улица.
+      if (variable_get('site_contacts_street_address_' . $language->language)) {
+        $output_data .= ', <span itemprop="streetAddress">' . variable_get('site_contacts_street_address_' . $language->language) . '</span>';
+        $empty_partition++;
+      }
+      $output_data .= '.';
+    $output_data .= '</div>';
+
+    // Телефон.
+    if (variable_get('site_contacts_phone_' . $language->language)) {
+      $output_data .= '<div class="site-contacts-phone">' . t('Phone') . ': <span class="tel" itemprop="telephone">' . variable_get('site_contacts_phone_' . $language->language) . '</span></div>';
+      $empty_partition++;
+    }
+    // Номер факса.
+    if (variable_get('site_contacts_fax_number_' . $language->language)) {
+      $output_data .= '<div class="site-contacts-fax">' . t('Fax') . ': <span itemprop="faxNumber">' . variable_get('site_contacts_fax_number_' . $language->language) . '</span></div>';
+      $empty_partition++;
+    }
+    // E-mail.
+    if (variable_get('site_contacts_email_' . $language->language)) {
+      $email = variable_get('site_contacts_email_' . $language->language);
+      $output_data .= '<div class="site-contacts-email">' . t('E-mail') . ': <a class="email" itemprop="email" href="mailto:' . $email . '">' . $email . '</a></div>';
+      $empty_partition++;
+    }
+    // Skype.
+    if (variable_get('site_contacts_skype_' . $language->language)) {
+      $skype = variable_get('site_contacts_skype_' . $language->language);
+      $output_data .= '<div class="site-contacts-skype">' . t('Skype') . ': <a class="skype" href="skype:' . $skype . '">' . $skype . '</a></div>';
+      $empty_partition++;
+    }
+    // YouTube.
+    if (variable_get('site_contacts_youtube_' . $language->language)) {
+      $youtube = variable_get('site_contacts_youtube_' . $language->language);
+      $output_data .= '<div class="site-contacts-youtube">' . t('Visit our channel on YouTube') . ' - <a itemprop="youtube" href="' . $youtube . '">' . $youtube . '</a></div>';
+      $empty_partition++;
+    }
+    // URL.
+    if (variable_get('site_contacts_url_ru')) {
+      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="http://www.' . variable_get('site_contacts_url_ru') . '">www.' . variable_get('site_contacts_url_ru') . '</a></div>';
+      $empty_partition++;
+    }
+    if (variable_get('site_contacts_url_rf')) {
+      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="http://www.' . variable_get('site_contacts_url_rf') . '">www.' . variable_get('site_contacts_url_rf') . '</a></div>';
+      $empty_partition++;
+    }
+    if (variable_get('site_contacts_url_com')) {
+      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="http://www.' . variable_get('site_contacts_url_com') . '">www.' . variable_get('site_contacts_url_com') . '</a></div>';
+      $empty_partition++;
+    }
+  $output_data .= '</div>';
+
+  $output_data .= '<div>';
+  if (variable_get('site_contacts_opening_hours_days_' . $language->language)) {
+      // Определяем какие поля обязательные.
+      $open_days = array();
+      $data_days = array();
+      foreach (variable_get('site_contacts_opening_hours_days_' . $language->language, array()) as $day) {
+        if ($day <> '0') {
+          $data_days[] = $day;
+          $open_days[] = t($day);
+        }
+      }
+      $data_days = implode(", ", $data_days);
+      $open_days = implode(", ", $open_days);
+      if ($data_days) {
+        $output_data .= t('Operating time') . ': <time itemprop="openingHours" datetime="' . $data_days . ' ' . variable_get('site_contacts_opening_hours_time_' . $language->language, '11:00-24:00') . '">' . $open_days . ' ' . variable_get('site_contacts_opening_hours_time_' . $language->language, '11:00-24:00') . ' ' . variable_get('site_contacts_opening_hours_note_' . $language->language) . '</time>';
+      }
+      if ($data_days) {
+        $empty_partition++;
+      }
+  }
+  $output_data .= '</div>';
+
+  // Прочая информация.
+  if (variable_get('site_contacts_other_' . $language->language)) {
+    $output_data .= '<div class="site-contacts-other-information">' . variable_get('site_contacts_other_' . $language->language) . '</div>';
+    $empty_partition++;
+  }
+
+  if ($empty_partition) {
+    $output .= '<div class="site-contacts-partition">' . t('The general information') . '</div>';
+    $output .= '<div class="site-contacts-data site-contacts-card">';
+    $link_path = "javascript:kvantstudio_print_id('card')";
+    $output .= '<div class="site-contacts-print">' . l(t('Print card'), $link_path, array('fragment' => '', 'html' => TRUE, 'external' => TRUE)) . '</div>';
+    $output .= $output_data;
+    $output .= '</div>';
+  }
+
+  /**
+   * Руководство.
+   */
+  $management = variable_get('site_contacts_management_' . $language->language);
+  if ($management) {
+    $output .= '<div class="site-contacts-partition">' . t('Management') . '</div>';
+    $output .= '<div class="site-contacts-data">';
+    $output .= $management;
+    $output .= '</div>';
+  }
+
+  /**
+   * Карта проезда.
+   */
+  $map = variable_get('site_contacts_map_' . $language->language);
+  if ($map) {
+    $output .= '<div class="site-contacts-partition">' . t('Card of travel') . '</div>';
+    $output .= '<div class="site-contacts-data">';
+    $output .= $map;
+    $output .= '</div>';
+  }
+
+  /**
+   * Реквизиты организации.
+   */
+
+  // Признак заполнения раздела, 0 - раздел не заполнен и не выводим заголовок.
+  $empty_partition = 0;
+
+  // Получаем переменные.
+  $inn = variable_get('site_contacts_inn_' . $language->language);
+  if ($inn) $empty_partition++;
+  $kpp = variable_get('site_contacts_kpp_' . $language->language);
+  if ($kpp) $empty_partition++;
+  $ogrn = variable_get('site_contacts_ogrn_' . $language->language);
+  if ($ogrn) $empty_partition++;
+  $ogrnip = variable_get('site_contacts_ogrnip_' . $language->language);
+  if ($ogrnip) $empty_partition++;
+  $okved = variable_get('site_contacts_okved_' . $language->language);
+  if ($okved) $empty_partition++;
+  $okpo = variable_get('site_contacts_okpo_' . $language->language);
+  if ($okpo) $empty_partition++;
+  $okugu = variable_get('site_contacts_okugu_' . $language->language);
+  if ($okugu) $empty_partition++;
+  $okato = variable_get('site_contacts_okato_' . $language->language);
+  if ($okato) $empty_partition++;
+
+  if ($empty_partition > 0) {
+
+    $output_data = '';
+    $output .= '<div class="site-contacts-partition">' . t('Requisites of the organization') . '</div>';
+
+    if ($inn) {
+      $output_data .= '<p><b>' . t('INN') . ':</b> ' . $inn . '</p>';
+    }
+
+    if ($kpp) {
+      $output_data .= '<p><b>' . t('KPP') . ':</b> ' . $kpp . '</p>';
+    }
+
+    if ($ogrn) {
+      $output_data .= '<p><b>' . t('OGRN') . ':</b> ' . $ogrn . '</p>';
+    }
+
+    if ($ogrnip) {
+      $output_data .= '<p><b>' . t('OGRNIP') . ':</b> ' . $ogrnip . '</p>';
+    }
+
+    if ($okved) {
+      $output_data .= '<p><b>' . t('OKVED') . ':</b> ' . $okved . '</p>';
+    }
+
+    if ($okpo) {
+      $output_data .= '<p><b>' . t('OKPO') . ':</b> ' . $okpo . '</p>';
+    }
+
+    if ($okugu) {
+      $output_data .= '<p><b>' . t('OKUGU') . ':</b> ' . $okugu . '</p>';
+    }
+
+    if ($okato) {
+      $output_data .= '<p><b>' . t('OKATO') . ':</b> ' . $okato . '</p>';
+    }
+
+    $output .= '<div class="site-contacts-data">';
+    $output .= $output_data;
+    $output .= '</div>';
+
+  }
+
+  /**
+   * Банковские реквизиты.
+   */
+
+  // Признак заполнения раздела, 0 - раздел не заполнен и не выводим заголовок.
+  $empty_partition = 0;
+
+  // Получаем переменные.
+  $bank = variable_get('site_contacts_bank_' . $language->language);
+  if ($bank) $empty_partition++;
+  $bank_address = variable_get('site_contacts_bank_address_' . $language->language);
+  if ($bank_address) $empty_partition++;
+  $bank_inn = variable_get('site_contacts_bank_inn_' . $language->language);
+  if ($bank_inn) $empty_partition++;
+  $bank_ogrn = variable_get('site_contacts_bank_ogrn_' . $language->language);
+  if ($bank_ogrn) $empty_partition++;
+  $bank_account_r = variable_get('site_contacts_bank_account_r_' . $language->language);
+  if ($bank_account_r) $empty_partition++;
+  $bank_account_k = variable_get('site_contacts_bank_account_k_' . $language->language);
+  if ($bank_account_k) $empty_partition++;
+  $bank_bik = variable_get('site_contacts_bank_bik_' . $language->language);
+  if ($bank_bik) $empty_partition++;
+
+  if ($empty_partition > 0) {
+
+    $output_data = '';
+    $output .= '<div class="site-contacts-partition">' . t('Bank requisites') . '</div>';
+
+    if ($bank) {
+      $output_data .= '<p><b>' . t('Bank') . ':</b> ' . $bank . '</p>';
+    }
+
+    if ($bank_address) {
+      $output_data .= '<p><b>' . t('The address of bank') . ':</b> ' . $bank_address . '</p>';
+    }
+
+    if ($bank_inn) {
+      $output_data .= '<p><b>' . t('INN/KPP of bank') . ':</b> ' . $bank_inn . '</p>';
+    }
+
+    if ($bank_ogrn) {
+      $output_data .= '<p><b>' . t('OGRN') . ':</b> ' . $bank_ogrn . '</p>';
+    }
+
+    if ($bank_account_r) {
+      $output_data .= '<p><b>' . t('r/account') . ':</b> ' . $bank_account_r . '</p>';
+    }
+
+    if ($bank_account_k) {
+      $output_data .= '<p><b>' . t('k/account') . ':</b> ' . $bank_account_k . '</p>';
+    }
+
+    if ($bank_bik) {
+      $output_data .= '<p><b>' . t('BIK') . ':</b> ' . $bank_bik . '</p>';
+    }
+
+    $output .= '<div class="site-contacts-data">';
+    $output .= $output_data;
+    $output .= '</div>';
+
+  }
+
+  return $output;
+}

@@ -1,0 +1,201 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  kvantstudio.settings.inc: n/a
+#  kvantstudio.module: n/a
+#  kvantstudio.install: n/a
+#  kvantstudio.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-11-19 14:34+0500\n"
+"PO-Revision-Date: 2015-11-19 14:35+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#: kvantstudio.settings.inc:14
+msgid "Allow the connection <a href='https://github.com/joemottershaw/litebox' target='_blank'>LiteBox</a>"
+msgstr "Разрешить подключение <a href='https://github.com/joemottershaw/litebox' target='_blank'>LiteBox</a>"
+
+#: kvantstudio.settings.inc:16
+msgid "Default project modules KVANTSTUDIO use this library to display pop-up images. Wherever you need to call the pop-up image is added to the link class <a class='litebox'></a>. For groups of images added to the links parameter data-litebox-group. For example, data-litebox-group='site-commerce-litebox-images'."
+msgstr ""
+"По умолчанию модули проекта KVANTSTUDIO используют эту библиотеку для отображения всплывающих изображений. Там где необходимо вызвать всплывающее изображение к ссылке добавляется класс class='litebox'. Для группировки изображений к ссылкам добавляется параметр data-litebox-group. Например,  data-litebox-"
+"group='site-commerce-litebox-images'."
+
+#: kvantstudio.settings.inc:21
+msgid "Allow the connection <a href='http://www.jacklmoore.com/zoom' target='_blank'>jQuery Zoom</a>"
+msgstr "Разрешить подключение <a href='http://www.jacklmoore.com/zoom' target='_blank'>jQuery Zoom</a>"
+
+#: kvantstudio.settings.inc:23
+msgid "A plugin to enlarge images on touch, click, or mouseover."
+msgstr "Плагин для увеличения изображений при касании, нажатии или наведении мыши."
+
+#: kvantstudio.settings.inc:28
+msgid "Allow the connection <a href='https://github.com/jedfoster/Readmore.js' target='_blank'>Readmore</a>"
+msgstr "Разрешить подключение <a href='https://github.com/jedfoster/Readmore.js' target='_blank'>Readmore</a>"
+
+#: kvantstudio.settings.inc:30
+msgid "A plugin for collapsing and expanding long blocks of text. Use css class='readmore-block' for blocks of text."
+msgstr "Плагин для разворачивания и сворачивания больших блоков текста. Используйте для текстовых блоков класс class='readmore-block'."
+
+#: kvantstudio.settings.inc:35
+msgid "Allow the connection <a href='https://github.com/mattbanks/jQuery.equalHeights' target='_blank'>equalheights</a>"
+msgstr "Разрешить подключение <a href='https://github.com/mattbanks/jQuery.equalHeights' target='_blank'>equalheights</a>"
+
+#: kvantstudio.settings.inc:37
+msgid "Automatically aligns the columns in a row to the same height as a function of the content."
+msgstr "Автоматически выравнивает столбцы в строке по высоте, в зависимости от содержания."
+
+#: kvantstudio.settings.inc:43
+msgid "Settings of HTML5"
+msgstr "Настройки HTML5"
+
+#: kvantstudio.settings.inc:49
+msgid "Allow to create a breadcrumb format microdata, <a href='http://kvantstudio.ru/node/40' target='_blank'>see details</a>"
+msgstr "Разрешить создавать breadcrumb в формате microdata, <a href='http://kvantstudio.ru/node/40' target='_blank'>см. подробнее</a>"
+
+#: kvantstudio.settings.inc:57
+msgid "Settings of e-mail"
+msgstr "Настройки e-mail"
+
+#: kvantstudio.settings.inc:63
+msgid "E-mail address of the manager of a site"
+msgstr "Адрес электронной почты менеджера сайта"
+
+#: kvantstudio.settings.inc:66
+msgid "This address is used to send different notifications to the manager of the site. For example responsible for the execution of orders from the online store SiteCommerce."
+msgstr "Этот адрес используется для отправки различных уведомлений менеджеру сайта. Например ответственному за оформление заказов в интернет-магазине SiteCommerce."
+
+#: kvantstudio.settings.inc:70
+msgid "E-mail address of the system administrator of a site"
+msgstr "Адрес электронной почты системного администратора сайта"
+
+#: kvantstudio.settings.inc:73
+msgid "This address is used to send various error notification on the site that can occur when using the modules of the project KVANTSTUDIO."
+msgstr "Этот адрес используется для отправки различных уведомлений об ошибках на сайте, которые могут возникать в модулях проекта KVANTSTUDIO."
+
+#: kvantstudio.settings.inc:77
+msgid "To allow to shape reports on mistakes in modules of the project kvantstudio to the developer"
+msgstr "Разрешить формировать отчеты об ошибках в модулях проекта kvantstudio разработчику"
+
+#: kvantstudio.module:45
+msgid "Read more"
+msgstr "Подробнее"
+
+#: kvantstudio.module:46
+msgid "Close"
+msgstr "Закрыть"
+
+#: kvantstudio.module:62
+msgid "Administer settings"
+msgstr "Управление настройками"
+
+#: kvantstudio.module:65
+msgid "Viewing of system notices kvantstudio"
+msgstr "Просмотр системных оповещений kvantstudio"
+
+#: kvantstudio.module:68
+msgid "To allow to edit own user account"
+msgstr "Разрешить авторизованным пользователям редактировать свой профиль"
+
+#: kvantstudio.module:330;349
+msgid "In the module @module, realizing display of the catalogue of the products, for a category @taxonomy there is no realization hook_kvantstudio_term_page or function @function is inaccessible to a call."
+msgstr "В модуле @module, который реализует отображение каталога товаров для категории @taxonomy не реализован hook_kvantstudio_term_page или функция @function недоступна для вызова."
+
+#: kvantstudio.module:334
+msgid "On a site the module realizing display of the catalogue of the products for a category @name is disconnected."
+msgstr "Модуль, который реализует отображение каталога товаров для категории @name отключен."
+
+#: kvantstudio.module:469
+msgid "To deny access to the page display terms in this vocabulary"
+msgstr "Запретить доступ к странице отображения терминов для этого словаря"
+
+#: kvantstudio.module:479
+msgid "To deny access to the page display term"
+msgstr "Запретить доступ к странице отображения термина"
+
+#: kvantstudio.module:481
+msgid "The value of this parameter is inherited from dictionary settings, If the dictionary is set to TRUE."
+msgstr "Значение этого параметра наследуется из настроек словаря, если в словаре установлено значение TRUE."
+
+#: kvantstudio.module:633;651
+msgid "It is not chosen"
+msgstr "Не выбрано"
+
+#: kvantstudio.module:690
+msgid "@value"
+msgstr "@value"
+
+#: kvantstudio.module:780
+msgid "The notice from a site"
+msgstr "Уведомление с сайта"
+
+#: kvantstudio.module:790
+msgid "the system notice"
+msgstr "системное уведомление"
+
+#: kvantstudio.module:902;905
+msgid "The message from a site"
+msgstr "Сообщение с сайта"
+
+#: kvantstudio.module:902
+msgid "from"
+msgstr "от"
+
+#: kvantstudio.module:1011
+msgid "Your message has been sent."
+msgstr "Ваше сообщение отправлено."
+
+#: kvantstudio.module:1016;1018;1022
+msgid "There was a problem sending your message and it was not sent."
+msgstr "Возникла проблема при отправке Вашего сообщения и оно не было отправлено."
+
+#: kvantstudio.module:1285;1311
+msgid "System notices"
+msgstr "Системные уведомления"
+
+#: kvantstudio.module:1013;1022
+msgid "kvantstudio"
+msgstr "kvantstudio"
+
+#: kvantstudio.module:1013
+msgid "The message from a site is sent."
+msgstr "Отправлено сообщение с сайта."
+
+#: kvantstudio.module:127
+msgid "Settings of modules of project KVANTSTUDIO"
+msgstr "Настройки модулей проекта KVANTSTUDIO"
+
+#: kvantstudio.module:138
+msgid "The general adjustments"
+msgstr "Общие настройки"
+
+#: (duplicate) kvantstudio.install:52
+msgid "Management of a site"
+msgstr "Управление сайтом"
+
+#: (duplicate) kvantstudio.install:53
+msgid "The menu of management of a site defines storage of links on pages of administration by modules which are included into the project kvantstudio."
+msgstr "Меню управления сайтом определяет хранение ссылок на страницы администрирования модулями, которые входят в проект kvantstudio."
+
+#: kvantstudio.info:0
+msgid "KVANTSTUDIO"
+msgstr "KVANTSTUDIO"
+
+#: kvantstudio.info:0
+msgid "Library of functions."
+msgstr "Библиотека функций."
+
+#: kvantstudio.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"

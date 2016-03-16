@@ -1,0 +1,284 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_commerce_special_offers.admin.inc: n/a
+#  site_commerce_special_offers.install: n/a
+#  site_commerce_special_offers.variable.inc: n/a
+#  site_commerce_special_offers.module: n/a
+#  site_commerce_special_offers.info: n/a
+#  templates/site-commerce-block-special-offers-items.tpl.php: n/a
+#  templates/site-commerce-cost-procent-value.tpl.php: n/a
+#  templates/site-commerce-cost-subtraction-value.tpl.php: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-05-07 19:36+0500\n"
+"PO-Revision-Date: 2015-05-07 19:36+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n"
+"%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.7.6\n"
+
+#: site_commerce_special_offers.admin.inc:18
+msgid "Show only items where"
+msgstr "Показать материалы, у которых"
+
+#: site_commerce_special_offers.admin.inc:33
+msgid "and where %property is %value"
+msgstr "и когда %property равно %value"
+
+#: site_commerce_special_offers.admin.inc:36
+msgid "where %property is %value"
+msgstr "когда %property равно %value"
+
+#: site_commerce_special_offers.admin.inc:47
+msgid "and where"
+msgstr "и когда"
+
+#: site_commerce_special_offers.admin.inc:68;87
+msgid "Refine"
+msgstr "Отбор"
+
+#: site_commerce_special_offers.admin.inc:68;86
+msgid "Filter"
+msgstr "Фильтр"
+
+#: site_commerce_special_offers.admin.inc:71;100
+msgid "Undo"
+msgstr "Отмена"
+
+#: site_commerce_special_offers.admin.inc:72;103
+msgid "Reset"
+msgstr "Сбросить"
+
+#: site_commerce_special_offers.admin.inc:141
+msgid "status"
+msgstr "состояние"
+
+#: site_commerce_special_offers.admin.inc:143
+msgid "any"
+msgstr "любой"
+
+#: site_commerce_special_offers.admin.inc:144;284
+msgid "published"
+msgstr "опубликовано"
+
+#: site_commerce_special_offers.admin.inc:145;284
+msgid "not published"
+msgstr "не опубликовано"
+
+#: site_commerce_special_offers.admin.inc:146
+msgid "novelty"
+msgstr "новинка"
+
+#: site_commerce_special_offers.admin.inc:147
+msgid "not novelty"
+msgstr "не новинка"
+
+#: site_commerce_special_offers.admin.inc:184
+msgid "Update options"
+msgstr "Параметры обновления"
+
+#: site_commerce_special_offers.admin.inc:190
+msgid "Unpublish the selected positions"
+msgstr "Снять с публикации выбранные позиции"
+
+#: site_commerce_special_offers.admin.inc:191
+msgid "Publish the selected positions"
+msgstr "Опубликовать выбранные позиции"
+
+#: site_commerce_special_offers.admin.inc:192
+msgid "Publish all positions"
+msgstr "Опубликовать все позиции"
+
+#: site_commerce_special_offers.admin.inc:193
+msgid "Delete the selected positions"
+msgstr "Удалить выбранные позиции"
+
+#: site_commerce_special_offers.admin.inc:194;437;464
+msgid "To remove all positions"
+msgstr "Удалить все позиции"
+
+#: site_commerce_special_offers.admin.inc:195
+msgid "Update url alias for all positions"
+msgstr "Обновить url алиасы всех позиций"
+
+#: site_commerce_special_offers.admin.inc:199
+msgid "Operation"
+msgstr "Действие"
+
+#: site_commerce_special_offers.admin.inc:206
+msgid "Update"
+msgstr "Обновить"
+
+#: (duplicate) site_commerce_special_offers.admin.inc:217 site_commerce_special_offers.install:184
+msgid "Image"
+msgstr "Изображение"
+
+#: site_commerce_special_offers.admin.inc:218
+msgid "Title"
+msgstr "Заголовок"
+
+#: site_commerce_special_offers.admin.inc:219
+msgid "Type"
+msgstr "Тип"
+
+#: site_commerce_special_offers.admin.inc:220
+msgid "Display status"
+msgstr "Статус отображения"
+
+#: site_commerce_special_offers.admin.inc:221
+msgid "Updated"
+msgstr "Обновлено"
+
+#: site_commerce_special_offers.admin.inc:224
+msgid "Language"
+msgstr "Язык"
+
+#: site_commerce_special_offers.admin.inc:226
+msgid "Operations"
+msgstr "Действия"
+
+#: site_commerce_special_offers.admin.inc:289
+msgid "Language neutral"
+msgstr "Нейтральный по отношению к языку"
+
+#: site_commerce_special_offers.admin.inc:292
+msgid "Undefined language (@langcode)"
+msgstr "Неопределённый язык (@langcode)"
+
+#: site_commerce_special_offers.admin.inc:299
+msgid "edit"
+msgstr "изменить"
+
+#: site_commerce_special_offers.admin.inc:306
+msgid "delete"
+msgstr "удалить"
+
+#: site_commerce_special_offers.admin.inc:343;352
+msgid "No content available."
+msgstr "Нет доступного материала."
+
+#: site_commerce_special_offers.admin.inc:371
+msgid "Select one or more positions to perform the update on."
+msgstr "Выберите одну или несколько позиций для выполнения операции обновления."
+
+#: site_commerce_special_offers.admin.inc:422
+msgid "All positions are published."
+msgstr "Все позиции опубликованы."
+
+#: site_commerce_special_offers.admin.inc:426
+msgid "The update has been performed."
+msgstr "Обновление было выполнено."
+
+#: site_commerce_special_offers.admin.inc:439
+msgid "Are you sure you want to delete all the positions? Recovery will be impossible."
+msgstr "Вы действительно хотите удалить все позиции? Восстановление будет невозможно."
+
+#: site_commerce_special_offers.admin.inc:440
+msgid "Delete"
+msgstr "Удалить"
+
+#: site_commerce_special_offers.admin.inc:441
+msgid "Cancel"
+msgstr "Отменить"
+
+#: site_commerce_special_offers.admin.inc:496
+msgid "The position is removed"
+msgstr "Позиция удалена"
+
+#: site_commerce_special_offers.admin.inc:504
+msgid "All of the items have been removed."
+msgstr "Все позиции были удалены."
+
+#: site_commerce_special_offers.admin.inc:507
+msgid "To remove a completed with errors."
+msgstr "Удаление позиций завершено с ошибками."
+
+#: site_commerce_special_offers.variable.inc:14
+msgid "Heading of page of special offers"
+msgstr "Заголовок страницы спецпредложения"
+
+#: (duplicate) site_commerce_special_offers.module:39;172;187;18 site_commerce_special_offers.install:253;348;31 ;44
+msgid "Special offers"
+msgstr "Спецпредложения"
+
+#: site_commerce_special_offers.module:279;339
+msgid "Home"
+msgstr "Главная"
+
+#: site_commerce_special_offers.module:318;361
+msgid "@value"
+msgstr "@value"
+
+#: site_commerce_special_offers.module:371
+msgid "Now the goods under the special price are absent."
+msgstr "В настоящее время отсутствуют товары по специальной цене."
+
+#: (duplicate) site_commerce_special_offers.install:254;349;46
+msgid "The dictionary of special offers."
+msgstr "Словарь для спецпредложений."
+
+#: (duplicate) site_commerce_special_offers.install:279;106
+msgid "Sale"
+msgstr "Распродажа"
+
+#: (duplicate) site_commerce_special_offers.install:280;107
+msgid "The products at a discount"
+msgstr "Товар со скидкой"
+
+#: (duplicate) site_commerce_special_offers.install:281;108
+msgid "Discounted items"
+msgstr "Уценённые товары"
+
+#: (duplicate) site_commerce_special_offers.install:282;109
+msgid "Reduction of cost"
+msgstr "Снижение стоимости"
+
+#: (duplicate) site_commerce_special_offers.install:318;135
+msgid "Type of a special offer"
+msgstr "Тип спецпредложения"
+
+#: (duplicate) site_commerce_special_offers.install:94
+msgid "Show"
+msgstr "Показать"
+
+#: (duplicate) site_commerce_special_offers.install:95
+msgid "To not show"
+msgstr "Не показывать"
+
+#: (duplicate) site_commerce_special_offers.install:155
+msgid "Status"
+msgstr "Статус"
+
+#: (duplicate) site_commerce_special_offers.install:175
+msgid "Discount"
+msgstr "Скидка"
+
+#: site_commerce_special_offers.info:0
+msgid "Site commerce special offers"
+msgstr "Site commerce special offers"
+
+#: site_commerce_special_offers.info:0
+msgid "Creation of special offers in the online store."
+msgstr "Создание спецпредложений в интернет-магазине."
+
+#: site_commerce_special_offers.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"
+
+#: templates/site-commerce-block-special-offers-items.tpl.php:14
+msgid "All special offers"
+msgstr "Все спецпредложения"
+
+#: templates/site-commerce-cost-procent-value.tpl.php:23 templates/site-commerce-cost-subtraction-value.tpl.php:22
+msgid "The discount"
+msgstr "Скидка"

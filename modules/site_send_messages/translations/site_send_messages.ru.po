@@ -1,0 +1,304 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_send_messages.admin.inc: n/a
+#  site_send_messages.module: n/a
+#  site_send_messages.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2014-08-29 15:38+0600\n"
+"PO-Revision-Date: 2014-08-29 15:38+0600\n"
+"Last-Translator: \n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n"
+"%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.6.7\n"
+
+#: site_send_messages.admin.inc:16
+msgid "Settings of the form of sending of the message"
+msgstr "Настройки формы отправки сообщения"
+
+#: site_send_messages.admin.inc:21
+msgid "Quantity fields for an attachment of files"
+msgstr "Количество полей для прикрепления файлов"
+
+#: site_send_messages.admin.inc:22;80
+msgid "If you change the values do not forget to refresh the cache site."
+msgstr "При изменении значения не забудьте обновить кэш сайта."
+
+#: site_send_messages.admin.inc:28
+msgid ""
+"To resolve check of telephone number on a mask of input: 8 (code) number."
+msgstr "Разрешить проверку номера телефона по маске ввода: 8 (код) номер."
+
+#: site_send_messages.admin.inc:33
+msgid "To display the text of the note"
+msgstr "Отображать текст примечания"
+
+#: site_send_messages.admin.inc:39
+msgid "The text of the note"
+msgstr "Текст примечания"
+
+#: site_send_messages.admin.inc:46
+msgid ""
+"The text of the message above the form submit a claim for the return call"
+msgstr "Текст сообщения над формой отправки заявки на обратный звонок"
+
+#: site_send_messages.admin.inc:53
+msgid ""
+"The text of the message of the successful sending a claim for the return call"
+msgstr "Текст сообщения об успешной отправке заявки на обратный звонок"
+
+#: site_send_messages.admin.inc:54
+msgid "The message is sent!"
+msgstr "Сообщение отправлено!"
+
+#: site_send_messages.admin.inc:62
+msgid "Protection from spam"
+msgstr "Защита от спама"
+
+#: site_send_messages.admin.inc:66
+msgid "To resolve protection against a spam means of module CAPTCHA?"
+msgstr "Разрешить защиту от спама средствами модуля CAPTCHA?"
+
+#: site_send_messages.admin.inc:74
+msgid "Adjustments of the name of pages"
+msgstr "Настройки названия страниц"
+
+#: site_send_messages.admin.inc:79
+msgid "The title of the page with the form send the message"
+msgstr "Заголовок страницы с формой отправки сообщения"
+
+#: site_send_messages.admin.inc:81 site_send_messages.module:80
+msgid "To write to us"
+msgstr "Написать нам"
+
+#: site_send_messages.admin.inc:88
+msgid "Adjustments of the name of links"
+msgstr "Настройки названия ссылок"
+
+#: site_send_messages.admin.inc:93
+msgid "The name of the link page with a form to send a message"
+msgstr "Название ссылки страницы с формой отправки сообщения"
+
+#: site_send_messages.admin.inc:94
+msgid ""
+"Do not change this value on a ready site! Value should be in a latin, words "
+"through a dash from the small letter. At variation of value do not forget to "
+"update a cache of a site."
+msgstr ""
+"Не изменяйте это значение на готовом сайте! Значение должно быть на "
+"латинице, слова через тире с маленькой буквы. При изменении значения не "
+"забудьте обновить кэш сайта."
+
+#: site_send_messages.admin.inc:138
+msgid "Mode"
+msgstr "Режим"
+
+#: site_send_messages.admin.inc:148
+msgid "Edit"
+msgstr "Правка"
+
+#: site_send_messages.admin.inc:199;317
+msgid "Weight"
+msgstr "Вес"
+
+#: site_send_messages.admin.inc:246
+msgid "Save changes"
+msgstr "Сохранить изменения"
+
+#: site_send_messages.admin.inc:269
+msgid "Configuration saved."
+msgstr "Настройки сохранены."
+
+#: site_send_messages.admin.inc:317 site_send_messages.module:67
+msgid "Title"
+msgstr "Заголовок"
+
+#: site_send_messages.admin.inc:317
+msgid "Description"
+msgstr "Описание"
+
+#: site_send_messages.admin.inc:317
+msgid "Default value"
+msgstr "Значение по умолчанию"
+
+#: site_send_messages.admin.inc:317
+msgid "Required"
+msgstr "Обязательно"
+
+#: site_send_messages.admin.inc:317
+msgid "Disabled"
+msgstr "Отключено"
+
+#: site_send_messages.module:55
+msgid "Full name"
+msgstr "ФИО"
+
+#: site_send_messages.module:56
+msgid "Last name"
+msgstr "Фамилия"
+
+#: site_send_messages.module:57;726;798;836
+msgid "First name"
+msgstr "Имя"
+
+#: site_send_messages.module:58
+msgid "Patronymic"
+msgstr "Отчество"
+
+#: site_send_messages.module:59
+msgid "Organization"
+msgstr "Организация"
+
+#: site_send_messages.module:60
+msgid "Position in the organization"
+msgstr "Должность в организации"
+
+#: site_send_messages.module:61
+msgid "The address of delivery"
+msgstr "Адрес доставки"
+
+#: site_send_messages.module:62;732;804;837
+msgid "Contact phone"
+msgstr "Контактный телефон"
+
+#: site_send_messages.module:63
+msgid "Date"
+msgstr "Дата"
+
+#: site_send_messages.module:64
+msgid "Time"
+msgstr "Время"
+
+#: site_send_messages.module:65
+msgid "Type of registration"
+msgstr "Тип регистрации"
+
+#: site_send_messages.module:66
+msgid "E-mail"
+msgstr "E-mail"
+
+#: site_send_messages.module:68;607
+msgid "Message"
+msgstr "Сообщение"
+
+#: site_send_messages.module:69
+msgid "File"
+msgstr "Файл"
+
+#: site_send_messages.module:88
+msgid "To send request"
+msgstr "Отправить заявку"
+
+#: site_send_messages.module:96;690;708;190
+msgid "To order a call"
+msgstr "Заказать звонок"
+
+#: site_send_messages.module:127
+msgid "Administer site send messages"
+msgstr "Управление настройками модуля site send messages"
+
+#: site_send_messages.module:218;171
+msgid "You can leave to us the message or ask a question"
+msgstr "Вы можете оставить нам сообщение или задать вопрос"
+
+#: site_send_messages.module:221
+msgid "by phone"
+msgstr "по телефону"
+
+#: site_send_messages.module:224
+msgid "by fax"
+msgstr "по факсу"
+
+#: site_send_messages.module:230
+msgid "by email"
+msgstr "по электронной почте"
+
+#: site_send_messages.module:232
+msgid "having sent inquiry from a site through this form."
+msgstr "отправив запрос с сайта через эту форму."
+
+#: site_send_messages.module:364
+msgid "Private person"
+msgstr "Частное лицо"
+
+#: site_send_messages.module:364
+msgid "Legal person"
+msgstr "Юридическое лицо"
+
+#: site_send_messages.module:528
+msgid "Send message"
+msgstr "Отправить сообщение"
+
+#: site_send_messages.module:584;813
+msgid "Contact phone number <strong>@param</strong> is incorrect."
+msgstr "Контактный телефон <strong>@param</strong> указан неверно."
+
+#: site_send_messages.module:591
+msgid "The e-mail address %mail is not valid."
+msgstr "Адрес электронной почты %mail некорректен."
+
+#: site_send_messages.module:650
+msgid ""
+"To have a possibility to send attached files, establish and include the "
+"module <a href=\"http://drupal.org/project/mimemail\">Mime Mail</a>."
+msgstr ""
+"Чтобы иметь возможность отправлять прикрепленные файлы, установите и "
+"включите модуль <a href=\"http://drupal.org/project/mimemail\">Mime Mail</a>."
+
+#: site_send_messages.module:743
+msgid "Send"
+msgstr "Отправить"
+
+#: site_send_messages.module:798;804
+msgid "Specify <strong>@param</strong>."
+msgstr "Введите <strong>@param</strong>."
+
+#: site_send_messages.module:834
+msgid "I ask you to me to call back"
+msgstr "Прошу Вас мне перезвонить"
+
+#: site_send_messages.module:141
+msgid "Settings of electronic messages"
+msgstr "Настройки электронных сообщений"
+
+#: site_send_messages.module:142
+msgid ""
+"Configure the functions of the module electronic messages, management "
+"visibility fields on the form to send messages."
+msgstr ""
+"Настройки функций модуля электронных сообщений, управление видимостью полей "
+"формы отправки сообщений."
+
+#: site_send_messages.module:151
+msgid "Settings"
+msgstr "Настройки"
+
+#: site_send_messages.module:158
+msgid "Setting fields in the form"
+msgstr "Настройка полей формы"
+
+#: site_send_messages.module:159
+msgid "Settings affect the way of displaying fields on the form."
+msgstr "Настройки влияют на способ отображения полей формы."
+
+#: site_send_messages.info:0
+msgid "Site send messages"
+msgstr "Site send messages"
+
+#: site_send_messages.info:0
+msgid "Creation of messages on email."
+msgstr "Создание сообщений на email."
+
+#: site_send_messages.info:0
+msgid "kvantstudio"
+msgstr "kvantstudio"

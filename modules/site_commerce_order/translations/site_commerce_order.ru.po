@@ -1,0 +1,338 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_commerce_order.orders.inc: n/a
+#  site_commerce_order.module: n/a
+#  site_commerce_order.install: n/a
+#  site_commerce_order.info: n/a
+#  modules/ya_site_commerce/ya_site_commerce.module: n/a
+#  modules/ya_site_commerce/ya_site_commerce.info: n/a
+#  templates/site-commerce-order-form.tpl.php: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-07-15 04:07+0500\n"
+"PO-Revision-Date: 2015-07-15 04:07+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.2\n"
+
+#: site_commerce_order.orders.inc:24
+msgid "view"
+msgstr "просмотр"
+
+#: site_commerce_order.orders.inc:32
+msgid "Number of the order"
+msgstr "Номер заказа"
+
+#: site_commerce_order.orders.inc:33
+msgid "Created"
+msgstr "Создано"
+
+#: site_commerce_order.orders.inc:34
+msgid "View"
+msgstr "Просмотр"
+
+#: site_commerce_order.module:16
+msgid "dd.mm.yyyy"
+msgstr "дд.мм.гггг"
+
+#: site_commerce_order.module:63
+msgid "To resolve access to page registration of the order"
+msgstr "Разрешить доступ к странице оформление заказа"
+
+#: site_commerce_order.module:67
+msgid "To resolve access to page of display of the order"
+msgstr "Разрешить доступ к странице отображения заказа"
+
+#: site_commerce_order.module:116
+msgid "Order №@number"
+msgstr "Заказ №@number"
+
+#: site_commerce_order.module:150
+msgid "Self delivery"
+msgstr "Самовывоз"
+
+#: site_commerce_order.module:154
+msgid "Express delivery"
+msgstr "Курьерская доставка"
+
+#: site_commerce_order.module:158
+msgid "Mail"
+msgstr "Почта"
+
+#: site_commerce_order.module:162
+msgid "The transport company"
+msgstr "Транспортная компания"
+
+#: site_commerce_order.module:166
+msgid "Item of delivery of orders"
+msgstr "Пункт выдачи заказов"
+
+#: site_commerce_order.module:291
+msgid "Total, without delivery"
+msgstr "Итого, без доставки"
+
+#: site_commerce_order.module:299
+msgid "Image"
+msgstr "Изображение"
+
+#: site_commerce_order.module:300
+msgid "Identifier"
+msgstr "Идентификатор"
+
+#: site_commerce_order.module:301
+msgid "The name"
+msgstr "Название"
+
+#: site_commerce_order.module:302
+msgid "Quantity"
+msgstr "Кол-во"
+
+#: site_commerce_order.module:303
+msgid "Cost"
+msgstr "Стоимость"
+
+#: site_commerce_order.module:546;587;1289
+msgid "Order № @number"
+msgstr "Заказ № @number"
+
+#: site_commerce_order.module:550
+msgid "Home"
+msgstr "Главная"
+
+#: site_commerce_order.module:553;102
+msgid "Orders"
+msgstr "Заказы"
+
+#: site_commerce_order.module:574;1298
+msgid "Order information"
+msgstr "Информация о заказе"
+
+#: site_commerce_order.module:578;1290
+msgid "The information for payment and deliveries of the order"
+msgstr "Информация для оплаты и доставки заказа"
+
+#: site_commerce_order.module:602
+msgid "You can pay now"
+msgstr "Оплатить cейчас"
+
+#: site_commerce_order.module:608
+msgid "The order has been cancelled."
+msgstr "Заказ аннулирован."
+
+#: site_commerce_order.module:612
+msgid "Order no. @order missing on site or you have indicated an incorrect access code @password."
+msgstr "Заказ № @order отсуствует на сайте или Вы указали неправильный код доступа @password."
+
+#: site_commerce_order.module:679;685;693;915
+msgid "Full name"
+msgstr "ФИО"
+
+#: site_commerce_order.module:683
+msgid "The visitor of a site"
+msgstr "Посетитель сайта"
+
+#: site_commerce_order.module:702;969
+msgid "Organization"
+msgstr "Организация"
+
+#: site_commerce_order.module:712;977
+msgid "Position in the organization"
+msgstr "Должность в организации"
+
+#: site_commerce_order.module:722;985
+msgid "Postcode"
+msgstr "Почтовый индекс"
+
+#: site_commerce_order.module:732;994
+msgid "City"
+msgstr "Город"
+
+#: site_commerce_order.module:742;1044
+msgid "The address of delivery"
+msgstr "Адрес доставки"
+
+#: site_commerce_order.module:753;762;1017
+msgid "Way of delivery"
+msgstr "Cпособ доставки"
+
+#: site_commerce_order.module:773;1053
+msgid "Date"
+msgstr "Дата"
+
+#: site_commerce_order.module:783;1063
+msgid "Time"
+msgstr "Время"
+
+#: site_commerce_order.module:793;951
+msgid "Contact phone"
+msgstr "Контактный телефон"
+
+#: site_commerce_order.module:803;960
+msgid "E-mail"
+msgstr "E-mail"
+
+#: site_commerce_order.module:813
+msgid "Comment"
+msgstr "Комментарий"
+
+#: site_commerce_order.module:828
+msgid "Parameters of delivery"
+msgstr "Параметры доставки"
+
+#: site_commerce_order.module:919
+msgid "Borisov Peter Nikolaevich"
+msgstr "Борисов Пётр Николаевич"
+
+#: site_commerce_order.module:924
+msgid "Last name"
+msgstr "Фамилия"
+
+#: site_commerce_order.module:928
+msgid "Borisov"
+msgstr "Борисов"
+
+#: site_commerce_order.module:933
+msgid "First name"
+msgstr "Имя"
+
+#: site_commerce_order.module:937
+msgid "Peter"
+msgstr "Пётр"
+
+#: site_commerce_order.module:942
+msgid "Patronymic"
+msgstr "Отчество"
+
+#: site_commerce_order.module:946
+msgid "Nikolaevich"
+msgstr "Николаевич"
+
+#: site_commerce_order.module:989
+msgid "Your postcode"
+msgstr "Ваш почтовый индекс"
+
+#: site_commerce_order.module:998
+msgid "Your city or village"
+msgstr "Ваш город или посёлок"
+
+#: site_commerce_order.module:1048
+msgid "Street, house, flat"
+msgstr "Улица, дом, квартира"
+
+#: site_commerce_order.module:1076
+msgid "The comment to the order"
+msgstr "Комментарий к заказу"
+
+#: site_commerce_order.module:1092
+msgid "To issue the order"
+msgstr "Оформить заказ"
+
+#: site_commerce_order.module:1166
+msgid "The e-mail address %mail is not valid."
+msgstr "Адрес электронной почты %mail некорректен."
+
+#: site_commerce_order.module:1176
+msgid "Contact phone number <strong>@param</strong> is incorrect."
+msgstr "Контактный телефон <strong>@param</strong> указан неверно."
+
+#: site_commerce_order.module:1219
+msgid "On a site there was a mistake. Try to repeat operation once again. If the mistake will repeat, we necessarily shall correct it in the near future."
+msgstr "На сайте произошла ошибка. Попробуйте повторить операцию снова. Если ошибка будет повторятся, мы обязательно ее исправим в ближайшее время."
+
+#: site_commerce_order.module:1303
+msgid "A link to the page of the order"
+msgstr "Ссылка на страницу заказа"
+
+#: site_commerce_order.module:1307
+msgid "Password"
+msgstr "Пароль"
+
+#: site_commerce_order.module:1327
+msgid "the new order has acted - @number"
+msgstr "поступил новый заказ - @number"
+
+#: site_commerce_order.module:1344
+msgid "the order is accepted"
+msgstr "заказ принят"
+
+#: site_commerce_order.module:1356
+msgid "Thank you for buying. Your order number @number."
+msgstr "Благодарим Вас за покупку. Номер Вашего заказа @number."
+
+#: site_commerce_order.module:91
+msgid "Order"
+msgstr "Порядок"
+
+#: (duplicate) site_commerce_order.install:31
+msgid "Items of delivery of orders"
+msgstr "Пункты выдачи заказов"
+
+#: site_commerce_order.info:0
+msgid "Site commerce order"
+msgstr "Site commerce order"
+
+#: site_commerce_order.info:0
+msgid "Registration of the order in the online store."
+msgstr "Оформление заказа в интернет-магазине."
+
+#: site_commerce_order.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"
+
+#: modules/ya_site_commerce/ya_site_commerce.module:78
+msgid "Payment method"
+msgstr "Способ оплаты"
+
+#: modules/ya_site_commerce/ya_site_commerce.info:0
+msgid "Yandex SiteCommerce"
+msgstr "Яндекс SiteCommerce"
+
+#: modules/ya_site_commerce/ya_site_commerce.info:0
+msgid "Yandex.Money module for Drupal SiteCommerce."
+msgstr "Модуль Yandex.Money для Drupal SiteCommerce."
+
+#: modules/ya_site_commerce/ya_site_commerce.info:0
+msgid "Yandex.Money"
+msgstr "Яндекс.Деньги"
+
+#: templates/site-commerce-order-form.tpl.php:17
+msgid "Registration of the order"
+msgstr "Оформление заказа"
+
+#: templates/site-commerce-order-form.tpl.php:18
+msgid "required to be filled"
+msgstr "обязательны к заполнению"
+
+#: templates/site-commerce-order-form.tpl.php:23
+msgid "Personal information"
+msgstr "Персональная информация"
+
+#: templates/site-commerce-order-form.tpl.php:31
+msgid "The information for delivery"
+msgstr "Информация для доставки"
+
+#: templates/site-commerce-order-form.tpl.php:39
+msgid "Desirable date"
+msgstr "Желаемая дата"
+
+#: templates/site-commerce-order-form.tpl.php:45
+msgid "Desirable time"
+msgstr "Желаемое время"
+
+#: templates/site-commerce-order-form.tpl.php:51
+msgid "Desirable date and time"
+msgstr "Желаемая дата и время"
+
+#: templates/site-commerce-order-form.tpl.php:59
+msgid "Additional information"
+msgstr "Дополнительная информация"

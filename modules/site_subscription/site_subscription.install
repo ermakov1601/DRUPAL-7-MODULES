@@ -1,0 +1,154 @@
+<?php
+
+/**
+ * @file
+ * The install file of site_subscription.
+ */
+
+/**
+ * Enable module site_subscription..
+ */
+function site_subscription_install() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  // Создание словарей таксономии.
+  _site_subscription_create_vocabularies();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function site_subscription_uninstall() {
+  // Удаляем словари.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_subscription_types');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  //Перестраиваем меню.
+  menu_rebuild();
+
+  // Очищаем кэш.
+  cache_clear_all();
+}
+
+/**
+ * Создание словаря.
+ */
+function _site_subscription_create_vocabularies() {
+  $t = get_t();
+
+  // Создаем словарь справочника ип и организаций.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_subscription_types');
+  if (empty($vocabulary)) {
+    $edit = array(
+      'name' => $t('Categories subscription'),
+      'machine_name' => 'site_subscription_types',
+      'description' => "",
+      'hierarchy' => 1,
+      'module' => 'site_subscription',
+      'weight' => 0,
+      'term_page_access_denied' => 1,
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+
+    // Создаём категории по умолчанию.
+    $term = new stdClass();
+    $term->name = $t('News and events about the system');
+    $term->description = "";
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+
+    $term = new stdClass();
+    $term->name = $t('Сourses and exercises');
+    $term->description = "";
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+
+    $term = new stdClass();
+    $term->name = $t('Expert Articles');
+    $term->description = "";
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function site_subscription_schema() {
+  $schema = array();
+  $schema['site_subscriptions'] = array(
+    'description' => 'Таблица для хранения подписки.',
+    'fields' => array(
+      'subid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор.',
+      ),
+      'uid' => array(
+        'description' => 'Идентификатор пользователя {users}.uid.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tid' => array(
+        'description' => 'Идентификатор категории подписки.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'mail' => array(
+        'description' => 'E-mail',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'Дата создания.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'hash' => array(
+        'description' => 'HASH строка для удаления подписки.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid', 'tid', 'mail'),
+    ),
+    'foreign keys' => array(
+      'site_subscription_users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+      'site_subscription_taxonomy' => array(
+        'table' => 'taxonomy_term_data',
+        'columns' => array('tid' => 'tid'),
+      ),
+    ),
+    'primary key' => array('subid'),
+  );
+
+  return $schema;
+}
+
+///**
+// * Language update.
+// */
+//function site_subscription_update_7000() {
+//  // Обновляем перевод модуля.
+//  if (module_exists('locale')) {
+//    locale_system_update(array('site_subscription'));
+//    return 'Language site_subscription 7000 updated.';
+//  }
+//}

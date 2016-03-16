@@ -1,0 +1,23 @@
+.site-commerce-subcategories {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8em;
+}
+
+.site-commerce-subcategories__item {
+  display: inline-block;
+  margin: 0 0 10px 0;
+  vertical-align: top;
+  text-align: center;
+  width: 150px;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+.site-commerce-subcategory-image__logo {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}

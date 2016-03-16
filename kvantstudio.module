@@ -1,0 +1,1655 @@
+<?php
+
+/**
+ * @file
+ * The core module of kvantstudio project.
+ */
+
+/**
+ * Implement hook_init().
+ */
+function kvantstudio_init() {
+  // Создаем переменную сеcсии, в которой храняться информационные сообщения.
+  $_SESSION['kvantstudio_messages'] = array();
+
+  // Подключаем необходимые системные библиотеки.
+  drupal_add_library('system', 'ui.dialog');
+  drupal_add_library('system', 'drupal.ajax');
+  drupal_add_library('system', 'jquery.form');
+  drupal_add_library('system', 'jquery.cookie');
+
+  // Подключаем библиотеку kvantstudio.js.
+  drupal_add_js(drupal_get_path('module', 'kvantstudio') . '/js/kvantstudio.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+
+  // Подключаем файлы litebox.
+  if (variable_get('kvantstudio_allow_litebox', TRUE) && $path = libraries_get_path('litebox')) {
+    drupal_add_css($path . '/assets/css/litebox.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE));
+    drupal_add_js($path . '/assets/js/images-loaded.min.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+    drupal_add_js($path . '/assets/js/litebox.min.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+  }
+
+  // Подключаем файлы jquery.maskedinput.
+  if (variable_get('kvantstudio_allow_maskedinput', TRUE) && $path = libraries_get_path('maskedinput')) {
+    drupal_add_js($path . '/jquery.maskedinput.min.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+  }
+
+  // Подключаем файлы jquery.zoom.
+  if (variable_get('kvantstudio_allow_zoom', TRUE) && $path = libraries_get_path('zoom')) {
+    drupal_add_js($path . '/jquery.zoom.min.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+  }
+
+  // Подключаем файлы readmore.
+  if (variable_get('kvantstudio_allow_readmore', TRUE) && $path = libraries_get_path('readmore')) {
+    drupal_add_js($path . '/readmore.min.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+    drupal_add_js(array('kvantstudio_readmore_height' => 80), 'setting');
+    drupal_add_js(array('kvantstudio_readmore_more' => t('Read more')), 'setting');
+    drupal_add_js(array('kvantstudio_readmore_less' => t('Close')), 'setting');
+  }
+
+  // Подключаем файлы jquery.equalheights.
+  if (variable_get('kvantstudio_allow_equalheights', TRUE) && $path = libraries_get_path('equalheights')) {
+    drupal_add_js(array('kvantstudio_allow_equalheights' => 1), 'setting');
+    drupal_add_js($path . '/jquery.equalheights.min.js', array('group' => JS_LIBRARY, 'every_page' => TRUE));
+  }
+}
+
+/**
+ * Implement hook_permission().
+ */
+function kvantstudio_permission() {
+  return array(
+    'administer kvantstudio settings' => array(
+      'title' => t('Administer settings')
+    ),
+    'access view system notices kvantstudio' => array(
+      'title' => t('Viewing of system notices kvantstudio'),
+    ),
+    'access to edit own user account' => array(
+      'title' => t('To allow to edit own user account'),
+    ),
+  );
+}
+
+/**
+ * Set default role permissions.
+ */
+function kvantstudio_default_role_permissions() {
+  // Назначаем права доступа к модулю.
+  $permissions = array(
+    "access to edit own user account",
+  );
+  user_role_grant_permissions(2, $permissions);
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function kvantstudio_schema_alter(&$schema) {
+  $schema['taxonomy_vocabulary']['fields']['term_page_access_denied'] = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'If true access to the page display term will be blocked.',
+  );
+  $schema['taxonomy_term_data']['fields']['term_page_access_denied'] = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'If true access to the page display term will be blocked.',
+  );
+  $schema['role']['fields']['sysname'] = array(
+    'type' => 'varchar',
+    'length'   => 255,
+    'not null' => FALSE,
+    'default' => '',
+    'description' => 'System name of role.',
+  );
+}
+
+/**
+ * Загружает роль по системному имени.
+ */
+function kvantstudio_role_load_by_sysname($role_sysname) {
+  return db_select('role', 'r')
+    ->fields('r')
+    ->condition('sysname', $role_sysname)
+    ->execute()
+    ->fetchObject();
+}
+
+/**
+ * Implement hook_menu().
+ */
+function kvantstudio_menu() {
+  $items = array();
+
+  $items['admin/config/kvantstudio'] = array(
+    'title' => 'Settings of modules of project KVANTSTUDIO',
+    'position' => 'right',
+    'weight' => -50,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['admin/config/kvantstudio/settings'] = array(
+    'title' => 'The general adjustments',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('kvantstudio_settings_form'),
+    'access arguments' => array('administer kvantstudio settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'kvantstudio.settings.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function kvantstudio_theme() {
+  return array(
+    'kvantstudio_image' => array(
+      'variables' => array(
+        'style_name' => 'thumbnail',
+        'style_name_popup' => 'large',
+        'image_path' => NULL,
+        'alt' => NULL,
+        'title' => NULL,
+        'width' => NULL,
+        'height' => NULL,
+        'attributes' => array(),
+        'gid' => NULL,
+        'link' => FALSE,
+        'url' => NULL,
+      ),
+    ),
+    'kvantstudio_image_field' => array(
+      'variables' => array(
+        'data' => array(),
+        'field_name' => NULL,
+        'image_style' => 'thumbnail',
+        'path_link' => NULL,
+      ),
+    ),
+    'kvantstudio_element_date' => array(
+      'arguments' => array('element' => NULL),
+      'render element' => 'element',
+    ),
+    'kvantstudio_element_time' => array(
+      'arguments' => array('element' => NULL),
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Returns HTML for an image using a specific imagecache style.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - style_name: стиль изображения, в котором его необходимо отобразить на странице.
+ *   - style_name_popup: стиль изображения используемый при открытии в popup окне (например, Colorbox).
+ *   - image_path: uri путь до файла изображения.
+ *   - title: заголовок изображения используемый в теге title.
+ *   - alt: текст отображаемый в теге alt.
+ *   - link: если TRUE - будет создана ссылка с изображением.
+ *   - url: url адрес по которому будет срабатывать ссылка, если link = TRUE. Если url не указан
+ *     будет в качестве адреса ссылки использоваться путь image_path.
+ *   - gid: идентификатор изображения для подставновки в rel="" параметр ссылки (for example Colorbox image grouping).
+ *
+ * @ingroup themeable
+ */
+function theme_kvantstudio_image($variables) {
+  if ($variables['style_name_popup']) {
+    $image_path = image_style_url($variables['style_name_popup'], $variables['image_path']);
+  }
+  else {
+    $image_path = $variables['image_path'];
+  }
+
+  // Формируем атрибуты изображения.
+  $parametrs = array(
+    'style_name' => $variables['style_name'],
+    'path'       => $variables['image_path'],
+    'alt'        => $variables['alt'],
+    'title'      => $variables['title'],
+    'attributes' => $variables['attributes'],
+  );
+
+  if ($variables['style_name']) {
+    $image = theme('image_style', $parametrs);
+  }
+  else {
+    $image = theme('image', $parametrs);
+  }
+
+  // Если требуется отображать ссылку, то формируем ее из атрибутов
+  if ($variables['link']) {
+    // Атрибуты ссылки.
+    $attributes = array();
+    if ($variables['title']) {
+      $attributes += array('title' => $variables['title']);
+    }
+    if ($variables['class']) {
+      $attributes += array('class' => implode(' ', $variables['class']));
+    }
+    if ($variables['gid']) {
+      $attributes += array('rel' => $variables['gid']);
+    }
+    else {
+      $attributes += array('rel' => 'nofollow');
+    }
+    $options = array(
+      'html' => TRUE,
+      'attributes' => $attributes,
+    );
+
+    if ($variables['url']) {
+      $path = $variables['url'];
+    }
+    else {
+      $path = file_create_url($image_path);
+    }
+    return l($image, $path, $options);
+  }
+  else {
+    return $image;
+  }
+}
+
+/**
+* Implementation of hook_menu_alter().
+* Remember to clear the menu cache after adding/editing this function.
+*/
+function kvantstudio_menu_alter(&$items) {
+  // Переназначаем элементы меню доступа к странице терминов таксономии.
+  $items['taxonomy/term/%']['page callback'] = 'kvantstudio_term_page';
+  $items['taxonomy/term/%']['page arguments'] = array(2);
+  $items['taxonomy/term/%']['access callback'] = 'kvantstudio_term_page_access';
+  $items['taxonomy/term/%']['access arguments'] = array(2);
+
+  // Переназначаем элементы меню доступа к странице редактирования профиля.
+  $items['user/%user/edit']['access callback'] = 'kvantstudio_user_edit_access';
+  $items['user/%user/edit']['access arguments'] = array(1);
+}
+
+/**
+ * Access callback function for access to user/%user/edit.
+ *
+ * @param $account.
+ *   The user account.
+ *
+ * @return
+ *   True if current user is granted access, FALSE otherwise.
+ */
+function kvantstudio_user_edit_access($account) {
+  return (($GLOBALS['user']->uid == $account->uid && user_access('access to edit own user account')) || user_access('administer users') && $account->uid > 0);
+}
+
+/**
+ * Access callback function for taxonomy/term/%.
+ *
+ * @param $tid
+ *   The term id.
+ *
+ * @return
+ *   True function for load term.
+ */
+function kvantstudio_term_page($tid) {
+  $term = taxonomy_term_load($tid);
+  if(is_object($term)) {
+    // Выполняем проверку терминов для модуля site_commerce.
+    // Определяем является ли словарь текущего термина, одним из классификаторов
+    // категории в типах товаров.
+    if (module_exists('site_commerce')) {
+      $vid = db_query('SELECT n.categories_vocabulary FROM {site_commerce_type} n WHERE n.categories_vocabulary = :vid', array(':vid' => $term->vid))->fetchField();
+      if ($vid) {
+        // Запрашиваем какие модули реализуют отображение каталога.
+        $value = module_invoke_all('kvantstudio_term_page', $term);
+        if (!empty($value)) {
+          module_load_include($value['extension'], $value['module'], $value['file']);
+          if (function_exists($value['function'])) {
+            return call_user_func($value['function'], $term);
+          }
+          else {
+            return t("In the module @module, realizing display of the catalogue of the products, for a category @taxonomy there is no realization hook_kvantstudio_term_page or function @function is inaccessible to a call.", array('@module' => $value['module'], '@taxonomy' => $term->name, '@function' => $value['function']));
+          }
+        }
+        else {
+          return t("On a site the module realizing display of the catalogue of the products for a category @name is disconnected.", array('@name' => $term->name));
+        }
+      }
+
+      // Формируем вызов загрузки каталога для спецпредложения.
+      // Запрашиваем какие модули реализуют отображение каталога для спецпредложений.
+      $vocabulary_special_offers = taxonomy_vocabulary_machine_name_load('site_commerce_special_offers_vocabulary');
+      if ($vocabulary_special_offers->vid == $term->vid) {
+        $value = module_invoke_all('kvantstudio_special_offers_term_page', $term);
+        if (!empty($value)) {
+          module_load_include($value['extension'], $value['module'], $value['file']);
+          if (function_exists($value['function'])) {
+            return call_user_func($value['function'], $term);
+          }
+          else {
+            return t("In the module @module, realizing display of the catalogue of the products, for a category @taxonomy there is no realization hook_kvantstudio_term_page or function @function is inaccessible to a call.", array('@module' => $value['module'], '@taxonomy' => $term->name, '@function' => $value['function']));
+          }
+        }
+      }
+    }
+
+    // Выполняем проверку по системным именам словарей.
+    $vocabulary_machine_name = $term->vocabulary_machine_name;
+    switch($vocabulary_machine_name) {
+      case "site_news_vocabulary":
+        if (module_exists('site_news')) {
+          module_load_include('inc', 'site_news', 'site_news.category');
+          return site_news_category($tid);
+        }
+        break;
+      case "site_faq_vocabulary":
+//        if (module_exists('site_faq')) {
+//          module_load_include('inc', 'site_faq', 'site.faq.categories');
+//          return site_faq_categories($tid);
+//        }
+        // Для предыдущей версии модуля.
+        // Эта строка может быть удалена в будущем.
+        if (module_exists('site_faq')) {
+          module_load_include('inc', 'site_faq', 'includes/site.faq.view');
+          return site_faq_taxonomy_term_page($tid);
+        }
+        break;
+      case "site_photogallery_vocabulary":
+        if (module_exists('site_photogallery')) {
+          module_load_include('inc', 'site_photogallery', 'site_photogallery.category');
+          return site_photogallery_category($tid);
+        }
+        break;
+      case "site_projects_vocabulary":
+        if (module_exists('site_projects')) {
+          module_load_include('inc', 'site_projects', 'site_projects.category');
+          return site_projects_category($tid);
+        }
+        break;
+      case "site_objects_real_estate_regions_vocabulary":
+        if (module_exists('site_objects_real_estate')) {
+          module_load_include('inc', 'site_objects_real_estate', 'site_objects_real_estate.category');
+          return site_objects_real_estate_category($tid);
+        }
+        break;
+    }
+
+    // Возвращаем функцию конструктор страницы отображения таксономии по умолчанию.
+    module_load_include('inc', 'taxonomy', 'taxonomy.pages');
+    return taxonomy_term_page($term);
+  }
+}
+
+/**
+ * Access callback function for access to taxonomy/term/%.
+ *
+ * @param $tid.
+ *   The term id.
+ *
+ * @return
+ *   True if current user is granted access, FALSE otherwise.
+ */
+function kvantstudio_term_page_access($tid) {
+  $term = taxonomy_term_load($tid);
+  if(is_object($term)) {
+    // Если доступ к термину запрещен возвращаем FALSE.
+    if (isset($term->term_page_access_denied) && $term->term_page_access_denied) {
+      return FALSE;
+    }
+
+    // Выполняем проверку терминов для модуля site_commerce.
+    // Определяем является ли словарь текущего термина, одним из классификаторов
+    // категории в типах товаров.
+    if (module_exists('site_commerce')) {
+      $vid = db_query('SELECT n.categories_vocabulary FROM {site_commerce_type} n WHERE n.categories_vocabulary = :vid', array(':vid' => $term->vid))->fetchField();
+      if ($vid) {
+        return site_commerce_view_access();
+      }
+    }
+
+    // Выполняем проверку по системным именам словарей, которые создаются другими модулями
+    // разработанными в рамках проекта kvantstudio.
+    switch($term->vocabulary_machine_name) {
+      case 'site_faq_vocabulary':
+        return user_access('access content');
+      case 'site_news_vocabulary':
+        return user_access('access content');
+      case 'site_photogallery_vocabulary':
+        return user_access('access content');
+      case 'site_projects_vocabulary':
+        return user_access('access content');
+      case 'site_objects_real_estate_regions_vocabulary':
+        return user_access('access content');
+    }
+
+    return user_access('access content');
+  }
+}
+
+/**
+* Implementation of hook_taxonomy_term_presave($term).
+*/
+function kvantstudio_taxonomy_term_presave($term) {
+  // Наследуем со словаря права доступа к термину.
+  $vocabulary = taxonomy_vocabulary_load($term->vid);
+  if (isset($vocabulary->term_page_access_denied) && $vocabulary->term_page_access_denied) {
+    $term->term_page_access_denied = $vocabulary->term_page_access_denied;
+  }
+}
+
+/**
+* Implementation of hook_form_alter(&$form, $form_state, $form_id).
+*/
+function kvantstudio_form_alter(&$form, $form_state, $form_id)  {
+  switch ($form_id)  {
+    case 'taxonomy_form_vocabulary':
+    if (isset($vocabulary->term_page_access_denied)) {
+      $vocabulary = $form_state['vocabulary'];
+      $form['term_page_access_denied'] = array (
+        '#type' => 'checkbox',
+        '#title' => t ('To deny access to the page display terms in this vocabulary'),
+        '#default_value' => $vocabulary->term_page_access_denied,
+      );
+    }
+    break;
+    case 'taxonomy_form_term':
+    if (isset($term->term_page_access_denied)) {
+      $term = $form_state['term'];
+      $form['term_page_access_denied'] = array (
+        '#type' => 'checkbox',
+        '#title' => t ('To deny access to the page display term'),
+        '#default_value' => $term->term_page_access_denied,
+        '#description' => t('The value of this parameter is inherited from dictionary settings, If the dictionary is set to TRUE.'),
+      );
+    }
+    break;
+  }
+
+  // Always add the html5 required attribute for required elements.
+  _kvantstudio_html5_required($form);
+}
+
+/**
+ * This goes in kvantstudio.module file.
+ */
+function _kvantstudio_html5_required(&$element) {
+  if (is_array($element)) {
+    if ((isset($element['#type']) && $element['#type'] !== 'checkboxes') && isset($element['#required']) && $element['#required']) {
+      $element['#attributes']['required'] = 'required';
+    }
+    else {
+      foreach (element_get_visible_children($element) as $key) {
+        _kvantstudio_html5_required($element[$key]);
+      }
+    }
+  }
+}
+
+/**
+* Implementation of hook_menu_breadcrumb_alter().
+*/
+function kvantstudio_menu_breadcrumb_alter(&$active_trail, $item) {
+  if (variable_get('kvantstudio_allow_microdata_breadcrumblist', FALSE)) {
+    $count = 1;
+    foreach($active_trail as $key => $active_trail_item) {
+      $active_trail[$key]['localized_options']['html'] = true;
+      $active_trail[$key]['title'] = '<span itemprop="name">' . $active_trail[$key]['title'] . '</span><meta itemprop="position" content="' . $count . '" />';
+      $active_trail[$key]['localized_options']['attributes']['itemprop']='item';
+      $count++;
+    }
+  }
+}
+
+/**
+ * Переименовывает имя поля в БД.
+ * (string) $name - Текущее имя поля для переименования.
+ * (string) $new_name - новое имя поля.
+ * $field_scheme - схема поля в таблице.
+ */
+function kvantstudio_rename_field($name, $new_name, $field_scheme) {
+  db_update('field_config')
+  ->fields(array(
+    'field_name' => $new_name,
+  ))
+  ->condition('field_name', $name)
+  ->execute();
+
+  db_update('field_config_instance')
+  ->fields(array(
+    'field_name' => $new_name,
+  ))
+  ->condition('field_name', $name)
+  ->execute();
+
+  if (!db_table_exists('field_data_' . $new_name) && db_table_exists('field_data_' . $name)) {
+    $db_rename_table = db_rename_table('field_data_' . $name, 'field_data_' . $new_name);
+  }
+
+  if (!db_table_exists('field_revision_' . $new_name) && db_table_exists('field_revision_' . $name)) {
+    db_rename_table('field_revision_' . $name, 'field_revision_' . $new_name);
+  }
+
+  // Если поле - ссылка на термин таксономии.
+  if (db_field_exists('field_data_' . $new_name, $name . '_tid')) {
+    db_drop_primary_key('field_data_' . $new_name);
+    db_change_field('field_data_' . $new_name, $name . '_tid', $new_name . '_tid', $field_scheme);
+
+    db_drop_primary_key('field_revision_' . $new_name);
+    db_change_field('field_revision_' . $new_name, $name . '_tid', $new_name . '_tid', $field_scheme);
+  }
+
+  // Если поле - значение.
+  if (db_field_exists('field_data_' . $new_name, $name . '_value')) {
+    db_drop_primary_key('field_data_' . $new_name);
+    db_change_field('field_data_' . $new_name, $name . '_value', $new_name . '_value', $field_scheme);
+
+    db_drop_primary_key('field_revision_' . $new_name);
+    db_change_field('field_revision_' . $new_name, $name . '_value', $new_name . '_value', $field_scheme);
+  }
+
+}
+
+/**
+ * Returns field values as actual entities where possible,
+ * also allows selection of individual items to be returned.
+ */
+function kvantstudio_field_value($entity_type, $entity, $field_name, $get_delta = NULL, $get_key = NULL) {
+  $values = array();
+
+  // Если сущность содержит наименование поля и оно не пустое, продолжаем выполнение.
+  if (isset($entity->$field_name) && !empty($entity->$field_name)) {
+
+    // Получаем и обрабатываем массив элементов поля с учетом ключа $delta.
+    foreach (field_get_items($entity_type, $entity, $field_name) as $delta => $item) {
+      $value = $item;
+      $keys = array_keys($item);
+      if (count($keys) == 1) {
+        $key = $keys[0];
+        switch ($key) {
+          case 'nid':
+            $value = entity_load('node', array($item[$key]));
+            break;
+          case 'uid':
+            $value = entity_load('user', array($item[$key]));
+            break;
+          case 'tid':
+            $value = entity_load('taxonomy_term', array($item[$key]));
+            break;
+          case 'vid':
+            $value = entity_load('taxonomy_vocabulary', array($item[$key]));
+            break;
+          case 'value':
+            $value = $item['value'];
+            break;
+        }
+        if (is_array($value)) {
+          $value = array_shift($value);
+        }
+      }
+      else {
+        if ($get_key && isset($item[$get_key])) {
+          $value = $item[$get_key];
+        }
+        elseif (array_key_exists('value', $item)) {
+          $value = isset($item['safe_value']) ? $item['safe_value'] : $item['value'];
+        }
+      }
+      $values[$delta] = $value;
+    }
+  }
+  if (is_numeric($get_delta)) {
+    return isset($values[$get_delta]) ? $values[$get_delta] : NULL;
+  }
+  return $values;
+}
+
+/**
+ * Перечень стилей изображений.
+ * @return
+ *   $styles - массив с перечнем стилей изображений.
+ */
+function kvantstudio_select_imagecache_presets() {
+  $result = db_query("SELECT n.name FROM {image_styles} n");
+  $styles = array(
+    '0' => t('It is not chosen'),
+    'thumbnail' => 'thumbnail',
+    'medium' => 'medium',
+    'large' => 'large',
+  );
+  foreach ($result as $row) {
+    $styles[$row->name] = $row->name;
+  }
+  return $styles;
+}
+
+/**
+ * Перечень словарей.
+ * @return
+ *   $vocabularies - массив с перечнем словарей.
+ */
+function kvantstudio_select_vocabularies() {
+  $vocabularies = array();
+  $vocabularies[0] = t('It is not chosen');
+  $result = db_query("SELECT n.vid, n.name FROM {taxonomy_vocabulary} n ORDER BY n.weight");
+  foreach ($result as $row) {
+    $vocabularies[$row->vid] = $row->name;
+  }
+  return $vocabularies;
+}
+
+/**
+ * Перечень всех терминов словаря.
+ * (int or string) $vid - идентификатор словаря или системное наименование.
+ * (bool) $null_subcategory - если TRUE, то будет добавлена пустая категория для выбора с ключем  - 0.
+ * (bool) $children - если TRUE, функция будет возвращать все дерево терминов, вместе с дочерними элементами.
+ * (string) $title_null_subcategory - не переведенный заголовок пустой категории.
+ * (string) $langcode - код языка (ru, en и т.п.). Если NULL возвращены будут все термины на всех языках.
+ * @return
+ *   $subcategories - массив с перечнем терминов.
+ */
+function kvantstudio_select_terms($vid, $null_subcategory = TRUE, $children = TRUE, $title_null_subcategory = "", $langcode = NULL) {
+  $vocabulary = new stdClass();
+  $subcategories = array();
+
+  if (is_object($vid)) {
+    $vocabulary = $vid;
+  }
+
+  if (is_numeric($vid)) {
+    $vocabulary = taxonomy_vocabulary_load($vid);
+  }
+  elseif (is_string($vid)) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load($vid);
+  }
+
+  // Проверка является ли словарь объектом.
+  if (!is_object($vocabulary)) {
+    return $subcategories;
+  }
+
+  if ($null_subcategory) {
+    $subcategories[0] = t('@value', array('@value' => $title_null_subcategory));
+  }
+
+  if ($children) {
+    $tree = taxonomy_get_tree($vocabulary->vid);
+  }
+  else {
+    $tree = taxonomy_get_tree($vocabulary->vid, 0, 1);
+  }
+
+  foreach ($tree as $term) {
+    $depth = "";
+    for ($i = 0; $i <= $term->depth; $i++) {
+      if ($i > 0) $depth .= ' - ';
+    }
+    if (isset($langcode)) {
+      if ($term->language == $langcode) {
+        $subcategories[$term->tid] = $depth . $term->name;
+      }
+    }
+    else {
+      $subcategories[$term->tid] = $depth . $term->name;
+    }
+  }
+  return $subcategories;
+}
+
+/**
+ * Перечень объектов или названий всех дочерних терминов.
+ * (int) $tid - идентификатор термина таксономии.
+ * (bool) $name - если TRUE, то вместо объектов будет возвращен массив с названиями терминов.
+ */
+function kvantstudio_taxonomy_get_children_all($tid, $name = FALSE) {
+  $c = taxonomy_get_children($tid);
+  $result = array();
+  foreach ($c as $t => $d) {
+    if ($name) {
+      $result[$t] = $d->name;
+    }
+    else {
+      $result[$t] = $d;
+    }
+    $below = kvantstudio_taxonomy_get_children_all($t);
+    if (!empty($below)) {
+      foreach ($below as $nt => $nd) {
+        if ($name) {
+          $result[$nt] = $nd->name;
+        }
+        else {
+          $result[$nt] = $nd;
+        }
+      }
+    }
+  }
+  return $result;
+}
+
+/**
+ * Получает путь до файла (uri), который используется при оформлении и может находиться в папке с темой
+ * в подкаталоге images. Если файл в папке с темой отсутствует, то используется файл из подкаталога
+ * images в местерасположения модуля, в котором применяется изображение.
+ * (string) $name - полное имя файла (image.png).
+ * (string) $module - название модуля, в котором вызывается функция kvantstudio_file_get_uri.
+ * (string) $dir_theme - название каталога с изображением в папке темы оформления.
+ * (string) $dir_module - название каталога с изображением в папке модуля.
+ */
+function kvantstudio_file_get_uri($name, $module, $dir_theme = 'images', $dir_module = 'images') {
+  $uri = file_scan_directory(path_to_theme() . '/' . $dir_theme, '*' . $name . '*', array('key' => 'name'));
+  foreach ($uri as $key) {
+    $path = $key->uri;
+  }
+
+  if (empty($path)) {
+    $path = drupal_get_path('module', $module) . '/' . $dir_module . '/' . $name;
+  }
+
+  return $path;
+}
+
+/****************************************
+/* Функции работы с электронной почтой */
+/****************************************
+
+/**
+ * Функция: отправка сообщения разработчику сайта.
+ * (string) $text - текст сообщения.
+ */
+function kvantstudio_send_developer_report($text) {
+  // Формируем html тело сообщения.
+  $body = '';
+  $body .= '<h1>' . t('The notice from a site') . ' ' . l("http://" . $_SERVER['HTTP_HOST'], $_SERVER['HTTP_HOST']) . '</h1>';
+  $body .= '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">Текст уведомления:</div>';
+  $body .= '<div style="margin:10px;padding:10px;background-color:#CCC;border:1px bolder #c3c3c3;border-radius:10px">' . $text . '</div>';
+
+  // Отправка сообщения.
+  kvantstudio_mail_send(array(
+    'module'      => 'kvantstudio',
+    'key'         => 'site_developer_mail',
+    'to'          => '',
+    'from'        => '',
+    'subject'     => variable_get('site_name', '') . ': ' . t('the system notice'),
+    'body'        => $body,
+    'set_message' => FALSE,
+    'attachments' => array(),
+  ));
+}
+
+/**
+* Modify the drupal mail system to send HTML emails.
+*/
+class KvantstudioMailSystem implements MailSystemInterface {
+  /**
+  * Concatenate and wrap the e-mail body for plain-text mails.
+  *
+  * @param $message
+  * A message array, as described in hook_mail_alter().
+  *
+  * @return
+  * The formatted $message.
+  */
+  public function format(array $message) {
+    $message ['body'] = implode("\n\n" , $message['body']);
+    return $message;
+  }
+
+  /**
+  * Send an e-mail message, using Drupal variables and default settings.
+  *
+  * @see <a href="http://php.net/manual/en/function.mail.php
+  " title="http://php.net/manual/en/function.mail.php
+  " rel="nofollow">http://php.net/manual/en/function.mail.php
+  </a> * @see drupal_mail()
+  *
+  * @param $message
+  * A message array, as described in hook_mail_alter().
+  * @return
+  * TRUE if the mail was successfully accepted, otherwise FALSE.
+  */
+  public function mail(array $message) {
+    $mimeheaders = array();
+    foreach ($message['headers'] as $name => $value) {
+      $mimeheaders[] = $name . ': ' . mime_header_encode($value);
+    }
+    $line_endings = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
+    return mail(
+      $message ['to'],
+      mime_header_encode($message['subject']),
+      // Note: e-mail uses CRLF for line-endings. PHP's API requires LF
+      // on Unix and CRLF on Windows. Drupal automatically guesses the
+      // line-ending format appropriate for your system. If you need to
+      // override this, adjust $conf['mail_line_endings'] in settings.php.
+      preg_replace('@\r?\n@', $line_endings, $message['body']),
+      // For headers, PHP's API suggests that we use CRLF normally,
+      // but some MTAs incorrectly replace LF with CRLF. See #234403.
+      join("\n", $mimeheaders)
+    );
+  }
+}
+
+/**
+ * Implement hook_mail().
+ *
+ * This hook defines a list of possible e-mail templates that this module can
+ * send. Each e-mail is given a unique identifier, or 'key'.
+ *
+ * $message comes in with some standard properties already set: 'to' address,
+ * 'from' address, and a set of default 'headers' from drupal_mail(). The goal
+ * of hook_mail() is to set the message's 'subject' and 'body' properties, as
+ * well as make any adjustments to the headers that are necessary.
+ *
+ * The $params argument is an array which can hold any additional data required
+ * to build the mail subject and body; for example, user-entered form data, or
+ * some context information as to where the mail request came from.
+ *
+ * Note that hook_mail() is not actually a hook. It is only called for a single
+ * module, the module named in the first argument of drupal_mail(). So it's
+ * a callback of a type, but not a hook.
+ */
+function kvantstudio_mail($key, &$message, $params) {
+  global $user;
+
+  // Each message is associated with a language, which may or may not be the
+  // current user's selected language, depending on the type of e-mail being
+  // sent. This $options array is used later in the t() calls for subject
+  // and body to ensure the proper translation takes effect.
+  $options = array(
+    'langcode' => $message['language']->language,
+  );
+
+  // Заголовок письма в формате HTML.
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
+
+  // HTML тело сообщения.
+  $body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\">\n";
+  $body .= '<html>' . "\n" .
+           '<head>' . "\n" .
+           '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . "\n" .
+           '<style type=\"text/css\">' . '</style>' . "\n" .
+           '</head>' . "\n" .
+           '<body>' . "\n" . "\n";
+
+  $body .= '<p>' . $params['body'] . '</p>' . "\n";
+
+  $body .= '</body>' . "\n" .
+           '</html>' . "\n";
+
+  // Имя домена.
+  $http_host = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+
+  // Текст заголовка сообщения.
+  if (empty($params['subject'])) {
+    if (!empty($params['from'])) {
+      $message['subject'] = t('The message from a site') . ' ' . $http_host . ' ' . t('from') . ' ' . $params['from'];
+    }
+    else {
+      $message['subject'] = t('The message from a site') . ' ' . $http_host;
+    }
+  }
+  else {
+    $message['subject'] = $params['subject'];
+  }
+
+  // Выбираем шаблон сообщения в зависимости от идентификатора $key.
+  switch ($key) {
+    // Сообщение для менеджера сайта.
+    case 'kvantstudio_manager_mail':
+      $message['to'] = variable_get('kvantstudio_manager_mail', variable_get('kvantstudio_developer_mail'));
+      $message['from'] = 'noreply@' . $http_host;
+      if (!empty($params['from'])) {
+        $message['from'] = $params['from'];
+      }
+      $message['body'][] = $body;
+      break;
+
+    // Сообщение для администратора сайта.
+    case 'kvantstudio_admin_mail':
+      $message['to'] = variable_get('kvantstudio_admin_mail', variable_get('kvantstudio_developer_mail'));
+      $message['from'] = 'noreply@' . $http_host;
+      $message['from'] = 'noreply@' . $http_host;
+      if (!empty($params['from'])) {
+        $message['from'] = $params['from'];
+      }
+      $message['body'][] = $body;
+      break;
+
+    // Сообщение для разработчика kvantstudio.
+    case 'kvantstudio_developer_mail':
+      $message['to']  = variable_get('kvantstudio_developer_mail');
+      $message['from'] = 'noreply@' . $http_host;
+      if (!empty($params['from'])) {
+        $message['from'] = $params['from'];
+      }
+      $message['body'][] = $body;
+      break;
+
+    // Сообщение менеджеру от посетителя на свободную тему.
+    case 'kvantstudio_from_user_mail':
+      $message['to'] = variable_get('kvantstudio_manager_mail', variable_get('kvantstudio_developer_mail'));
+      if (!empty($params['to'])) {
+        $message['to'] = $params['to'];
+      }
+      $message['from'] = 'noreply@' . $http_host;
+      if (!empty($params['from'])) {
+        $message['from'] = $params['from'];
+      }
+      $message['body'][] = $body;
+      break;
+
+    // Сообщение служебное при событии на сайте.
+    case 'kvantstudio_info_mail':
+      $message['to'] = variable_get('kvantstudio_manager_mail', variable_get('kvantstudio_developer_mail'));
+      if (!empty($params['to'])) {
+        $message['to'] = $params['to'];
+      }
+      $message['from'] = 'noreply@' . $http_host;
+      if (!empty($params['from'])) {
+        $message['from'] = $params['from'];
+      }
+      $message['body'][] = $body;
+      break;
+  }
+}
+
+/**
+ * Отправка e-mail сообщения.
+ * @param
+ *   (array) $params - массив с параметрами сообщения.
+       $params['module'] - название модуля, у которого будет вызван hook_mail().
+       $params['key'] - ключ для идентификации шаблона сообщения.
+       $params['to'] - e-mail получателя.
+       $params['from'] - e-mail отправителя.
+       $params['subject'] - тема сообщения.
+       $params['body'] - текст сообщения.
+       $params['set_message'] - TRUE, если необходимо вывести уведомление об отправке.
+       $params['attachments'] - массив с обьектами загруженных файлов.
+ */
+function kvantstudio_mail_send($params) {
+  // Имя модуля, у которого будет вызван hook_mail() и ключ для идентификации шаблона.
+  $module = $params['module'];
+  $key = $params['key'];
+
+  // Назначаем адреса 'to' и 'from'.
+  $to = $params['to'];
+  if (isset($params['from']) && !empty($params['from'])) {
+    $from = $params['from'];
+  }
+  else {
+    $from = 'noreply@' . $_SERVER['HTTP_HOST'];
+    $from = str_replace('www.', '', $from);
+  }
+
+  // Язык отправляемого сообщения по умолчанию.
+  $language = language_default();
+
+  // Определяет автоматически или нет отправлять сообщение когда вызывается функция drupal_mail().
+  $send = TRUE;
+
+  // Отправляем сообщение.
+  $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
+  if ($result['result'] == TRUE) {
+    if (isset($params['set_message']) && $params['set_message']) {
+      drupal_set_message(t('Your message has been sent.'));
+    }
+    watchdog('kvantstudio', 'The message from a site is sent.');
+  }
+  else {
+    drupal_set_message(t('There was a problem sending your message and it was not sent.'), 'error');
+    // Отправка системных уведомлений на электронную почту.
+    $text = t('There was a problem sending your message and it was not sent.') . ' Error in function kvantstudio_mail_send() in file kvantstudio.module';
+    if (variable_get('site_developer_mail_allow', TRUE)) {
+      kvantstudio_send_developer_report($text);
+    }
+    watchdog('kvantstudio', 'There was a problem sending your message and it was not sent.', NULL, WATCHDOG_ERROR);
+  }
+}
+
+/**
+ * Функция: изменение регистра первого символа в строке.
+ * (string) $string - строка.
+ */
+function kvantstudio_mb_ucfirst($string) {
+  $string = mb_ereg_replace("^[\ ]+", "", $string);
+  $string = mb_strtoupper(mb_substr($string, 0, 1, "UTF-8"), "UTF-8") . mb_substr($string, 1, mb_strlen($string), "UTF-8");
+  return $string;
+}
+
+/**
+ * Функция: корректирует строку, удаляет пробелы и делает заглавными буквами первые символы начала предложений. Разделитель предложения точка с пробелом.
+ * (string) $text - строка.
+ */
+function kvantstudio_string_correct($text) {
+  $split = explode(". ", $text);
+  foreach ($split as $sentence) {
+    $sentenceproduct = kvantstudio_mb_ucfirst($sentence);
+    $text = str_replace($sentence, $sentenceproduct, $text);
+  }
+  return trim(preg_replace('/\s{2,}/', ' ', $text));
+}
+
+/**
+ * Транслитерация строки.
+ * (string) $string - строка для перевода.
+ * (string) $direction - направление перевода 'ru_en' или 'en_ru'.
+ */
+function kvantstudio_transliterate($string, $direction = 'ru_en') {
+  $ru = explode(" ", "а б в г д е ж з и й к л м н о п р с т у ф ы э А Б В Г Д Е Ж З И Й К Л М Н О П Р С Т У Ф Ы Э ё x ц ч ш щ ъ ь ю я Ё Х Ц Ч Ш Щ Ъ Ь Ю Я");
+  $en = explode(" ", "a b v g d e g z i y k l m n o p r s t u f i e A B V G D E G Z I Y K L M N O P R S T U F I E yo h ts ch sh shch   yu ya Yo H Ts Ch Sh Shch   Yu Ya");
+  if ($direction == 'en_ru') {
+    return str_replace($en, $ru, $string);
+  }
+  else {
+    return str_replace($ru, $en, $string);
+  }
+  return $string;
+}
+
+/**
+ * Транслитерация строки введенной некорректно.
+ * (string) $string - строка для перевода.
+ */
+function kvantstudio_error_transliterate($string) {
+  $string = mb_strtolower($string, "UTF-8");
+  $en = explode(" ", "q w e r t y u i o p [ ] a s d f g h j k l ; ' z x c v b n m , .");
+  $ru = explode(" ", "й ц у к е н г ш щ з х ъ ф ы в а п р о л д ж э я ч с м и т ь б ю");
+  return str_replace($en,$ru, $string);
+}
+
+/**
+ * Корректировка url адреса.
+ * (string) $url - URL адрес в виде строки (ЧПУ ссылка).
+ */
+function kvantstudio_url_alias_correct($url) {
+  // Переводим все в нижний регистр.
+  $url = mb_strtolower($url, "UTF-8");
+
+  // Выполняем транслитерацию.
+  $url = transliteration_get($url);
+
+  // заменям все ненужное нам на "-"
+  //$url = preg_replace('~[^-a-z0-9_]+~u', '-', $url);
+
+  // Удаялем повторяющиеся тире и пробелы.
+  $string_search = array(' ','  ',',','-','__',' - ','--','—',' — ','---');
+  $string_replace = array('-','-','-','-','-','-','-','-','-','-');
+  $url = str_replace($string_search, $string_replace, $url);
+
+  // Удаляем специальные символы.
+  $string_search = array('.', '!', '?', ':', '"', '(', ')', '=', '<', '<<', '>', '>>');
+  $string_replace = array('', '', '', '', '', '', '', '-', '', '', '', '');
+  $url = str_replace($string_search, $string_replace, $url);
+  $url = trim($url, '-');
+
+  return $url;
+}
+
+/**
+ * Удаляет из строки специальные символы.
+ * Применяется для корректировки title страницы.
+ * (string) $title - строка заголовок.
+ */
+function kvantstudio_title_correct($title, $length = 255) {
+  $title = check_plain($title);
+
+  // Заменяем специльные символы.
+  $string_search = array('/', ' - ', ",");
+  $string_replace = array(' ', '-', ", ");
+  $title = str_replace($string_search, $string_replace, $title);
+  $title = preg_replace('/"([^"]+)"/', '$1', $title);
+  $title = preg_replace('/\s{2,}/', ' ', $title);
+
+  $title = kvantstudio_summary($title, $length);
+
+  return $title;
+}
+
+/**
+ * Возвращает случайную строку заданной длины.
+ * (int) $len - длина строки.
+ * (string) $type - тип строки.
+ */
+function kvantstudio_random_string($len = 10, $type = 'all') {
+  switch ($type) {
+    case 'all':
+      $arr = array("A-Z", "a-z", "0-9");
+    case 'numeric':
+      $arr = array("0-9");
+    case 'small_all':
+      $arr = array("a-z", "0-9");
+  }
+
+  $simb = array();
+
+  for ($i = 0; $i < count($arr); $i++) {
+    list($st, $end) = explode("-", $arr[$i]);
+    for ($j = ord($st); $j < ord($end); $j++) {
+      $simb[] = chr($j);
+    }
+  }
+
+  $str = "";
+
+  for ($i = 0; $i < $len; $i++) {
+    $str .= $simb[rand(0, (count($simb) - 1))];
+  }
+
+  return $str;
+}
+
+/**
+ * Функция: HTML код для вставки изображения полученного из поля.
+ * @param $variables
+ *   An associative array containing:
+ *   - data - массив с данными поля.
+ *   - field_name - наименование поля из field_name.field_config_instance.
+ *     Используется если массив $data пустой (изображение у поля нет),
+ *     но необходимо вывести изображение по умолчанию,
+ *     которое установлено в настройках поля.
+ *   - image_style - стиль imagecache. *
+ *   - path_link - ссылка, которая будет открываться при клике на изображение.
+ */
+function theme_kvantstudio_image_field($variables) {
+  // Формируем переменные.
+  $data = $variables['data'];
+  $field_name = $variables['field_name'];
+  $image_style = $variables['image_style'];
+  $path_link = $variables['path_link'];
+
+  // Формируем полный путь до изображения.
+  if (is_array($data) && $data['uri']) {
+    $path = file_create_url($data['uri']);
+  }
+
+  // Формируем параметры для изображения по умолчанию.
+  if (empty($data) && $field_name) {
+    $path = '';
+    $query = db_select('file_usage', 'f');
+    $query->fields('f', array('fid'));
+    $query->join('field_config_instance', 'n', 'f.id = n.id');
+    $query->condition('n.field_name', $field_name);
+    $query->condition('f.type', 'default_image');
+    $fid = $query->execute()->fetchField();
+
+    if ($fid) {
+      $uri = file_load($fid)->uri;
+    }
+    else {
+      $uri = NULL;
+    }
+
+    $data = array(
+      'uri' => $uri,
+      'alt' => '',
+      'title' => '',
+      'width' => '',
+      'height' => '',
+    );
+  }
+
+  // Если передан путь ссылки, то при клике на изображение будет открываться ссылка.
+  if ($path_link) {
+    $variables = array(
+      'item' => $data,
+      'image_style' => $image_style,
+      'path' => array(
+        'path' => $path_link,
+        'options' => array(),
+      ),
+    );
+  }
+  else {
+    $variables = array(
+      'item' => $data,
+      'image_style' => $image_style,
+      'path' => array(
+        'path' => $path,
+        'options' => array(
+          'attributes' => array(
+            'class' => array('colorbox init-colorbox-processed-processed cboxElement'),
+            'rel' => '',
+            'title' => $data['title'],
+          ),
+        ),
+      ),
+    );
+  }
+
+  if ($data['uri']) {
+    return theme('image_formatter', $variables);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Полный текущий URL страницы относительно сервера и способа соединения.
+ */
+function kvantstudio_current_url() {
+	$result = ''; // Пока результат пуст.
+	$default_port = 80; // Порт по-умолчанию.
+
+	// Проверка защищенного соединения.
+	if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS']=='on')) {
+		// В защищенном! Добавим протокол...
+		$result .= 'https://';
+		// ...и переназначим значение порта по-умолчанию.
+		$default_port = 443;
+	} else {
+		// Обычное соединение, обычный протокол
+		$result .= 'http://';
+	}
+	// Имя сервера, напр. site.com или www.site.com
+	$result .= $_SERVER['SERVER_NAME'];
+
+	// А порт у нас по-умолчанию?
+	if ($_SERVER['SERVER_PORT'] != $default_port) {
+		// Если нет, то добавим порт в URL
+		$result .= ':'.$_SERVER['SERVER_PORT'];
+	}
+  // Получаем алиас.
+  $alias = db_query("SELECT n.alias FROM {url_alias} n WHERE n.source=:source", array(':source' => current_path()))->fetchField();
+  if ($alias) {
+    $result .= '/' . $alias;
+  } else {
+    $result .= '/' . current_path();
+  }
+	return $result;
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * This hook declares what blocks are provided by the module.
+ */
+function kvantstudio_block_info() {
+    $blocks['kvantstudio_admin_info'] = array(
+      'info' => t('System notices'),
+      'cache' => DRUPAL_NO_CACHE,
+    );
+    return $blocks;
+}
+
+///**
+// * Implements hook_block_configure().
+// *
+// * This hook declares configuration options for blocks provided by this module.
+// */
+//function kvantstudio_block_configure($delta = '') {
+//  $form = array();
+//  if ($delta == 'kvantstudio_admin_info') {
+//  }
+//  return $form;
+//}
+
+/**
+ * Implements hook_block_view().
+ */
+function kvantstudio_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+  case 'kvantstudio_admin_info':
+    if (user_access('access view system notices kvantstudio')) {
+      $block['subject'] = t('System notices');
+      $block['content'] = kvantstudio_admin_info_content();
+    }
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Функция: регистрация оповещений.
+ */
+function kvantstudio_set_message($message = NULL, $type = 'admin_info') {
+  if ($message) {
+    if (!isset($_SESSION['kvantstudio_messages'][$type])) {
+      $_SESSION['kvantstudio_messages'][$type] = array();
+    }
+    if (!in_array($message, $_SESSION['kvantstudio_messages'][$type])) {
+      $_SESSION['kvantstudio_messages'][$type][] = $message;
+    }
+  }
+  // Messages not set when DB connection fails.
+  return isset($_SESSION['kvantstudio_messages']) ? $_SESSION['kvantstudio_messages'] : NULL;
+}
+
+/**
+ * Вывод оповещений для администратора сайта.
+ */
+function kvantstudio_admin_info_content() {
+  if (isset($_SESSION['kvantstudio_messages']['admin_info'])) {
+    foreach ($_SESSION['kvantstudio_messages']['admin_info'] as $row) {
+      $list[] = $row;
+    }
+  }
+  if (isset($list) && is_array($list)) {
+    return theme('item_list', array('items' => $list));
+  }
+  return FALSE;
+}
+
+/**
+ * Возвращает полный путь ноды.
+ * $node (object) - Объект ноды.
+ */
+function kvantstudio_node_uri($node) {
+  $conditions = 'node/' . $node->nid;
+  $path = path_load($conditions);
+  if (isset($path['alias'])) {
+    $uri = $_SERVER['HTTP_HOST'] . '/' . $path['alias'];
+  }
+  else {
+    $uri = $conditions;
+  }
+  return 'http://' . $uri;
+}
+
+/**
+ * Возвращает краткое содержимое ноды.
+ * (object) $node - объект ноды.
+ * (int) $max_length - количество символов обрезки.
+ * (bool) $add_ellipsis - признак наличия в конце символов обрезки строки (многоточие).
+ * (bool) $full_view - признак отображения и краткого и полного содержимого.
+ * (bool) $summary_view - признак формирования краткого содержимого из основного содержимого.
+ */
+function kvantstudio_node_summary($node, $max_length = 300, $add_ellipsis = FALSE, $full_view = FALSE, $summary_view = TRUE) {
+  $summary = '';
+  if (!empty($node->body)) {
+    // Краткое содержимое по умолчанию.
+    $field = field_get_items('node', $node, 'body');
+    $summary = $field[0]['safe_summary'];
+
+    // Если краткое содержимое по умолчанию отсутствует, формируем его из основного содержимого.
+    // Если разрешено $summary_view = TRUE.
+    if (empty($summary) && !$full_view && $summary_view) {
+      $safe_value = strip_tags($field[0]['safe_value']);
+      $summary = truncate_utf8($safe_value, $max_length, TRUE, $add_ellipsis);
+    }
+
+    // Если нужно отобразить и краткое содержимое и полное, то $full_view = TRUE.
+    if ($full_view) {
+      $summary .= $field[0]['safe_value'];
+    }
+  }
+  return strip_tags($summary);
+}
+
+/**
+ * Возвращает краткое содержимое текста.
+ * (object) $text - текст.
+ * (int) $max_length - количество символов обрезки.
+ * (bool) $add_ellipsis - признак наличия в конце символов обрезки строки (многоточие).
+ */
+function kvantstudio_summary($text, $max_length = 30, $add_ellipsis = FALSE) {
+  $summary = '';
+  if (!empty($text)) {
+    // Если краткое содержимое отсутствует, формируем его из основного содержимого.
+    $summary = truncate_utf8($text, $max_length, TRUE, $add_ellipsis);
+  }
+  return trim($summary);
+}
+
+/**
+ * Функция: получение массива с доступными переводами переданной ноды в качестве параметра.
+ * (int) $nid - идентификатор текущей ноды на текущем языке.
+ * (bool) $active - если TRUE, то возвращаются только активные ноды.
+ */
+function kvantstudio_node_languages($nid, $active = TRUE) {
+  $nodes = array();
+
+  // Определяем основную ноду.
+  $tnid = db_query("SELECT n.tnid FROM {node} n WHERE n.nid=:nid", array(':nid' => $nid))->fetchField();
+
+  // Если существует перевод.
+  if ($tnid) {
+    if ($active) {
+      $result = db_query("SELECT n.nid, n.title, n.language  FROM {node} n WHERE n.tnid=:tnid AND n.status=1", array(':tnid' => $tnid));
+    }
+    else {
+      $result = db_query("SELECT n.nid, n.title, n.language  FROM {node} n WHERE n.tnid=:tnid", array(':tnid' => $tnid));
+    }
+
+    if($result) {
+      foreach ($result as $row) {
+        $conditions = 'node/' . $row->nid;
+        $path = path_load($conditions);
+        if ($path) {
+          $alias = $path['alias'];
+        }
+        else {
+          $alias = 'node/' . $row->nid;
+        }
+        $nodes[$row->language] = array(
+          'nid' => $row->nid,
+          'title' => $row->title,
+          'alias' => $alias,
+        );
+      }
+    }
+  }
+  else {
+    $node = node_load($nid);
+    $conditions = 'node/' . $node->nid;
+    $path = path_load($conditions);
+    if ($path) {
+      $alias = $path['alias'];
+    }
+    else {
+      $alias = 'node/' . $node->nid;
+    }
+    $nodes[$node->language] = array(
+      'nid' => $node->nid,
+      'title' => $node->title,
+      'alias' => $alias,
+    );
+  }
+
+  return $nodes;
+}
+
+/**
+ * Формируем идентификатор пользователя.
+ *
+ * Если пользователь авторизован то возвращаем {users}.uid.
+ * Если пользователь не авторизован, то возвращаем идентификатор сессии php.
+ */
+function kvantstudio_user_id() {
+  global $user;
+  // Проверяем авторизован пользователь или нет.
+  if (user_is_logged_in()) {
+    return (int) $user->uid;
+  }
+  return session_id();
+}
+
+/**
+ * Поиск строки в массиве.
+ *
+ * @param $variables
+ *   - string: строка для поиска.
+ *   - array: массив для поиска строки.
+ * @return
+ *   Ключ элемента массива, если есть совпадения.
+ */
+function kvantstudio_array_search($string, $array) {
+  foreach ($array as $key => $value) {
+  if (strpos(strtolower($value), strtolower($string)) !== FALSE)
+    return $key;
+  }
+  return FALSE;
+}
+
+/**
+ * Возвращает расширение файла.
+ */
+function kvantstudio_get_extension($filename) {
+  return end(explode(".", $filename));
+}
+
+/**
+ * Implements hook_authenticate_paths().
+ */
+function kvantstudio_authenticate_paths() {
+  $paths = array();
+  return $paths;
+}
+
+/**
+ * Опрашивает модули, чтобы получить информацию о путях, которые недоступны анонимному пользователю.
+ */
+function kvantstudio_path_get_authenticate_paths() {
+  $patterns = &drupal_static(__FUNCTION__);
+  if (!isset($patterns)) {
+    $paths = module_invoke_all('authenticate_paths');
+    drupal_alter('authenticate_paths', $paths);
+    // Combine all authenticate paths into one array, and likewise for non-authenticate paths,
+    // for easier handling.
+    $patterns = array();
+    $patterns['authenticate'] = array();
+    $patterns['non_authenticate'] = array();
+    foreach ($paths as $path => $enabled) {
+      if ($enabled) {
+        $patterns['authenticate'][] = $path;
+      }
+      else {
+        $patterns['non_authenticate'][] = $path;
+      }
+    }
+    $patterns['authenticate'] = implode("\n", $patterns['authenticate']);
+    $patterns['non_authenticate'] = implode("\n", $patterns['non_authenticate']);
+  }
+  return $patterns;
+}
+
+/**
+ * Проверяет переданный путь. Возвращает TRUE если путь доступен только авторизованному пользователю.
+ * Функция применяется в tempalte.php чтобы формировать видимость тех или иных блоков в шаблоне
+ * в зависимости от текущего пути сайта. Т.к. иногда нужно скрыть блоки если анонимный пользователь
+ * не должен их видеть при текущем URL.
+ */
+function kvantstudio_path_is_authenticate($path) {
+  $path_map_authenticate = &drupal_static(__FUNCTION__);
+  if (!isset($path_map_authenticate['authenticate'][$path])) {
+    $patterns = kvantstudio_path_get_authenticate_paths();
+    $path_map_authenticate['authenticate'][$path] = drupal_match_path($path, $patterns['authenticate']);
+    $path_map_authenticate['non_authenticate'][$path] = drupal_match_path($path, $patterns['non_authenticate']);
+  }
+  return $path_map_authenticate['authenticate'][$path] && !$path_map_authenticate['non_authenticate'][$path];
+}
+
+/**
+ * Форматирует строку поискового запроса удаляя из нее спецсимволы.
+ * (string) $text - поисковый запрос.
+ */
+function kvantstudio_search_request_prepare($text) {
+  // Удаляем повторяющиеся тире и пробелы.
+  $string_search = array(' ', '  ', ',', '-', '__', '--');
+  $string_replace = array(' ', ' ', ' ', '', ' ', ' ');
+  $text = str_replace($string_search, $string_replace, $text);
+
+  // Удаляем специальные символы.
+  $string_search = array('.', '!', '?', ':', '"', '(', ')', '=');
+  $string_replace = array(' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+  $text = str_replace($string_search, $string_replace, $text);
+  $text = trim($text, ' ');
+  $text = kvantstudio_error_transliterate($text);
+  return $text;
+}
+
+/**
+ * Implements hook_element_info()
+ */
+function kvantstudio_element_info() {
+  $types['datefield'] = array(
+    '#input' => TRUE,
+    '#theme' => array('kvantstudio_element_date'),
+  );
+
+  $types['timefield'] = array(
+    '#input' => TRUE,
+    '#theme' => array('kvantstudio_element_time'),
+  );
+
+  return $types;
+}
+
+function theme_kvantstudio_element_date($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'date';
+  element_set_attributes($element, array('id', 'name'));
+  _form_set_class($element, array('form-text', 'form-date'));
+
+  $output = '<input' . drupal_attributes($element['#attributes']) . ' />';
+
+  return $output;
+}
+
+function theme_kvantstudio_element_time($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'time';
+  element_set_attributes($element, array('id', 'name'));
+  _form_set_class($element, array('form-text', 'form-time'));
+
+  $output = '<input' . drupal_attributes($element['#attributes']) . ' />';
+
+  return $output;
+}
+
+/**
+ * @file
+ * Ajax function and callbacks.
+ */
+
+///**
+// * Проверка на корректность указанного mail.
+// */
+//function kvantstudio_mail_validate_ajax_callback($form, $form_state) {
+//
+//  $mail = '';
+//  // Если элементы формы сгруппированы.
+//  if (isset($form['#attributes']['form_group'])) {
+//    $form_group = $form['#attributes']['form_group'];
+//    $mail = (string) $form_state['values'][$form_group]['mail'];
+//    // ID поля ввода почтового адреса.
+//    $id = '#edit-' . str_replace('_', '-', $form_group) . '-mail';
+//  }
+//  else {
+//    $mail = (string) $form_state['values']['mail'];
+//    // ID поля ввода почтового адреса.
+//    $id = '#edit-mail';
+//  }
+//
+//  $commands = array();
+//
+//  if ($mail) {
+//    if (valid_email_address($mail)) {
+//      // Выводим сообщение об успешной проверке.
+//      $message = '<div id="kvantstudio-mail-ajax-messages" class="messages status">' . t('The email address is valid.') . '</div>';
+//      $commands[] = ajax_command_replace('#kvantstudio-mail-ajax-messages', $message);
+//      $commands[] = ajax_command_invoke('#edit-submit', 'attr', array('disabled', false));
+//      $commands[] = ajax_command_invoke($id, 'removeClass', array('error'));
+//    }
+//    else {
+//      // Выводим сообщение об ошибке.
+//      $message = '<div id="kvantstudio-mail-ajax-messages" class="messages error">' . t('The email address you entered is not valid.') . '</div>';
+//      $commands[] = ajax_command_replace('#kvantstudio-mail-ajax-messages', $message);
+//      $commands[] = ajax_command_invoke('#edit-submit', 'attr', array('disabled', true));
+//      $commands[] = ajax_command_invoke($id, 'addClass', array('error'));
+//    }
+//  }
+//  else {
+//    // Убираем все уведомления.
+//    $message = '<div id="kvantstudio-mail-ajax-messages"></div>';
+//    $commands[] = ajax_command_replace('#kvantstudio-mail-ajax-messages', $message);
+//    $commands[] = ajax_command_invoke('#edit-submit', 'attr', array('disabled', false));
+//    $commands[] = ajax_command_invoke($id, 'removeClass', array('error'));
+//  }
+//  return array('#type' => 'ajax', '#commands' => $commands);
+//}

@@ -1,0 +1,201 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_photogallery.tpl.php,v 1.2 2010/12/01 00:18:15 webchick
+#  site_photogallery.install: n/a
+#  site_photogallery.category.inc: n/a
+#  site_photogallery.module: n/a
+#  site_photogallery.settings.inc: n/a
+#  site_photogallery.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-02-09 21:48+0600\n"
+"PO-Revision-Date: 2015-02-09 20:49+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#: (duplicate) site_photogallery.tpl.php:133 site_photogallery.install:228
+msgid "Tags"
+msgstr "Теги"
+
+#: site_photogallery.category.inc:15;166 site_photogallery.module:349
+msgid "Home"
+msgstr "Главная"
+
+#: site_photogallery.category.inc:91
+msgid "Images are not loaded."
+msgstr "Изображения не загружены."
+
+#: site_photogallery.category.inc:97;277
+msgid "Warning"
+msgstr "Внимание"
+
+#: site_photogallery.category.inc:97;277
+msgid "It is not displayed on a site."
+msgstr "Не отображается на сайте."
+
+#: site_photogallery.category.inc:113
+msgid "To edit a category"
+msgstr "Редактировать категорию"
+
+#: site_photogallery.category.inc:180
+msgid "Settings of display of category"
+msgstr "Настройки отображения категории"
+
+#: site_photogallery.category.inc:271
+msgid "In this photo album still there are no images."
+msgstr "В этот фотоальбом не добавлены изображения."
+
+#: site_photogallery.category.inc:288
+msgid "To edit a photo album"
+msgstr "Редактировать фотоальбом"
+
+#: site_photogallery.settings.inc:14
+msgid "Photo albums"
+msgstr "Фотоальбомы"
+
+#: site_photogallery.settings.inc:26
+msgid "The basic settings"
+msgstr "Основные настройки"
+
+#: site_photogallery.settings.inc:33
+msgid "Style imаgeсасhe when viewing a image of photo album"
+msgstr "Стиль imаgeсасhe при просмотре обложки фотоальбома"
+
+#: site_photogallery.settings.inc:36;44;52
+msgid "Edit"
+msgstr "Правка"
+
+#: site_photogallery.settings.inc:41
+msgid "Style imаgeсасhe when viewing a image in photo album"
+msgstr "Стиль imаgeсасhe при просмотре изображений в фотоальбоме."
+
+#: site_photogallery.settings.inc:49
+msgid "Style imаgeсасhe when viewing a image in Cоlоrbоx"
+msgstr "Стиль imagecache при просмотре изображений в Colorbox"
+
+#: site_photogallery.settings.inc:56
+msgid "To display photo albums without categories"
+msgstr "Отображать фотоальбомы без категорий"
+
+#: site_photogallery.settings.inc:64
+msgid "Setting of the name of pages"
+msgstr "Настройки названия страниц"
+
+#: site_photogallery.settings.inc:70
+msgid "Heading of page of the catalogue of photo albums"
+msgstr "Заголовок страницы с перечнем фотоальбомов."
+
+#: site_photogallery.settings.inc:71
+msgid "Do not modify this value on your final site! The value must be in Latin, the word through the dash with a small letter. When the value of the don't forget to refresh the cache of the site."
+msgstr "Не изменяйте значение на работающем сайте! Значение должно быть на латинице с маленькой буквы. Когда значение будет изменено не забудьте скинуть кэш сайта."
+
+#: (duplicate) site_photogallery.settings.inc:117 site_photogallery.install:220
+msgid "Category"
+msgstr "Категория"
+
+#: site_photogallery.settings.inc:127
+msgid "Send"
+msgstr "Отправить"
+
+#: (duplicate) site_photogallery.settings.inc:175;242 site_photogallery.install:366;278
+msgid "Weight"
+msgstr "Вес"
+
+#: site_photogallery.settings.inc:196
+msgid "Save changes"
+msgstr "Сохранить изменения"
+
+#: site_photogallery.settings.inc:242
+msgid "Title"
+msgstr "Заголовок"
+
+#: site_photogallery.settings.inc:283
+msgid "Configuration saved."
+msgstr "Настройки сохранены."
+
+#: site_photogallery.module:69
+msgid "Photo album"
+msgstr "Фотоальбом"
+
+#: site_photogallery.module:71
+msgid "The photo album - the document which is used for the publication of images."
+msgstr "Фотоальбом - это документ, который используется для публикации изображений."
+
+#: site_photogallery.module:457
+msgid "Submitted by !username on !datetime"
+msgstr "Опубликовано !datetime пользователем !username"
+
+#: site_photogallery.module:556
+msgid "Latest photo albums"
+msgstr "Последние фотоальбомы"
+
+#: site_photogallery.module:638
+msgid "Photo albums are not added yet."
+msgstr "Фотоальбомы еще не добавлены."
+
+#: site_photogallery.module:90
+msgid "Settings of the photo gallery"
+msgstr "Настройки фотогалереи"
+
+#: site_photogallery.module:98
+msgid "Settings"
+msgstr "Настройки"
+
+#: site_photogallery.module:104
+msgid "Settings of display of photo album"
+msgstr "Настройки отображения фотоальбома"
+
+#: site_photogallery.module:105
+msgid "Settings of photo album."
+msgstr "Настройки фотоальбома."
+
+#: (duplicate) site_photogallery.install:43
+msgid "Body"
+msgstr "Содержимое"
+
+#: (duplicate) site_photogallery.install:68
+msgid "Categories of the photo gallery"
+msgstr "Категории фотогалереи"
+
+#: (duplicate) site_photogallery.install:70
+msgid "The dictionary of categories of photo gallery."
+msgstr "Словарь категорий фотогалереи."
+
+#: (duplicate) site_photogallery.install:117
+msgid "Show"
+msgstr "Показать"
+
+#: (duplicate) site_photogallery.install:118
+msgid "To not show"
+msgstr "Не показывать"
+
+#: (duplicate) site_photogallery.install:134 ;239
+msgid "Image"
+msgstr "Изображение"
+
+#: (duplicate) site_photogallery.install:153 ;258
+msgid "Status"
+msgstr "Статус"
+
+#: site_photogallery.info:0
+msgid "Site photogallery"
+msgstr "Site photogallery"
+
+#: site_photogallery.info:0
+msgid "Creation of photo albums."
+msgstr "Создание фотоальбомов."
+
+#: site_photogallery.info:0
+msgid "kvantstudio"
+msgstr "kvantstudio"

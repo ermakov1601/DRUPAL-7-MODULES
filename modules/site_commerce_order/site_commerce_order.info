@@ -1,0 +1,14 @@
+name = Site commerce order
+description = "Registration of the order in the online store."
+version = "2.8"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-commerce-order
+
+dependencies[] = site_commerce
+
+files[] = site_commerce_order.module
+files[] = site_commerce_order.install
+
+; Подключение css файлов.
+stylesheets[all][] = css/site_commerce_order.css

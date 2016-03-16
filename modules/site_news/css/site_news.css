@@ -1,0 +1,112 @@
+ul.news {
+  list-style: none outside none;
+}
+
+ul.news li {
+  margin: 0 0 2em 0;
+}
+
+.site-news-link-wrapper {
+  margin: 0 0 1em 0;
+}
+
+.site-news-link {
+  font-size: 1.5em;
+  line-height: 1.5em;
+}
+
+.site-news-date {
+  color: #B3B3B3;
+  font-size: 0.875em;
+}
+
+.site-news-main-image-block {
+  margin: 20px 0 20px 0;
+}
+
+.site-news-content {
+  margin-top: 10px 0 10px 0;
+}
+
+.site-news-summary {
+  color: #666666;
+}
+
+.site-news-summary-content {
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.site-news-files-block {
+  margin: 10px 0 50px 0;
+}
+
+.site-news-files-block a {
+  display: block;
+  border-bottom: none;
+  line-height: 30px;
+}
+
+.site-news-files-block a:hover {
+  border-bottom: none;
+  text-decoration: none;
+  background: #333333;
+  color: #FFFFFF;
+}
+
+.site-news-files-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 1em;
+  padding-bottom: 10px;
+}
+
+.site-news-filesize {
+  font-size: 0.8em;
+}
+
+/* Стили оформления меток. */
+.site-news-tags-block {
+  padding-top: 10px 0 10px 0;
+}
+
+.site-news-tags {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+/* Оформление блока - последние новости */
+div.block-site-news {
+  list-style: none outside none;
+}
+
+div.site-news-block-link {
+  margin-bottom: 20px;
+  font-size: 0.8em;
+}
+
+.site-news-block-title {
+  margin: 0 0 20px 0;
+}
+
+div.site-news-block-item {
+  margin-bottom: 20px;
+}
+
+div.site-news-block-date {
+  font-size: 0.9em;
+  color: #999999;
+}
+
+/* Оформление блока списка закрепленных новостей. */
+ul.news-sticky {
+  list-style: none outside none;
+  background: none repeat scroll 0% 0% rgba(204, 204, 204, 0.18);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+ul.news-sticky li {
+  margin-bottom: 10px;
+}

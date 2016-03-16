@@ -1,0 +1,212 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_news.tpl.php: n/a
+#  templates/site-news.tpl.php: n/a
+#  site_news.category.inc: n/a
+#  site_news.module: n/a
+#  site_news.settings.inc: n/a
+#  site_news.variable.inc: n/a
+#  site_news.tokens.inc: n/a
+#  site_news.install: n/a
+#  site_news.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-09-10 10:10+0600\n"
+"PO-Revision-Date: 2015-09-10 09:17+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.7.6\n"
+
+#: site_news.tpl.php:47 templates/site-news.tpl.php:47
+msgid "Files for loading"
+msgstr "Файлы для загрузки"
+
+#: site_news.category.inc:12
+msgid "Add on this page of a category of the press centre. For example, news of the company."
+msgstr "Добавьте на этой странице категории пресс-центра. Например, новости компании."
+
+#: site_news.category.inc:17
+msgid "Welcome in our press centre. Choose an interesting category."
+msgstr "Добро пожаловать в наш пресс-центр. Выберите интересующую категорию."
+
+#: site_news.category.inc:103 site_news.module:350
+msgid "Home"
+msgstr "Главная"
+
+#: site_news.category.inc:185 site_news.module:397;406;601;652;656;729
+msgid "@value"
+msgstr "@value"
+
+#: site_news.category.inc:198
+msgid "Access denied"
+msgstr "Доступ запрещен"
+
+#: site_news.settings.inc:15
+msgid "Basic settings"
+msgstr "Базовые настройки"
+
+#: site_news.settings.inc:26
+msgid "Categories of the press center for which it is necessary to display the full text of the publication at viewing contents on a category"
+msgstr "Категории пресс-центра, для которых необходимо отображать полный текст при просмотре их содержимого"
+
+#: site_news.settings.inc:34;102
+msgid "Allow display a brief contents"
+msgstr "Разрешить отображать краткое содержимое"
+
+#: site_news.settings.inc:37
+msgid "Brief contents of news will be displayed entitled each news at viewing the list of news on a category."
+msgstr "Краткое содержимое новости будет отображаться под заголовком каждой новости при просмотре списка новостей по категории."
+
+#: site_news.settings.inc:42
+msgid "The number of characters, which is clipped a brief contents"
+msgstr "Количество символов, до которого обрезается краткое содержимое"
+
+#: site_news.settings.inc:50
+msgid "Style of display of the main image"
+msgstr "Стиль отображения главного изображения"
+
+#: site_news.settings.inc:54;63;117
+msgid "To pass to management of styles of images"
+msgstr "Перейти к управлению стилями изображений"
+
+#: site_news.settings.inc:59;113
+msgid "Style of display of the attached images"
+msgstr "Стиль отображения прикрепленных изображений"
+
+#: site_news.settings.inc:68 site_news.variable.inc:26
+msgid "Heading of page of the press center"
+msgstr "Название страницы пресс-центра"
+
+#: site_news.settings.inc:71
+msgid "Default value — «Press center»."
+msgstr "Значение по умолчанию - «Пресс-центр»."
+
+#: site_news.settings.inc:77
+msgid "Settings of display in the block"
+msgstr "Настройки отображения в блоке"
+
+#: site_news.settings.inc:86
+msgid "Categories of the press center for display in the block the LATEST NEWS"
+msgstr "Категории пресс-центра, которые должны отображаться в блоке ПОСЛЕДНИЕ НОВОСТИ"
+
+#: site_news.settings.inc:95
+msgid "Quantity of news in the block"
+msgstr "Количество новостей в блоке"
+
+#: site_news.settings.inc:107
+msgid "Allow display images"
+msgstr "Разрешить отображать изображения"
+
+#: site_news.tokens.inc:18
+msgid "Path of material"
+msgstr "Путь материала"
+
+#: site_news.tokens.inc:19
+msgid "Path to material of press center."
+msgstr "Путь к материалу пресс-центра."
+
+#: site_news.tokens.inc:28
+msgid "Category path of material"
+msgstr "Путь категории материала"
+
+#: site_news.tokens.inc:29
+msgid "Path to category of material of press center."
+msgstr "Путь к категории материала пресс-центра."
+
+#: (duplicate) site_news.variable.inc:13 site_news.module:18;113 site_news.install:70
+msgid "Press center"
+msgstr "Пресс-центр"
+
+#: site_news.module:20
+msgid "The press center is a document used for creation of other type of information publications."
+msgstr "Пресс-центр - это документ, который используется для создания различных информационных публикаций."
+
+#: site_news.module:31
+msgid "Administer settings"
+msgstr "Управление настройками"
+
+#: site_news.module:34
+msgid "Allow view"
+msgstr "Разрешить просмотр"
+
+#: site_news.module:37
+msgid "Allow create"
+msgstr "Разрешить создание"
+
+#: site_news.module:40
+msgid "Allow edit"
+msgstr "Разрешить редактирование"
+
+#: site_news.module:43
+msgid "Allow delete"
+msgstr "Разрешить удаление"
+
+#: site_news.module:459
+msgid "Submitted by !username on !datetime"
+msgstr "Опубликовано !datetime пользователем !username"
+
+#: (duplicate) site_news.module:562 site_news.install:150
+msgid "Tags"
+msgstr "Теги"
+
+#: site_news.module:589;636
+msgid "Latest news"
+msgstr "Последние новости"
+
+#: site_news.module:741
+msgid "No content available."
+msgstr "Нет доступного материала."
+
+#: site_news.module:758
+msgid "Go to archive"
+msgstr "Перейти в архив"
+
+#: site_news.module:89
+msgid "Settings of the press centre"
+msgstr "Настройки пресс-центра"
+
+#: (duplicate) site_news.install:42
+msgid "Body"
+msgstr "Содержимое"
+
+#: (duplicate) site_news.install:85
+msgid "The categories of press centre"
+msgstr "Категории пресс-центра"
+
+#: (duplicate) site_news.install:87
+msgid "The dictionary of categories of press centre."
+msgstr "Словарь категорий пресс-центра."
+
+#: (duplicate) site_news.install:142
+msgid "Category"
+msgstr "Категория"
+
+#: (duplicate) site_news.install:161
+msgid "File"
+msgstr "Файл"
+
+#: (duplicate) site_news.install:179
+msgid "Image"
+msgstr "Изображение"
+
+#: site_news.info:0
+msgid "Site news"
+msgstr "Site news"
+
+#: site_news.info:0
+msgid "Press center."
+msgstr "Пресс-центр."
+
+#: site_news.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"

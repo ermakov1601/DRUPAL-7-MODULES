@@ -1,0 +1,202 @@
+<?php
+// $Id:
+
+/**
+ * @file
+ * Файл установки, обновления, удаления модуля site_commerce.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function site_send_messages_install() {
+  // Создаем настройки групп и полей по умолчанию.
+  site_send_messages_create_default_groups();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function site_send_messages_schema() {
+  $schema = array();
+  $schema['site_send_messages_settings_form'] = array(
+    'description' => 'The table for properties of form fields.',
+    'fields' => array(
+      'cid' => array(
+        'description' => 'The primary identifier for the field.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'form_group' => array(
+        'description' => 'The name group of fields.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'form_key' => array(
+        'description' => 'When the form is displayed and processed, this key can be used to reference the results.',
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+      'title' => array(
+        'description' => 'The title of field when displayed to the end-user.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'The description of field when displayed to the end-user.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'type' => array(
+        'description' => 'The type of field.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'value' => array(
+        'description' => 'The default value of the component when displayed to the end-user.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+      'required' => array(
+         'description' => 'The required value.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'disabled' => array(
+        'description' => 'The key access for the field.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'weight' => array(
+        'description' => 'Weihgt field.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+
+  $schema['site_send_messages_groups'] = array(
+    'description' => 'The table for properties of groups.',
+    'fields' => array(
+      'form_group' => array(
+        'description' => 'The name group of fields.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of group.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'The description of group.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+    ),
+    'primary key' => array('form_group'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Create new table site_send_messages_settings_form.
+ */
+function site_send_messages_update_7000() {
+  // Создаем таблицы.
+  if (!db_table_exists('site_send_messages_settings_form')) {
+    db_create_table('site_send_messages_settings_form', drupal_get_schema_unprocessed('site_send_messages', 'site_send_messages_settings_form'));
+  }
+  if (!db_table_exists('site_send_messages_groups')) {
+    db_create_table('site_send_messages_groups', drupal_get_schema_unprocessed('site_send_messages', 'site_send_messages_groups'));
+  }
+
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_send_messages'));
+  }
+
+  // Создаем группы полей, которые доступны по умолчанию.
+  site_send_messages_create_default_groups();
+
+  // Удаляем переменные модуля.
+  variable_del('site_send_messages_fields');
+  variable_del('site_send_messages_fields_required');
+
+  return 'Add the site_send_messages_settings_form table for the site_send_messages module.';
+}
+
+/**
+ * Reconfigured table site_send_messages_settings_form.
+ */
+function site_send_messages_update_7001() {
+  // Создаем таблицы.
+  if (db_table_exists('site_send_messages_settings_form')) {
+    db_drop_table('site_send_messages_settings_form');
+    db_create_table('site_send_messages_settings_form', drupal_get_schema_unprocessed('site_send_messages', 'site_send_messages_settings_form'));
+  }
+  if (db_table_exists('site_send_messages_groups')) {
+    db_drop_table('site_send_messages_groups');
+    db_create_table('site_send_messages_groups', drupal_get_schema_unprocessed('site_send_messages', 'site_send_messages_groups'));
+  }
+
+  // Создаем группы полей.
+  site_send_messages_create_default_groups();
+
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_send_messages'));
+  }  
+
+  return 'Reconfigured the site_send_messages_settings_form table for the site_send_messages module.';
+}
+
+/**
+ * Language update.
+ */
+function site_send_messages_update_7002() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_send_messages'));
+    return 'Language site_send_messages 7002 updated.';
+  }
+}
+
+/**
+ * Update database structure. Recreate tables.
+ */
+function site_send_messages_update_7003() {
+  // Пересоздаём таблицу группы полей.
+  if (db_table_exists('site_send_messages_groups')) {
+    db_drop_table('site_send_messages_groups');
+    db_create_table('site_send_messages_groups', drupal_get_schema_unprocessed('site_send_messages', 'site_send_messages_groups'));
+  }
+
+  // Пересоздаём таблицу настройки полей.
+  if (db_table_exists('site_send_messages_settings_form')) {
+    db_drop_table('site_send_messages_settings_form');
+    db_create_table('site_send_messages_settings_form', drupal_get_schema_unprocessed('site_send_messages', 'site_send_messages_settings_form'));
+  }
+
+  // Создаем настройки групп и полей по умолчанию.
+  site_send_messages_create_default_groups();
+
+  return 'Database updated.';
+}

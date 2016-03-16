@@ -1,0 +1,13 @@
+name = Site photogallery
+description = "Creation of photo albums."
+version = "2.4"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-photogallery
+
+dependencies[] = kvantstudio
+
+files[] = site_photogallery.module
+files[] = site_photogallery.settings.inc
+files[] = site_photogallery.categories.inc
+files[] = site_photogallery.tpl.php

@@ -1,0 +1,899 @@
+<?php
+
+/**
+ * @file
+ * Allows users to send electronic messages.
+ *
+ * The module adds the automated form of sending of messages with a possibility of fast editing active fields of the form of sending of the message.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function site_send_messages_theme() {
+  return array(
+    'site_send_messages_settings_form' => array(
+      'render element' => 'form',
+    ),
+    'site_send_messages_form' => array(
+      'render element' => 'form',
+    ),
+  );
+}
+
+/**
+ * Массив типов полей по умолчанию доступных для создания группы.
+ */
+function site_send_messages_default_type_fields() {
+  return array(
+    'full_name'        => array('title' => t('Full name'), 'type' => 'textfield'),
+    'last_name'        => array('title' => t('Last name'), 'type' => 'textfield'),
+    'first_name'       => array('title' => t('First name'), 'type' => 'textfield'),
+    'patronymic'       => array('title' => t('Patronymic'), 'type' => 'textfield'),
+    'organisation'     => array('title' => t('Organization'), 'type' => 'textfield'),
+    'position'         => array('title' => t('Position in the organization'), 'type' => 'textfield'),
+    'address_delivery' => array('title' => t('The address of delivery'), 'type' => 'textfield'),
+    'phone'            => array('title' => t('Contact phone'), 'type' => 'textfield'),
+    'date'             => array('title' => t('Date'), 'type' => 'textfield'),
+    'time'             => array('title' => t('Time'), 'type' => 'textfield'),
+    'type'             => array('title' => t('Type of registration'), 'type' => 'radios'),
+    'mail'             => array('title' => t('E-mail'), 'type' => 'textfield'),
+    'title'            => array('title' => t('Title'), 'type' => 'textfield'),
+    'message'          => array('title' => t('Message'), 'type' => 'textarea'),
+    'file'             => array('title' => t('File'), 'type' => 'file'),
+  );
+}
+
+/**
+ * Создаем группы полей, которые доступны по умолчанию.
+ */
+function site_send_messages_create_default_groups() {
+  site_send_messages_create_group_fields('form-default');
+  $record = array(
+    'form_group' => 'form-default',
+    'title' => t('To write to us'),
+    'description' => '',
+  );
+  drupal_write_record('site_send_messages_groups', $record);
+
+  site_send_messages_create_group_fields('form-request');
+  $record = array(
+    'form_group' => 'form-request',
+    'title' => t('To send request'),
+    'description' => '',
+  );
+  drupal_write_record('site_send_messages_groups', $record);
+
+  site_send_messages_create_group_fields('form-call');
+  $record = array(
+    'form_group' => 'form-call',
+    'title' => t('To order a call'),
+    'description' => '',
+  );
+  drupal_write_record('site_send_messages_groups', $record);
+}
+
+/**
+ * Создание группы полей с настройками по умолчанию.
+ * @param
+ *   $form_group - название группы полей.
+ */
+function site_send_messages_create_group_fields($form_group) {
+  foreach (site_send_messages_default_type_fields() as $form_key => $key) {
+    $record = array(
+      'form_group' => $form_group,
+      'form_key'   => $form_key,
+      'title'      => $key['title'],
+      'type'       => $key['type'],
+    );
+    drupal_write_record('site_send_messages_settings_form', $record);
+  }
+}
+
+/**
+ * Implement hook_permission().
+ */
+function site_send_messages_permission() {
+  return array(
+    'administer site send messages' => array(
+      'title' => t('Administer site send messages'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function site_send_messages_menu() {
+
+  $items = array();
+
+  // Управление модулем.
+  $items['admin/config/kvantstudio/site-send-messages'] = array(
+    'title' => 'Settings of electronic messages',
+    'description' => 'Configure the functions of the module electronic messages, management visibility fields on the form to send messages.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_send_messages_adjustments_form'),
+    'access arguments' => array('administer site send messages'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'site_send_messages.admin.inc',
+  );
+
+  $items['admin/config/kvantstudio/site-send-messages/settings'] = array(
+    'title' => 'Settings',
+    'access arguments' => array('administer site send messages'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+
+  $items['admin/config/kvantstudio/site-send-messages/settings-form'] = array(
+    'title' => 'Setting fields in the form',
+    'description' => 'Settings affect the way of displaying fields on the form.',
+    'page callback' => 'site_send_messages_settings',
+    'page arguments' => array(5),
+    'access arguments' => array('administer site send messages'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'site_send_messages.admin.inc',
+    'weight' => 1,
+  );
+
+  // Форма отправки сообщения с сайта.
+  $items[variable_get('site_send_messages_link', 'otpravit-soobshchenie')] = array(
+    'title' => variable_get('site_send_messages_title', 'To write to us'),
+    'description' => 'You can leave to us the message or ask a question',
+    'page callback' => 'site_send_messages',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu',
+    'weight' => 9,
+  );
+
+  $items['site-send-messages-form-ajax-callback'] = array(
+    'page callback' => 'site_send_messages_form_ajax_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'delivery callback' => 'ajax_deliver',
+    'theme callback' => 'ajax_base_page_theme',
+  );
+
+  // Форма заказа звонка с сайта.
+  $items['site-send-messages-call'] = array(
+    'title' => 'To order a call',
+    'page callback' => 'site_send_messages_call',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['site-send-messages-call-form-ajax-callback'] = array(
+    'page callback' => 'site_send_messages_call_form_ajax_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'delivery callback' => 'ajax_deliver',
+    'theme callback' => 'ajax_base_page_theme',
+  );
+
+  return $items;
+}
+
+/**
+ * Формирует содержимое заметки перед формой по умолчанию, данные берутся из
+ * формы контактов и координат модуля site_contacts.
+ */
+function site_send_messages_default_note() {
+
+  $tel = variable_get('site_contacts_tel', '');
+  $fax = variable_get('site_contacts_fax', '');
+
+  $output = '<div class="site-send-messages-note">';
+  $output .= '<div>' . t('You can leave to us the message or ask a question') . ':</div>';
+  $output .= '<ul>';
+  if ($tel) {
+    $output .= '<li>' . t('by phone') . ': ' . $tel . '';
+  }
+  if ($fax) {
+    $output .= ', ' . t('by fax') . ': ' . $fax . ';</li>';
+  } else {
+    if ($tel) $output .= ';</li>';
+  }
+  $email = variable_get('site_contacts_email');
+   if ($email) {
+    $output .= '<li>' . t('by email') . ': <a rel="noreferrer" href="mailto:' . $email . '">' . $email . '</a>;</li>';
+  }
+  $output .= '<li>' . t('having sent inquiry from a site through this form.') . '</li>';
+  $output .= '<ul>';
+  $output .= '</div>';
+
+  return $output;
+}
+
+/**
+ * Создание страницы отправки сообщения.
+ * @param
+ *  $variables = array(
+      'title_form' => '', // Название формы отправки сообщения.
+      'description_form' => '', // Описание формы.
+      'title_button' => '', // Название кнопки вызова формы.
+      'form_group' => 'form-request', // Группа полей.
+      'show_note' => FALSE, // Разрешить или запретить отображать стандартное примечание.
+      'text' => '', // Текст примечания перед формой в html сообщении email.
+    );
+ */
+function site_send_messages($variables) {
+  // Тип формы по умолчанию.
+  if (!isset($variables['form_group']) || empty($variables['form_group'])) {
+    $variables['form_group'] = 'form-default';
+  }
+
+  if ($variables['form_group'] == 'form-default') {
+    $variables['show_note'] = TRUE;
+  }
+
+  if (isset($variables['function'])) {
+    $function = $variables['function'];
+  }
+  else {
+    $function = 'site_send_messages_form';
+  }
+
+  // Вывод формы отправки сообщения.
+  $form = drupal_get_form($function, $variables);
+  $output = drupal_render($form);
+
+  return $output;
+}
+
+/**
+ * Конструктор полей для формы отправки сообщения.
+ * @param
+ *   (object) $element - массив с параметрами поля.
+ * @return
+ *   $form - массив с элементом формы определенного типа.
+ */
+function site_send_messages_construct_form_element($element) {
+  $form = array();
+
+  // Если нужно отобразить поле для ввода простого текста в виде одной строки.
+  if ($element->type == 'textfield') {
+    $form = array(
+      '#id' => 'edit-' . $element->form_key,
+      '#type' => $element->type,
+      '#title' => t($element->title),
+      '#required' => $element->required,
+      '#default_value' => $element->value,
+      '#description' => $element->description,
+      '#attributes' => array(
+        'class' => array('site-send-messages-' . $element->form_key),
+      ),
+      '#limit_validation_errors' => array(),
+    );
+
+    // Поле адрес электронной почты.
+    if ($element->form_key == 'mail') {
+      $form = array(
+        '#id' => 'edit-' . $element->form_key,
+        '#type' => $element->type,
+        '#title' => t($element->title),
+        '#required' => $element->required,
+        '#default_value' => $element->value,
+        '#description' => $element->description,
+        '#attributes' => array(
+          'class' => array('site-send-messages-' . $element->form_key),
+        ),
+      );
+    }
+
+    // Поле дата.
+    if ($element->form_key == 'date') {
+      $form = array(
+        '#id' => 'edit-' . $element->form_key,
+        '#type' => $element->type,
+        '#title' => t($element->title),
+        '#maxlength' => 10,
+        '#size' => 10,
+        '#required' => $element->required,
+        '#default_value' => $element->value,
+        '#description' => $element->description,
+        '#attributes' => array('class' => array('datepicker')),
+      );
+    }
+
+    // Поле время.
+    if ($element->form_key == 'time') {
+      $form = array(
+        '#id' => 'edit-' . $element->form_key,
+        '#type' => $element->type,
+        '#title' => t($element->title),
+        '#maxlength' => 10,
+        '#size' => 10,
+        '#required' => $element->required,
+        '#default_value' => $element->value,
+        '#description' => $element->description,
+        '#attributes' => array('class' => array('timepicker')),
+      );
+    }
+  }
+
+  // Если нужно отобразить поле для ввода текста.
+  if ($element->type == 'textarea') {
+    $form = array(
+      '#id' => 'edit-' . $element->form_key,
+      '#type' => $element->type,
+      '#title' => t($element->title),
+      '#required' => $element->required,
+      '#default_value' => $element->value,
+      '#description' => $element->description,
+      '#rows' => 4,
+      '#attributes' => array(
+        'class' => array('site-send-messages-' . $element->form_key),
+      ),
+    );
+  }
+
+  // Если нужно отобразить поле для выбора вариантов в виде кнопки.
+  if ($element->type == 'radios') {
+    $form = array(
+      '#id' => 'edit-' . $element->form_key,
+      '#type' => $element->type,
+      '#title' => t($element->title),
+      '#required' => $element->required,
+      '#default_value' => $element->value,
+      '#description' => $element->description,
+      '#options' => array(0 => t('Private person'), 1 => t('Legal person')),
+    );
+  }
+
+  // Если нужно отобразить поле для выбора файла.
+  if ($element->type == 'file') {
+    $name = 'site-send-messages-file-' . $element->file_number;
+    $form = array(
+      '#id' => 'edit-' . $element->form_key,
+      '#name' => 'files[' . $name . ']',
+      '#type' => $element->type,
+      '#description' => $element->description,
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Формирует название поля.
+ *
+ * @param
+ *   (string) $name - наименование колонки таблицы.
+ * @param
+ *   (string) $form_key - системное имя поля.
+ * @param
+ *   (string) $form_group - имя группы полей.
+ */
+function site_send_messages_element_value($name, $form_key, $form_group) {
+  $query = db_select('site_send_messages_settings_form', 'n');
+  $query->fields('n', array($name));
+  $query->condition('n.form_group', $form_group);
+  $query->condition('n.form_key', $form_key);
+  $result = $query->execute();
+
+  return $result->fetchField();
+}
+
+/**
+ * Форма регистрации сообщения.
+ */
+function site_send_messages_form($form, &$form_state, $variables) {
+  $form = array();
+
+  if (isset($variables['function'])) {
+    $form_id = str_replace('_', '-', $variables['function']);
+  }
+  else {
+    $form_id = 'site-send-messages-form-wrapper';
+  }
+
+  $form = array(
+    '#prefix' => '<div id="' . $form_id . '-' . $variables['form_group'] . '">',
+    '#suffix' => '</div>',
+  );
+  $form[$variables['form_group']]['#tree'] = TRUE;
+
+  // Устанавливаем атрибуты формы.
+  $form['#attributes'] = array(
+    'enctype' => "multipart/form-data",
+    'form_group' => $variables['form_group'],
+    'form_id' => $form_id,
+  );
+
+  if (isset($variables['text'])) {
+    $form['text'] = array(
+      '#type' => 'value',
+      '#value' => check_plain($variables['text']),
+    );
+  }
+
+  // Заголовок и описание формы для типа формы отличной от form-default.
+  if ($variables['form_group'] <> 'form-default') {
+    if (!isset($variables['title_form']) || empty($variables['title_form'])) {
+      $variables['title_form'] = db_query("SELECT n.title FROM {site_send_messages_groups} n WHERE n.form_group = :form_group", array(':form_group' => $variables['form_group']))->fetchField();
+    }
+    if (!isset($variables['description_form']) || empty($variables['description_form'])) {
+      $variables['description_form'] = db_query("SELECT n.description FROM {site_send_messages_groups} n WHERE n.form_group = :form_group", array(':form_group' => $variables['form_group']))->fetchField();
+    }
+
+    $title_description = '<div class="site-send-messages-form-title">' . t($variables['title_form']) . '</div>';
+    if (!empty($variables['description_form'])) {
+      $title_description .= '<div class="form-item form-type-item">' . t($variables['description_form']) . '</div>';
+    }
+
+    // Поле для вывода заголовка и описания формы.
+    $form['title'] = array(
+      '#type' => 'item',
+      '#markup' => $title_description,
+      '#weight' => -50,
+    );
+  }
+
+  // Поле для вывода сообщений ajax.
+  $form['messages'] = array(
+    '#type' => 'item',
+    '#markup' => '<div id="site-send-messages-' . $variables['form_group'] . '"></div>',
+    '#weight' => -49,
+  );
+
+  // Поле для вывода примечания.
+  if ($variables['show_note']) {
+    $note = '';
+    if (!variable_get('site_send_messages_default_note', FALSE)) {
+      $note = site_send_messages_default_note();
+    }
+    else {
+      $note = check_plain(variable_get('site_send_messages_note'));
+      $note = t($note);
+    }
+    $form['note'] = array(
+      '#type' => 'item',
+      '#markup' => $note,
+      '#weight' => -48,
+    );
+  }
+
+  // Поле для группировки файловых полей.
+  if (!site_send_messages_element_value('disabled', 'file', $variables['form_group'])) {
+    $form[$variables['form_group']]['files'] = array(
+      '#type' => 'fieldset',
+      '#title' => t(site_send_messages_element_value('title', 'file', $variables['form_group'])),
+      '#collapsible' => FALSE,
+      '#weight' => site_send_messages_element_value('weight', 'file', $variables['form_group']),
+    );
+  }
+
+  // Перечень доступных полей формы.
+  $query = db_select('site_send_messages_settings_form', 'n');
+  $query->fields('n');
+  $query->condition('n.form_group', $variables['form_group']);
+  $query->condition('n.disabled', FALSE);
+  $query->orderBy('weight', 'ASC');
+  $result = $query->execute();
+
+  foreach ($result as $element) {
+    $element->file_number = 1;
+
+    // Элемент формы.
+    $form[$variables['form_group']][$element->form_key] = site_send_messages_construct_form_element($element);
+
+    // Параметры элемента: файл.
+    if ($element->type == 'file') {
+      unset($form[$variables['form_group']][$element->form_key]);
+      $count = variable_get('site_send_messages_count_files', 1) + 1;
+      for ($i = 1; $i < $count; $i++) {
+        $element->file_number = $i;
+        $form[$variables['form_group']]['files'][$element->form_key . '-' . $i] = site_send_messages_construct_form_element($element);
+      }
+    }
+
+    // Подключаем библиотеки в зависимости от типа элемента.
+    if ($element->form_key == 'date') {
+      $form['#attached']['library'][] = array('system', 'ui.datepicker');
+    }
+    if ($element->form_key == 'time') {
+      $form['#attached']['library'][] = array('system', 'ui.slider');
+      $form['#attached']['css'][] = libraries_get_path('timepicker') . '/jquery-ui-timepicker-addon.css';
+      $form['#attached']['js'][] = libraries_get_path('timepicker') . '/jquery-ui-timepicker-addon.js';
+      $form['#attached']['js'][] = libraries_get_path('timepicker') . '/jquery-ui-sliderAccess.js';
+    }
+    if ($element->form_key == 'phone' && variable_get('site_send_messages_captcha_phone', FALSE)) {
+      $form['#attached']['js'][] = libraries_get_path('maskedinput') . '/jquery.maskedinput.min.js';
+    }
+  }
+
+  $form['#attached']['css'][] = drupal_get_path('module', 'site_send_messages') . '/css/site_send_messages.css';
+  $form['#attached']['js'][] = drupal_get_path('module', 'site_send_messages') . '/js/site_send_messages.js';
+
+  // Добавляем элементы отправки формы.
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send message'),
+  );
+  $form['actions']['submit']['#ajax'] = array(
+    'event' => 'click',
+    'path' => 'site-send-messages-form-ajax-callback',
+    'method' => 'replace',
+    'effect' => 'fade',
+  );
+
+  return $form;
+}
+
+/**
+ * Ajax callback для формы отправки сообщения site_send_messages_form().
+ */
+function site_send_messages_form_ajax_callback() {
+  // Получаем данные о форме и её состоянии.
+  list($form, $form_state) = ajax_get_form();
+
+  // Выполняем все validate и submit функции для формы.
+  drupal_process_form($form['#form_id'], $form, $form_state);
+
+  // Собираем сообщения, которые вылезли в процессе выполнения формы.
+  $commands = array();
+
+  // Собираем сообщения, которые вылезли в процессе выполнения формы.
+  $status_messages = theme('status_messages');
+  $commands[] = ajax_command_html('#site-send-messages-' . $form['#attributes']['form_group'], $status_messages);
+
+  // Если форма успешно отправлена.
+  if (empty($status_messages)) {
+    $commands[] = ajax_command_html('#' . $form['#attributes']['form_id'] . '-' . $form['#attributes']['form_group'], $form_state['values']['text_submit']);
+  }
+
+  // Проверка включен ли модуль colorbox.
+  // Функция выполняет автомасштабирование окна с формой.
+  if (module_exists('colorbox')) {
+    $commands[] = ajax_command_invoke(NULL, "siteSendMessagesFormResize", array());
+  }
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Implementation of hook_validate().
+ */
+function site_send_messages_form_validate($form, &$form_state) {
+  $form_group = $form['#attributes']['form_group'];
+
+  // Проверка корректно ли заполнено поле Контактный номер.
+  if (isset($form_state['values'][$form_group]['phone'])) {
+    $phone = trim($form_state['values'][$form_group]['phone']);
+    $phone = str_replace('_', '', $phone);
+    $phone_count = strlen($phone);
+    if ($phone_count > 0 && $phone_count <> 16 && variable_get('site_send_messages_captcha_phone', FALSE)) {
+      form_set_error('phone', t('Contact phone number <strong>@param</strong> is incorrect.', array('@param' => $phone)));
+    }
+  }
+
+  // Проверка email.
+  if (isset($form_state['values'][$form_group]['mail']) && strlen(trim($form_state['values'][$form_group]['mail'])) > 0) {
+    if (!valid_email_address($form_state['values'][$form_group]['mail'])) {
+      form_set_error('mail', t('The e-mail address %mail is not valid.', array('%mail' => $form_state['values'][$form_group]['mail'])));
+    }
+  }
+}
+
+/**
+ * Submit callback for the site_send_messages_create_form form.
+ */
+function site_send_messages_form_submit($form, &$form_state) {
+    $form_group = $form['#attributes']['form_group'];
+
+    // Текст, который добавляется к телу сообщения.
+    if (!empty($form_state['values']['text'])) {
+      $text = t($form_state['values']['text']);
+    }
+    else {
+      $text = t('Message');
+    }
+
+    // Формируем html тело сообщения.
+    $body = '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">' . $text . '</div>';
+    $body .= '<ul>';
+
+    foreach ($form_state['values'][$form_group] as $form_key => $value) {
+      $title = site_send_messages_element_value('title', $form_key, $form_group);
+      if ($title && $value) {
+        $body .= '<li><b>' . t($title) . ':</b>&nbsp;' . check_plain($value) . '</li>';
+      }
+    }
+
+    $body .= '</ul>';
+
+    // Массив данных для прикрепленных файлов.
+    $attachment = array();
+    $count = variable_get('site_send_messages_count_files', 1) + 1;
+    $validators = array(
+      'file_validate_extensions' => array('txt doc docx pdf xls xlsx odt rtf jpg gif png jpeg rar zip 7z bzip2 gzip tar wim xz'),
+    );
+    for ($i = 1; $i < $count; $i++) {
+      $source = 'site-send-messages-file-' . $i;
+      if ($file = file_save_upload($source, $validators, 'temporary://')) {
+        $attachment[] = $file;
+      }
+    }
+
+    // Регистрируем событие в журнале Drupal.
+    watchdog('site_send_messages', $body, array(), WATCHDOG_INFO);
+
+    $from = '';
+    if (isset($form_state['values'][$form_group]['mail'])) {
+      $from = $form_state['values'][$form_group]['mail'];
+    }
+
+    // Отправка сообщения.
+    kvantstudio_mail_send(array(
+      'module'      => 'kvantstudio',
+      'key'         => 'kvantstudio_from_user_mail',
+      'to'          => '',
+      'from'        => $from,
+      'subject'     => '',
+      'body'        => $body,
+      'set_message' => FALSE,
+      'attachments' => $attachment,
+    ));
+
+    // Уведомление, если отключен модуль mimemail.
+    if (!module_exists('mimemail') && count($attachment)) {
+      drupal_set_message(t('To have a possibility to send attached files, establish and include the module <a href="http://drupal.org/project/mimemail">Mime Mail</a>.'), 'warning');
+    }
+
+    $form_state['values']['text_submit'] = '<div class="messages status">' . t(variable_get('site_send_messages_call_submite_note', 'The message is sent!')) . '</div>';
+}
+
+/**
+ * Темизация формы редактирования.
+ */
+function theme_site_send_messages_form($variables) {
+  $form = $variables['form'];
+  $form_group = $form['#attributes']['form_group'];
+  if (isset($form[$form_group]['date']) && isset($form[$form_group]['time'])) {
+    $form[$form_group]['date']['#prefix'] = '<div class="container-inline">';
+    $form[$form_group]['time']['#suffix'] = '</div>';
+  }
+
+  // And then render any remaining form elements (such as our submit button)
+  return drupal_render_children($form);
+}
+
+/**
+ * Формирования кнопки вызова и popup формы - заказать звонок.
+ */
+function site_send_messages_call($button = TRUE) {
+  // Подключаем системные файлы.
+  drupal_add_library('system', 'drupal.ajax');
+  drupal_add_library('system', 'jquery.form');
+
+  // Подключаем masked input plugin для jQuery.
+  drupal_add_js(libraries_get_path('maskedinput') . '/jquery.maskedinput.min.js');
+
+  // Подключаем зависимые файлы модуля.
+  drupal_add_js(drupal_get_path('module', 'site_send_messages') . '/js/site_send_messages.js');
+
+  $output = '';
+  $form = drupal_get_form('site_send_messages_call_form');
+  $form = drupal_render($form);
+
+  if ($button) {
+    $output .= l(t('To order a call'), '', array('fragment' => 'site-send-messages-call-form-wrapper', 'external' => TRUE, 'attributes' => array('class' => array('site-send-messages-call-button'))));
+  }
+
+  $output .= '<div class="element-hidden"><div id="site-send-messages-call-form-wrapper">' . $form . '</div></div>';
+
+  return $output;
+}
+
+/**
+ * Форма регистрации сообщения о звонке.
+ */
+function site_send_messages_call_form($form, &$form_state) {
+  $form = array();
+  $form['#tree'] = TRUE;
+  $form['#attributes'] = array();
+
+  $form['title'] = array(
+    '#type' => 'item',
+    '#markup' => '<div class="site-send-messages-form-title">' . t('To order a call') . '</div>',
+  );
+
+  $call_note = variable_get('site_send_messages_call_note');
+  if ($call_note) {
+    $form['note'] = array(
+      '#type' => 'item',
+      '#markup' => t($call_note),
+    );
+  }
+
+  $form['messages'] = array(
+    '#type' => 'item',
+    '#markup' => '<div id="site-send-messages-call-form-messages"></div>',
+  );
+
+  $form['first_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('First name'),
+    '#required' => FALSE,
+  );
+
+  $form['phone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Contact phone'),
+    '#required' => FALSE,
+    '#attributes' => array(
+      'class' => array('site-send-messages-phone'),
+    ),
+  );
+
+  // Добавляем элементы отправки формы.
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+  );
+  $form['actions']['submit']['#ajax'] = array(
+    'event' => 'click',
+    'path' => 'site-send-messages-call-form-ajax-callback',
+    'method' => 'replace',
+    'effect' => 'fade',
+  );
+
+  return $form;
+}
+
+/**
+ * Provides ajax callback for form submit
+ */
+function site_send_messages_call_form_ajax_callback() {
+  // Получаем данные о форме и её состоянии.
+  list($form, $form_state) = ajax_get_form();
+
+  // Выполняем все validate и submit функции для формы.
+  drupal_process_form($form['#form_id'], $form, $form_state);
+
+  // Собираем сообщения, которые вылезли в процессе выполнения формы.
+  $commands = array();
+
+  // Если есть ошибки при выполнении.
+  $errors = 0;
+  if (!empty($form_state['values']['text_validate'])) {
+    $commands[] = ajax_command_html('#site-send-messages-call-form-messages', $form_state['values']['text_validate']);
+    $errors++;
+  }
+
+  // Если форма успешно отправлена.
+  if (!$errors) {
+    $commands[] = ajax_command_html('#site-send-messages-call-form-wrapper', $form_state['values']['text_submit']);
+  }
+
+  // Проверка включен ли модуль colorbox.
+  // Функция выполняет автомасштабирование окна с формой.
+  if (module_exists('colorbox')) {
+    $commands[] = ajax_command_invoke(NULL, "siteSendMessagesCallFormResize", array());
+  }
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Validate callback for the site_send_messages_call_form form.
+ */
+function site_send_messages_call_form_validate($form, &$form_state) {
+  $errors = 0;
+  $messages = '';
+
+  // Проверка заполнено ли поле Имя.
+  if (strlen(trim($form_state['values']['first_name'])) == 0) {
+    $messages .= '<div class="messages error">' . t('Specify <strong>@param</strong>.', array('@param' => t('First name'))) . '</div>';
+    $errors++;
+  }
+
+  // Проверка заполнено ли поле Контактный номер.
+  if (strlen(trim($form_state['values']['phone'])) == 0) {
+    $messages .= '<div class="messages error">' . t('Specify <strong>@param</strong>.', array('@param' => t('Contact phone'))) . '</div>';
+    $errors++;
+  }
+
+  // Проверка корректно ли заполнено поле Контактный номер.
+  $phone = trim($form_state['values'][$form_group]['phone']);
+  $phone = str_replace('_', '', $phone);
+  $phone_count = strlen($phone);
+  if ($phone_count > 0 && $phone_count <> 17) {
+    $messages .= '<div class="messages error">' . t('Contact phone number <strong>@param</strong> is incorrect.', array('@param' => $phone)) . '</div>';
+    $errors++;
+  }
+
+  if (!empty($errors)) {
+    $form_state['values']['text_validate'] = $messages;
+    $form_state['values']['text_submit'] = '';
+  } else {
+    $form_state['values']['text_submit'] = 'submit';
+  }
+}
+
+/**
+ * Submit callback for the site_send_messages_call_form form.
+ */
+function site_send_messages_call_form_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+
+  if ($form_state['values']['text_submit'] == 'submit') {
+    // Формируем html тело сообщения.
+    $body = "";
+    $body .= '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">' . t('I ask you to me to call back') . ':</div>';
+    $body .= '<ul>';
+    $body .= '<li><b>' . t('First name') . ':</b>&nbsp;' . check_plain($form_state['values']['first_name']) . '</li>';
+    $body .= '<li><b>' . t('Contact phone') . ':</b>&nbsp;' . check_plain($form_state['values']['phone']) . '</li>';
+    $body .= '</ul>';
+
+    // Регистрируем событие в журнале Drupal.
+    watchdog('site_send_messages_call', $body, array(), WATCHDOG_INFO);
+
+    // Отправка сообщения.
+    kvantstudio_mail_send(array(
+      'module'      => 'kvantstudio',
+      'key'         => 'kvantstudio_from_user_mail',
+      'to'          => '',
+      'from'        => '',
+      'subject'     => '',
+      'body'        => $body,
+      'set_message' => FALSE,
+      'attachments' => array(),
+    ));
+
+    $form_state['values']['text_submit'] = '<div class="messages status">' . t(variable_get('site_send_messages_call_submite_note', 'The message is sent!')) . '</div>';
+  }
+}
+
+/**
+ * Формирования кнопки вызова и popup формы - отправить заявку.
+ */
+function site_send_messages_request($variables) {
+  $output = '<div class="site-send-messages-request">';
+
+  $form = site_send_messages($variables);
+
+  if (empty($variables['title_button'])) {
+    $variables['title_button'] = $variables['title_form'];
+  }
+
+  $output .= l(t($variables['title_button']), '', array('fragment' => 'site-send-messages-wrapper-'. $variables['form_group'], 'external' => TRUE, 'attributes' => array('class' => array('site-send-messages-request-button', 'site-send-messages-button-' . $variables['form_group']))));
+
+  $output .= '<div class="element-hidden"><div id="site-send-messages-wrapper-' . $variables['form_group'] . '">' . $form . '</div></div>';
+
+  $output .= '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements hook_forms().
+ */
+function site_send_messages_forms() {
+$forms = array();
+  $forms['site_send_messages_form_1'] = array(
+    'callback' => 'site_send_messages_form',
+  );
+  $forms['site_send_messages_form_2'] = array(
+    'callback' => 'site_send_messages_form',
+  );
+  $forms['site_send_messages_form_3'] = array(
+    'callback' => 'site_send_messages_form',
+  );
+  $forms['site_send_messages_form_4'] = array(
+    'callback' => 'site_send_messages_form',
+  );
+  $forms['site_send_messages_form_5'] = array(
+    'callback' => 'site_send_messages_form',
+  );
+  $forms['site_send_messages_form_6'] = array(
+    'callback' => 'site_send_messages_form',
+  );
+  return $forms;
+}

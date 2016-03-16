@@ -1,0 +1,152 @@
+# Russian translation of site_price module (7.0)
+# Copyright (c) 2011 by the Russian translation team
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: site_price (7.x-1.0-beta1)\n"
+"POT-Creation-Date: 2011-03-29 15:27+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Language-Team: Russian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+
+msgid "The module a question and the answer (FAQ)"
+msgstr "Модуль вопрос и ответ (FAQ)"
+
+msgid "Settings FAQ"
+msgstr "Настройки FAQ"
+
+msgid "The categories of questions"
+msgstr "Категорий вопросов"
+
+msgid "Questions and answers"
+msgstr "Вопросы и ответы"
+
+msgid "The contact information"
+msgstr "Контактная информация"
+
+msgid "The contact information is not published and used anywhere only for answers to your messages."
+msgstr "Контактная информация нигде не публикуются и используется исключительно для ответов на Ваши сообщения."
+
+msgid "On this page you can familiarize with answers to your questions."
+msgstr "На этой странице Вы можете ознакомиться с ответами на Ваши вопросы."
+
+msgid "To ask a question"
+msgstr "Задать вопрос"
+
+msgid "FAQ"
+msgstr "Часто задаваемые вопросы"
+
+msgid "FAQ - the document with questions from users."
+msgstr "FAQ  - документ с вопросами от пользователей."
+
+msgid "You can ask a question interesting you, the answer we shall publish on a site."
+msgstr "Вы можете задать интересующий Вас вопрос, ответ мы опубликуем на сайте."
+
+msgid "Category of question"
+msgstr "Категория вопроса"
+
+msgid "New questions"
+msgstr "Новые вопросы"
+
+msgid "To send a question"
+msgstr "Отправить вопрос"
+
+msgid "Thanks for your question. It will be published after check."
+msgstr "Спасибо за Ваш вопрос. Он будет опубликован после проверки."
+
+msgid "It is necessary to specify necessarily a category which the question concerns."
+msgstr "Необходимо обязательно указать категорию, которой относится вопрос."
+
+msgid "To remove a question of the FAQ"
+msgstr "Удалить вопрос FAQ"
+
+msgid "To answer a question"
+msgstr "Ответить на вопрос"
+
+msgid "To answer"
+msgstr "Ответить"
+
+msgid "To delete"
+msgstr "Удалить"
+
+msgid "Specify in this floor your answer to a question."
+msgstr "Укажите в этом поле Ваш ответ на вопрос."
+
+msgid "Contact data of the sender"
+msgstr "Контактные данные отправителя"
+
+msgid "Date of registration"
+msgstr "Дата регистрации"
+
+msgid "Choose a category and push a button TO SHOW QUESTIONS."
+msgstr "Выберите категорию и нажмите кнопку ПОКАЗАТЬ ВОПРОСЫ."
+
+msgid "The category is not chosen, questions are displayed all."
+msgstr "Категория не выбрана, отображаются все вопросы."
+
+msgid "To edit a question and the answer"
+msgstr "Редактировать вопрос и ответ"
+
+msgid "The field is required to fill the text."
+msgstr "Требуется заполнить поле текст."
+
+msgid "The question is removed."
+msgstr "Вопрос удалён."
+
+msgid "The answer with advantage is added."
+msgstr "Ответ успешно добавлен."
+
+msgid "To show questions"
+msgstr "Показать вопросы"
+
+msgid "It is not set any question. You can be the first who will ask to us a question!"
+msgstr "Не задано ни одного вопроса. Вы можете быть первым, кто задаст нам вопрос!"
+
+msgid "Last questions"
+msgstr "Последние вопросы"
+
+msgid "Read more"
+msgstr "Читать подробнее"
+
+msgid "it is set questions - @count"
+msgstr "задано вопросов - @count"
+
+msgid "The answer"
+msgstr "Ответ"
+
+msgid "Confirming of removal of a question"
+msgstr "Подтверждение удаления вопроса"
+
+msgid "You wish to remove a question <b>@name</b>? A question will be irrevocably removed!"
+msgstr "Вы действительно хотите удалить вопрос <b>@name</b>? Вопрос будет безвозвратно удален!"
+
+msgid "The question has been removed."
+msgstr "Вопрос был удален."
+
+msgid "The visitor of a site"
+msgstr "Посетитель сайта"
+
+msgid "the new question from the visitor of a site has acted on consideration"
+msgstr "поступил на рассмотрение новый вопрос от посетителя сайта"
+
+###############################################################################
+# Перевод полей формы пользователя.
+###############################################################################
+
+msgid "Full name"
+msgstr "ФИО"
+
+msgid "Last name"
+msgstr "Фамилия"
+
+msgid "First name"
+msgstr "Имя"
+
+msgid "Patronymic"
+msgstr "Отчество"
+
+msgid "Contact phone"
+msgstr "Контактный телефон"

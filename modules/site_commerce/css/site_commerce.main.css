@@ -1,0 +1,260 @@
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.form-number {
+  width: 50px;
+}
+
+.site-commerce-actions .ajax-progress {
+  display:none;
+}
+
+.link-js {
+  background: transparent linear-gradient(to left, #800080, #800080 60%, transparent 60%) repeat-x scroll 0px 95% / 5px 1px;
+  text-decoration: none;
+  border: 0;
+}
+
+.site-commerce-buy-1-click:before {
+background: url(../images/phone.png) no-repeat;
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: block;
+  position: absolute;
+  left: 0;
+}
+
+.site-commerce-buy-1-click {
+  display: inline-block;
+  padding-left: 25px;
+  position: relative;
+  text-decoration: none;
+  border: 0;
+}
+
+.site-commerce-buy-1-click:hover {
+  text-decoration: none;
+}
+
+.site-commerce-buy-1-click:hover .link-js {
+  background: linear-gradient(to left, #FF0000, #FF0000 60%, rgba(0, 0, 0, 0) 60%) repeat-x scroll 0 95% / 5px 1px rgba(0, 0, 0, 0);
+}
+
+/* Оформление высплывающего блока при добавлении позиции в корзину. */
+.site-commerce-addedtocart {
+  border-bottom: 1px solid #EEEEEE;
+  box-shadow: 0 0.625 1.25em #EBEBEB;
+  margin: 0;
+  padding: 0 1.25em 1.25em;
+  text-align: center;
+}
+.site-commerce-addedtocart .title {
+  font-size: 1.25em;
+  display: block;
+}
+.site-commerce-addedtocart-img {
+  float: left;
+  margin: 0 1em 0 0;
+}
+.site-commerce-addedtocart-about {
+  vertical-align: top;
+}
+.site-commerce-addedtocart .subheader {
+  display: block;
+  font-size: 1em !important;
+  line-height: 1.5em;
+  padding-bottom: 0.75em;
+}
+.site-commerce-actions-order-confirm {
+  line-height: 2em;
+  padding-top: 0.5em;
+}
+.site-commerce-actions-order-confirm .item {
+  display: inline-block;
+  padding-right: 0.5em;
+  vertical-align: top;
+}
+.site-commerce-actions-order-confirm .item .site-commerce-goto-buy {
+  background: -moz-linear-gradient(left center , #FF6600, #FF6600 60%, rgba(0, 0, 0, 0) 60%) repeat-x scroll 0 95% / 5px 1px rgba(0, 0, 0, 0);
+  font-weight: normal;
+  border: none;
+  color: #FF6600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+/* Форма купить в 1 клик. */
+.site-commerce-buy-in-one-click-form {
+  font-size: 0.875em;
+  color: #666666;
+}
+.site-commerce-buy-in-one-click-form .form-item {
+  margin-bottom: 10px;
+}
+.site-commerce-buy-in-one-click-form input[type=text] {
+  width: 100%;
+  font-size: 1.5em;
+  border: 1px solid #DDDDDD;
+  color: #666666;
+  transition-duration: 0.5s;
+}
+.site-commerce-buy-in-one-click-form input[type="text"]:hover {
+  border: 1px solid #999999;
+}
+.site-commerce-buy-in-one-click-form .form-submit {
+  padding: 10px;
+  font-size: 1em;
+}
+.site-commerce-buy-in-one-click-title {
+  font-size: 2em;
+  text-align: center;
+  color: #000000;
+}
+.site-commerce-buy-in-one-click-ordered {
+  font-size: 2em;
+  text-align: center;
+}
+
+/* Блок сортировки позиций при отображении товаров по категории. */
+.site-commerce-sort {
+  font-size: 0.8em;
+  margin: 10px 0 10px 0;
+  padding: 10px 0 10px 10px;
+  color: #666666;
+  line-height: 15px;
+  vertical-align: middle;
+  background-color: #EEEEEE;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+.shadowed {
+  border-bottom: 1px solid rgba(0, 0, 0, 0);
+  position: relative;
+}
+
+.shadowed:before {
+  border-radius: 50% 50% 50% 50%;
+  bottom: 2px;
+  box-shadow: 0 5px 6px #D2D2D2;
+  clip: rect(9px, auto, 30px, auto);
+  content: "";
+  height: 8px;
+  left: 6%;
+  position: absolute;
+  width: 88%;
+}
+
+.site-commerce-sort-title {
+  float: left;
+  padding-right: 10px;
+}
+
+.site-commerce-sort-item {
+	padding-right: 20px;
+}
+
+/* Оформление не опубликованной позиции товара. */
+.site-commerce-item-not-published {
+	background-image: url(../images/background-not-published.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+/* Форма действий администратора. */
+.site-commerce-admin-actions-form {
+  font-size: 0.875em;
+  text-align: left;
+  color: #666666;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding: 1em;
+  background: #F7F7F7;
+  text-shadow: 0px 1px 0px rgba(243, 244, 188, 0.73);
+  margin: 1em 0 0 0;
+}
+
+.site-commerce-admin-actions-form label {
+  display: inline-block;
+  margin-bottom: 5px;
+  width: 300px;
+}
+
+.site-commerce-admin-actions-form select {
+  width: 250px;
+}
+
+.site-commerce-admin-actions-form input[type=text] {
+  width: 100px;
+}
+
+.site-commerce-admin-actions-form .form-item, .site-commerce-admin-actions-form .form-actions {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+/* Оформление примечания если не указана стоимость */
+.site-commerce-text-none-cost, .site-commerce-text-none-cost-cart {
+  color: #F00;
+  font-size: 0.8em;
+  text-align: left;
+  display: inline-block;
+}
+
+/* Оформление блока с ссобщениями о выполнении действий в форме администрирования */
+.site-commerce-admin-actions-form-messages {
+  padding: 10px;
+  margin-bottom: 5px;
+  background: #33FF00;
+}
+
+.site-commerce-admin-actions-form-error-messages {
+  padding: 10px;
+  margin-bottom: 5px;
+  color: #F7F7F7;
+  background: #FF0000;
+}
+
+/* Переназначение стилей JQUERY. */
+.ui-tabs .ui-tabs-panel {
+  padding: 0em;
+}
+.ui-tabs {
+  padding: 0em;
+}
+.ui-tabs .ui-tabs-nav {
+  margin: 0;
+  padding: 0;
+}
+a.ui-tabs-anchor {
+  border: 0;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.ui-widget {
+  font-family: inherit;
+  font-size: 100%;
+}
+.ui-widget-content {
+  border: 0;
+}
+.ui-widget-header {
+  background: transparent;
+  border: 0;
+}
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+  font-family: inherit;
+  font-size: 100%;
+}
+.ui-widget-overlay {
+  background: none repeat scroll 0 0 #000000;
+  opacity: 0.4;
+}

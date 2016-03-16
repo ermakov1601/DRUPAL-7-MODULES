@@ -1,0 +1,51 @@
+.site-commerce-cost:before, .site-commerce-cost:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+
+.site-commerce-cost:after {
+  clear: both;
+}
+
+.site-commerce-cost_basic {
+  color: #000000;
+}
+
+.site-commerce-cost_none-card {
+  text-align: center;
+}
+
+.site-commerce-cost_basic-none-card {
+  font-size: 1.5em;
+}
+
+.site-commerce-cost_basic-other-position {
+  font-size: 1em;
+}
+
+.site-commerce-cost_discount {
+  color: #666666;
+  margin: 0 0 16px 0;
+  font-size: 0.8em;
+}
+
+.site-commerce-cost__value-old {
+  text-decoration: line-through;
+  display: inline-block;
+  margin: 0 0.5em 0 0;
+}
+
+.site-commerce-cost__value-discount {
+  background-color: #E0E0E0;
+  display: inline-block;
+  padding: 0.2em;
+  font-size: 0.8em;
+}
+
+.site-commerce-cost__label {
+  font-size: 0.5em;
+  color: #666666;
+  margin-right: 10px;
+}

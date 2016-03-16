@@ -1,0 +1,3297 @@
+<?php
+
+/**
+ * @file
+ * Файл установки, обновления, удаления модуля - site_commerce.
+ */
+
+///**
+// * Implements hook_requirements().
+// */
+//function site_commerce_requirements($phase) {
+//  $requirements = array();
+//  $t = get_t();
+//
+//  if ($phase == 'update') {
+//    // Проверка минимальной версии обновления модуля kvantstudio.
+//    $schema_version = (int) db_query("SELECT schema_version FROM {system} WHERE name = 'kvantstudio' AND type = 'module'")->fetchField();
+//    if ($schema_version < 7003) {
+//      $requirements['kvantstudio'] = array(
+//        'title' => $t('SiteCommerce warning'),
+//        'description' => $t('Version of the update module kvаntstudiо should be equal to 7003 or higher.'),
+//        'value' => check_plain($schema_version),
+//        'severity' => REQUIREMENT_ERROR,
+//      );
+//    }
+//
+//    // Проверка включенного модуля elements.
+//    if (!module_exists('elements')) {
+//      $requirements['elements'] = array(
+//        'title' => $t('SiteCommerce warning'),
+//        'value' => check_plain($t('Module elements is not installed.')),
+//        'severity' => REQUIREMENT_ERROR,
+//      );
+//    }
+//  }
+//
+//  return $requirements;
+//}
+
+/**
+ * Implements hook_install().
+ */
+function site_commerce_install() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  // Устанавливаем по умолчанию систему отправки почтовых сообщений.
+  variable_set('mail_system', array('default-system' => 'KvantstudioMailSystem'));
+
+  // Создаем словари для модуля.
+  $vocabularies = _site_commerce_create_vocabularies();
+
+  // Создаем тип товара по умолчанию.
+  $type_id = db_insert('site_commerce_type', array('return' => Database::RETURN_INSERT_ID))
+  ->fields(array(
+    'type' => 'site_commerce_basic',
+    'name' => $t('Product'),
+    'description' => $t('Product type, which is the main when the catalog of products. Ideal for the majority of products various internet shops.'),
+    'module' => 'site_commerce',
+    'path' => 'basic',
+    'categories_vocabulary' => $vocabularies['categories_vocabulary'],
+    'contractors_vocabulary' => $vocabularies['contractors_vocabulary'],
+    'manufactures_vocabulary' => $vocabularies['manufactures_vocabulary'],
+    'countries_vocabulary' => $vocabularies['countries_vocabulary'],
+    'status_term_alias_delete' => 0,
+  ))
+  ->execute();
+
+  // Создаём поля и сущности для базового типа товара.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_basic']);
+
+  // Создание полей для словарей таксономии.
+  foreach (_site_commerce_installed_taxonomy_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_categories.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_categories';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля. Запрещаем создание поля стоимость.
+    if ($instance['field_name'] <> 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_colors.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_colors';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    if ($instance['field_name'] == 'field_site_commerce_image' || $instance['field_name'] == 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_materials.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_materials';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    if ($instance['field_name'] == 'field_site_commerce_image' || $instance['field_name'] == 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  // Добавляем поля и индексы.
+  site_commerce_create_schema_alter();
+
+  // Включаем прочие модули.
+  module_enable(array('site_commerce_special_offers', 'site_commerce_order'), TRUE);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  // Перестраиваем кэш меню.
+  menu_rebuild();
+
+  // Первоначальная настройка параметров по умолчанию.
+  _site_commerce_default_settings();
+
+  // Первоначальная настройка переводов по умолчанию для многоязыковых переменных.
+  _site_commerce_default_translations();
+}
+
+/**
+ * Обновляет схему данных в существующих таблицах.
+ */
+function site_commerce_create_schema_alter() {
+  $schema = array();
+  site_commerce_schema_alter($schema);
+  foreach ($schema as $table =>$tablespecs) {
+    if (isset($tablespecs['fields'])) {
+      foreach ($tablespecs['fields'] as $name => $spec) {
+        if (!db_field_exists($table, $name)) {
+          db_add_field($table, $name, $spec);
+        }
+      }
+    }
+    if (isset($tablespecs['indexes'])) {
+      foreach ($tablespecs['indexes'] as $name => $fields) {
+        $create_index = TRUE;
+        foreach ($fields as $field) {
+          if (!db_field_exists($table, $field)) {
+            $create_index = FALSE;
+          }
+        }
+        if ($create_index) {
+          db_add_index($table, $name, $fields);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Функция: первоначальная настройка параметров по умолчанию.
+ */
+function _site_commerce_default_settings() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  variable_initialize();
+
+  // Переменные.
+  $values = array();
+
+  foreach (site_commerce_position_status() as $key => $value) {
+    $values[] = $key;
+  }
+  variable_set('site_commerce_catalog_allow_statuses', $values);
+  variable_set('site_commerce_add_to_cart_allow_statuses', $values);
+
+  $values = array(
+    'full_name' => 'full_name',
+    'postcode' => 'postcode',
+    'city' => 'city',
+    'address_delivery' => 'address_delivery',
+    'phone' => 'phone',
+    'email' => 'email',
+    'comment' => 'comment',
+  );
+  variable_set('site_commerce_order_fields', $values);
+
+  $values = array(
+    'full_name_required' => 'full_name_required',
+    'postcode_required' => 'postcode_required',
+    'city_required' => 'city_required',
+    'address_delivery_required' => 'address_delivery_required',
+    'phone_required' => 'phone_required',
+    'email_required' => 'email_required',
+  );
+  variable_set('site_commerce_order_fields_required', $values);
+
+  variable_set('site_commerce_default_currency', 'руб.');
+
+  // Настройки прочих модулей.
+  $values = array(
+    'site_commerce' => 'site_commerce',
+    'node' => 0,
+    'user' => 0,
+  );
+  variable_set('search_active_modules', $values);
+  variable_set('search_default_module', 'site_commerce');
+  variable_set('transliteration_search', FALSE);
+  variable_set('pathauto_site_commerce_pattern', '[site_commerce:product-path]');
+  variable_set('pathauto_taxonomy_term_site_commerce_categories_pattern', '[term:category-path]');
+  variable_set('pathauto_taxonomy_term_pattern', '[term:name]');  
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  site_commerce_default_role_permissions();
+}
+
+/**
+ * Функция: первоначальная настройка переводов по умолчанию для многоязыковых переменных.
+ */
+function _site_commerce_default_translations() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  module_load_include('inc', 'pathauto', 'pathauto');
+
+  variable_initialize();
+
+  // Переменные - примечания.
+  variable_set('site_commerce_note_global_cost', '');
+  variable_set('site_commerce_note_catalog_description', $t('Welcome to our online store!'));
+  variable_set('site_commerce_note_catalog_description_bottom', '');
+  variable_set('site_commerce_note_cart_description', $t('Check up, please, once again a complete set of your order. If necessary change the order.'));
+  variable_set('site_commerce_note_if_order_denied', $t('To make out orders for our site it is temporarily forbidden. Technical works are conducted. We apologize for inconveniences.'));
+  variable_set('site_commerce_note_order_description', $t('Thanks that have issued the order. In the near future with you the manager of shop will communicate.'));
+  variable_set('site_commerce_note_minimal_cost', $t('The price is specified for the products in a base complete set. Final cost will depend on a complete set after registration of the order. We shall call back to you for specification of full cost of the products.'));
+  variable_set('site_commerce_note_none_cost', $t('Please check the cost from the vendor consultant.'));
+  variable_set('site_commerce_note_none_quantity', $t('Please check the quantity from the vendor consultant.'));
+  variable_set('site_commerce_note_index_position', $t('With this product you can buy'));
+
+  // Переменные - настройка покупки в один клик.
+  variable_set('site_commerce_buy_in_one_click_title', $t('Buy in 1 click'));
+
+  // Переменные - настройка корзины.
+  variable_set('site_commerce_cart_title_button_add', $t('Buy'));
+  variable_set('site_commerce_cart_text_empty', $t('Cart is empty'));
+  variable_set('site_commerce_cart_title', $t('Cart'));
+
+  // Переменные - настройка поиска.
+  variable_set('site_commerce_search_form_bottom', $t('The help under a field of input of the search form') . ' <a href="' . base_path() . 'admin/config/kvantstudio/site-commerce">' . $t('Edit') . '</a> (' . $t('Setup search') . ')');
+  variable_set('site_commerce_search_form_up', $t('The help above a field of input of the search form'));
+  variable_set('site_commerce_search_form_alt', $t('The emerging help at prompting the mouse on a floor of input of the search form'));
+  variable_set('site_commerce_search_form_title', $t('Title of the form of search'));
+
+  // Переменные - настройки каталога.
+  variable_set('site_commerce_catalog_title', $t('Online store'));
+  variable_set('site_commerce_catalog_link', pathauto_cleanstring($t('Online store')));
+}
+
+/**
+ * Назначает по умолчанию стили imagecache.
+ */
+function _site_commerce_default_imagecache() {
+  variable_set('site_commerce_imagecache_taxonomy', 'sc_taxonomy');
+  variable_set('site_commerce_imagecache_taxonomy_block', 'sc_taxonomy_block');
+  variable_set('site_commerce_imagecache_taxonomy_term', 'sc_taxonomy_term');
+  variable_set('site_commerce_imagecache_taxonomy_term_new', 'sc_taxonomy_term');
+  variable_set('site_commerce_imagecache_subtaxonomy', 'sc_subtaxonomy');
+  variable_set('site_commerce_imagecache_select', 'sc_select');
+  variable_set('site_commerce_imagecache_select_card', 'sc_select_card');
+  variable_set('site_commerce_imagecache_first', 'sc_first');
+  variable_set('site_commerce_imagecache_second', 'sc_thumbnail');
+  variable_set('site_commerce_imagecache_other', 'sc_first');
+  variable_set('site_commerce_imagecache_index', 'sc_thumbnail');
+  variable_set('site_commerce_imagecache_full', 'sc_full');
+  variable_set('site_commerce_imagecache_block', 'sc_block');
+  variable_set('site_commerce_imagecache_first_new', 'sc_first');
+  variable_set('site_commerce_imagecache_other_new', 'sc_first');
+  variable_set('site_commerce_imagecache_index_new', 'sc_thumbnail');
+}
+
+/**
+ * Функция: массив полей.
+ */
+function _site_commerce_installed_fields() {
+  $t = get_t();
+  $fields = array(
+    'site_commerce_country' => array(
+      'field_name'  => 'field_site_commerce_country',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_commerce_countries',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_manufacture' => array(
+      'field_name'  => 'field_site_commerce_manufacture',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_commerce_manufactures',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_brand' => array(
+      'field_name'  => 'field_site_commerce_brand',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_commerce_manufactures',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_contractor' => array(
+      'field_name'  => 'field_site_commerce_contractor',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_commerce_contractors',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_category' => array(
+      'field_name'  => 'field_site_commerce_category',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_commerce_categories',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_code' => array(
+      'field_name'  => 'field_site_commerce_code',
+      'type'        => 'text',
+      'cardinality' => 1,
+      'settings'    => array(
+        'max_length' => 255,
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_cost_min' => array(
+      'field_name' => 'field_site_commerce_cost_min',
+      'type' => 'number_decimal',
+      'settings' => array(
+        'precision' => 10,
+        'scale' => 2,
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_cost_old' => array(
+      'field_name' => 'field_site_commerce_cost_old',
+      'type' => 'number_decimal',
+      'settings' => array(
+        'precision' => 10,
+        'scale' => 2,
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_cost' => array(
+      'field_name' => 'field_site_commerce_cost',
+      'type' => 'number_decimal',
+      'settings' => array(
+        'precision' => 10,
+        'scale' => 2,
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_quantity' => array(
+      'field_name'  => 'field_site_commerce_quantity',
+      'type'        => 'number_integer',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    ),
+    'site_commerce_order_quantity' => array(
+      'field_name'  => 'field_site_commerce_min_quantity',
+      'type'        => 'number_integer',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    ),
+    'site_commerce_measure' => array(
+      'field_name' => 'field_site_commerce_measure',
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array(),
+      ),
+      'translatable' => FALSE,
+    ),
+    'site_commerce_image' => array(
+      'field_name' => 'field_site_commerce_image',
+      'type' => 'image',
+      'settings' => array(),
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'translatable' => TRUE,
+    ),
+    'site_commerce_file' => array(
+      'field_name' => 'field_site_commerce_file',
+      'type' => 'file',
+      'translatable' => TRUE,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    ),
+    'site_commerce_special_offer' => array(
+      'field_name'  => 'field_special_offer',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_commerce_special_offers_vocabulary',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
+  );
+  return $fields;
+}
+
+/**
+ * Функция: создание массива инстанций полей.
+ */
+function _site_commerce_installed_instances() {
+  $t = get_t();
+  $instances = array(
+    'site_commerce_taxonomy' => array(
+      'field_name' => 'field_site_commerce_category',
+      'label' => $t('The category'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_contractor' => array(
+      'field_name' => 'field_site_commerce_contractor',
+      'label' => $t('Сontractor'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_country' => array(
+      'field_name' => 'field_site_commerce_country',
+      'label' => $t('The country of the manufacturer'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_manufacture' => array(
+      'field_name' => 'field_site_commerce_manufacture',
+      'label' => $t('The manufacturer'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_brand' => array(
+      'field_name' => 'field_site_commerce_brand',
+      'label' => $t('The brand'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_code' => array(
+      'field_name' => 'field_site_commerce_code',
+      'label'       => $t('Part number'),
+      'required' => FALSE,
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'site_commerce_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'site_commerce_code',
+        ),
+      ),
+    ),
+    'site_commerce_cost_min' => array(
+      'field_name' => 'field_site_commerce_cost_min',
+      'label' => $t('The minimal cost'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'settings' => array(
+        'min' => '0',
+        'max' => '1000000',
+        'prefix' => '',
+        'suffix' => '',
+      ),
+      'display' => array(
+        'default' => array(
+          'settings' => array(
+            'scale' => 2,
+            'thousand_separator' => ',',
+            'decimal_separator' => '.',
+            'prefix_suffix' => FALSE,
+          ),
+        ),
+      ),
+      'default_value' => array(0 => array('value' => 0)),
+    ),
+    'site_commerce_cost_old' => array(
+      'field_name' => 'field_site_commerce_cost_old',
+      'label' => $t('Old cost'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'settings' => array(
+        'min' => '0',
+        'max' => '1000000',
+        'prefix' => '',
+        'suffix' => '',
+      ),
+      'display' => array(
+        'default' => array(
+          'settings' => array(
+            'scale' => 2,
+            'thousand_separator' => ',',
+            'decimal_separator' => '.',
+            'prefix_suffix' => FALSE,
+          ),
+        ),
+      ),
+      'default_value' => array(0 => array('value' => 0)),
+    ),
+    'site_commerce_cost' => array(
+      'field_name' => 'field_site_commerce_cost',
+      'label' => $t('Cost'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'settings' => array(
+        'min' => '0',
+        'max' => '1000000',
+        'prefix' => '',
+        'suffix' => '',
+      ),
+      'display' => array(
+        'default' => array(
+          'settings' => array(
+            'scale' => 2,
+            'thousand_separator' => ',',
+            'decimal_separator' => '.',
+            'prefix_suffix' => FALSE,
+          ),
+        ),
+      ),
+      'default_value' => array(0 => array('value' => 0)),
+    ),
+    'site_commerce_quantity' => array(
+      'field_name' => 'field_site_commerce_quantity',
+      'label' => $t('Quantity in stock'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'number_integer',
+        ),
+      ),
+      'settings' => array(
+        'min' => 0,
+      ),
+      'default_value' => array(0 => array('value' => 1)),
+    ),
+    'site_commerce_order_quantity' => array(
+      'field_name' => 'field_site_commerce_min_quantity',
+      'label' => $t('Quantity for the order in package'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'number_integer',
+        ),
+      ),
+      'settings' => array(
+        'min' => 1,
+      ),
+      'default_value' => array(0 => array('value' => 1)),
+    ),
+    'site_commerce_measure' => array(
+      'field_name' => 'field_site_commerce_measure',
+      'label' => $t('Unit of measure of quantity'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_special_offer' => array(
+      'field_name' => 'field_special_offer',
+      'label' => $t('Special offer'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_commerce_image' => array(
+      'field_name' => 'field_site_commerce_image',
+      'label' => $t('Image'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'pictures/site_commerce',
+        'file_extensions' => 'jpg gif png jpeg',
+        'max_filesize' => '10 M',
+        'max_resolution' => '1024x768',
+        'alt_field' => TRUE,
+        'title_field' => TRUE,
+      ),
+      'widget' => array('type' => 'image_image'),
+      'display' => array(
+        'default' => array(
+          'type' => 'image',
+        ),
+      ),
+    ),
+    'site_commerce_file' => array(
+      'field_name' => 'field_site_commerce_file',
+      'label' => $t('File'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'documents/site_commerce',
+        'file_extensions' => variable_get('site_files_extensions', 'txt doc docx pdf xls xlsx odt rtf jpg gif png jpeg rar zip 7z bzip2 gzip tar wim xz'),
+        'max_filesize' => variable_get('site_files_size', '10') . ' M',
+        'description_field' => TRUE,
+      ),
+      'widget' => array('type' => 'file_generic'),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'file_default',
+        ),
+      ),
+    ),
+  );
+  return $instances;
+}
+
+/**
+ * Создание массива полей для таксономии.
+ */
+function _site_commerce_installed_taxonomy_fields() {
+  $t = get_t();
+  $fields = array(
+    'site_commerce_taxonomy_tags' => array(
+      'field_name' => 'field_site_commerce_tags',
+      'type' => 'text_long',
+      'cardinality' => 1,
+      'settings' => array(),
+      'translatable' => FALSE,
+    ),
+  );
+  return $fields;
+}
+
+/**
+ * Cоздание массива инстанций полей для таксономии.
+ */
+function _site_commerce_installed_taxonomy_instances() {
+  $t = get_t();
+
+  // Инстанция для изображения категории таксономии.
+  $instances = array(
+    'sc_taxonomy' => array(
+      'field_name' => 'field_site_commerce_image',
+      'label' => $t('Image'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'pictures/site_commerce',
+        'file_extensions' => 'jpg gif png jpeg',
+        'max_filesize' => '10 M',
+        'max_resolution' => '1024x768',
+        'alt_field' => TRUE,
+        'title_field' => TRUE,
+      ),
+      'widget' => array('type' => 'image_image'),
+      'display' => array(
+        'default' => array(
+          'type' => 'image',
+        ),
+      ),
+    ),
+    // Инстанция для ключевых слов - тегов термина таксономии.
+    'site_commerce_taxonomy_tags' => array(
+      'field_name' => 'field_site_commerce_tags',
+      'label' => $t('Tags'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'text_textarea',
+      ),
+      'display' => array(
+        'site_commerce_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'site_commerce_taxonomy_tags',
+        ),
+      ),
+    ),
+    'site_commerce_cost' => array(
+      'field_name' => 'field_site_commerce_cost',
+      'label' => $t('Cost'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'settings' => array(
+        'min' => '0',
+        'max' => '1000000',
+        'prefix' => '',
+        'suffix' => '',
+      ),
+      'display' => array(
+        'default' => array(
+          'settings' => array(
+            'scale' => 2,
+            'thousand_separator' => ',',
+            'decimal_separator' => '.',
+            'prefix_suffix' => FALSE,
+          ),
+        ),
+      ),
+      'default_value' => array(0 => array('value' => 0)),
+    ),
+  );
+  return $instances;
+}
+
+/**
+ * Функция: создание словарей.
+ */
+function _site_commerce_create_vocabularies() {
+  $t = get_t();
+
+  $vocabularies = array();
+
+  // Создаем словарь для категорий.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_categories');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('Categories the online store'),
+      'machine_name' => 'site_commerce_categories',
+      'description' => $t('The dictionary of categories of online store.'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['categories_vocabulary'] = $vocabulary->vid;
+  }
+  else {
+    $vocabularies['categories_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создаем словарь для поставщиков.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_contractors');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('Сontractors'),
+      'machine_name' => 'site_commerce_contractors',
+      'description' => $t('Сontractors'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    $vocabulary->term_page_access_denied = TRUE;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['contractors_vocabulary'] = $vocabulary->vid;
+  }
+  else {
+    $vocabularies['contractors_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создаем словарь для производителей и брендов.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_manufactures');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('Manufacturers and brands'),
+      'machine_name' => 'site_commerce_manufactures',
+      'description' => $t('Manufacturers and brands'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    $vocabulary->term_page_access_denied = TRUE;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['manufactures_vocabulary'] = $vocabulary->vid;
+  }
+  else {
+    $vocabularies['manufactures_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создаем словарь для стран производителей.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_countries');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('The country of the manufacturer'),
+      'machine_name' => 'site_commerce_countries',
+      'description' => $t('The country of the manufacturer.'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    $vocabulary->term_page_access_denied = TRUE;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['countries_vocabulary'] = $vocabulary->vid;
+  }
+  else {
+    $vocabularies['countries_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создаем словарь для выбора цвета.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_colors');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('Color'),
+      'machine_name' => 'site_commerce_colors',
+      'description' => $t('The colors of goods.'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    $vocabulary->term_page_access_denied = TRUE;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['colors_vocabulary'] = $vocabulary->vid;
+
+    // Создаём параметр.
+    site_commerce_create_parametr_by_vid($vocabulary->vid);
+  }
+  else {
+    $vocabularies['colors_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создаем словарь для выбора материала изготовления.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_materials');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('Material'),
+      'machine_name' => 'site_commerce_materials',
+      'description' => $t('The materials of goods.'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    $vocabulary->term_page_access_denied = TRUE;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['materials_vocabulary'] = $vocabulary->vid;
+
+    // Создаём параметр.
+    site_commerce_create_parametr_by_vid($vocabulary->vid);
+  }
+  else {
+    $vocabularies['materials_vocabulary'] = $vocabulary->vid;
+  }
+
+  return $vocabularies;
+}
+
+/**
+ * Добавляем сущности к типу товара.
+ */
+function _site_commerce_type_installed_instances($type, $add_body = TRUE) {
+  $t = get_t();
+
+  // Разрешаем модулям обновление базы данных.
+  field_associate_fields('site_commerce');
+
+  // Добавляем экземляр поля Body.
+  if ($add_body) {
+    site_commerce_add_body_field($type, t('Body'));
+  }
+
+  // Загружаем тип.
+  $basic_type = site_commerce_type_get_type($type->type);
+
+  // Формируем массив с названиями полей, который потом будем считывать при создании экземпляров.
+  $fields_name = array();
+
+  // Создание полей, которые будут добавлены к типу товара по умолчанию.
+  foreach (_site_commerce_installed_fields() as $field) {
+    // Регистрируем название создаваемого поля.
+    $fields_name[$field['field_name']] = $field['field_name'];
+
+    // Перед созданием поля, выполняем проверку для определенных типов полей.
+    // Изменяем название полей, которые привязаны к словарям таксономии.
+
+    switch ($field['field_name']) {
+      case 'field_site_commerce_country':
+        // Название поля из базового типа.
+        $fields_name[$field['field_name']] = 'field_country_' . $basic_type->countries_vocabulary;
+
+        $field_info = field_info_field($fields_name[$field['field_name']]);
+        if ($type->countries_vocabulary <> $basic_type->countries_vocabulary || empty($field_info)) {
+          $vocabulary = taxonomy_vocabulary_load($type->countries_vocabulary);
+          $field_created = array(
+            'field_name'  => 'field_country_' . $vocabulary->vid,
+            'type'        => 'taxonomy_term_reference',
+            'cardinality' => 1,
+            'translatable' => FALSE,
+            'settings' => array(
+              'allowed_values' => array(
+                0 => array(
+                  'vocabulary' => $vocabulary->machine_name,
+                  'parent' => 0,
+                ),
+              ),
+            ),
+          );
+          $field_info = field_info_field($field_created['field_name']);
+          if (!$field_info) {
+            field_create_field($field_created);
+            $fields_name[$field['field_name']] = $field_created['field_name'];
+          }
+        }
+        break;
+      case 'field_site_commerce_manufacture':
+        // Название поля из базового типа.
+        $fields_name[$field['field_name']] = 'field_manufacture_' . $basic_type->manufactures_vocabulary;
+
+        $field_info = field_info_field($fields_name[$field['field_name']]);
+        if ($type->manufactures_vocabulary <> $basic_type->manufactures_vocabulary || empty($field_info)) {
+          $vocabulary = taxonomy_vocabulary_load($type->manufactures_vocabulary);
+          $field_created = array(
+            'field_name'  => 'field_manufacture_' . $vocabulary->vid,
+            'type'        => 'taxonomy_term_reference',
+            'cardinality' => 1,
+            'translatable' => FALSE,
+            'settings' => array(
+              'allowed_values' => array(
+                0 => array(
+                  'vocabulary' => $vocabulary->machine_name,
+                  'parent' => 0,
+                ),
+              ),
+            ),
+          );
+          $field_info = field_info_field($field_created['field_name']);
+          if (!$field_info) {
+            field_create_field($field_created);
+            $fields_name[$field['field_name']] = $field_created['field_name'];
+          }
+        }
+        break;
+      case 'field_site_commerce_brand':
+        // Название поля из базового типа.
+        $fields_name[$field['field_name']] = 'field_brand_' . $basic_type->manufactures_vocabulary;
+
+        $field_info = field_info_field($fields_name[$field['field_name']]);
+        if ($type->manufactures_vocabulary <> $basic_type->manufactures_vocabulary || empty($field_info)) {
+          $vocabulary = taxonomy_vocabulary_load($type->manufactures_vocabulary);
+          $field_created = array(
+            'field_name'  => 'field_brand_' . $vocabulary->vid,
+            'type'        => 'taxonomy_term_reference',
+            'cardinality' => 1,
+            'translatable' => FALSE,
+            'settings' => array(
+              'allowed_values' => array(
+                0 => array(
+                  'vocabulary' => $vocabulary->machine_name,
+                  'parent' => 0,
+                ),
+              ),
+            ),
+          );
+          $field_info = field_info_field($field_created['field_name']);
+          if (!$field_info) {
+            field_create_field($field_created);
+            $fields_name[$field['field_name']] = $field_created['field_name'];
+          }
+        }
+        break;
+      case 'field_site_commerce_contractor':
+        // Название поля из базового типа.
+        $fields_name[$field['field_name']] = 'field_contractor_' . $basic_type->contractors_vocabulary;
+
+        $field_info = field_info_field($fields_name[$field['field_name']]);
+        if ($type->contractors_vocabulary <> $basic_type->contractors_vocabulary || empty($field_info)) {
+          $vocabulary = taxonomy_vocabulary_load($type->contractors_vocabulary);
+          $field_created = array(
+            'field_name'  => 'field_contractor_' . $vocabulary->vid,
+            'type'        => 'taxonomy_term_reference',
+            'cardinality' => 1,
+            'translatable' => FALSE,
+            'settings' => array(
+              'allowed_values' => array(
+                0 => array(
+                  'vocabulary' => $vocabulary->machine_name,
+                  'parent' => 0,
+                ),
+              ),
+            ),
+          );
+          $field_info = field_info_field($field_created['field_name']);
+          if (!$field_info) {
+            field_create_field($field_created);
+            $fields_name[$field['field_name']] = $field_created['field_name'];
+          }
+        }
+        break;
+      case 'field_site_commerce_category':
+        // Название поля из базового типа.
+        $fields_name[$field['field_name']] = 'field_category_' . $basic_type->categories_vocabulary;
+
+        $field_info = field_info_field($fields_name[$field['field_name']]);
+        if ($type->categories_vocabulary <> $basic_type->categories_vocabulary || empty($field_info)) {
+          $vocabulary = taxonomy_vocabulary_load($type->categories_vocabulary);
+          $field_created = array(
+            'field_name'  => 'field_category_' . $vocabulary->vid,
+            'type'        => 'taxonomy_term_reference',
+            'cardinality' => 1,
+            'translatable' => FALSE,
+            'settings' => array(
+              'allowed_values' => array(
+                0 => array(
+                  'vocabulary' => $vocabulary->machine_name,
+                  'parent' => 0,
+                ),
+              ),
+            ),
+          );
+          $field_info = field_info_field($field_created['field_name']);
+          if (!$field_info) {
+            field_create_field($field_created);
+            $fields_name[$field['field_name']] = $field_created['field_name'];
+          }
+        }
+        break;
+      default:
+        // Создаём поле по умолчанию.
+        $field_info = field_info_field($field['field_name']);
+        if (!$field_info) {
+          field_create_field($field);
+        }
+    }
+  }
+
+  // Создание экземпляров полей.
+  foreach (_site_commerce_installed_instances() as $instance) {
+    $instance['entity_type'] = 'site_commerce';
+    $instance['bundle'] = $type->type;
+    $instance['field_name'] = $fields_name[$instance['field_name']];
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function site_commerce_uninstall() {
+  // Помечаем каждое поле базового типа товаров и его образцы для удаления.
+  foreach (array_keys(_site_commerce_installed_fields()) as $field_name) {
+    $field_name = 'field_' . $field_name;
+    field_delete_field($field_name);
+  }
+
+  // Удаляем поле для Body.
+  field_delete_field('field_site_commerce_body');
+
+  // Помечаем образцы полей и их данные для удаления.
+  // @TODO: Доработать удаление в зависимости от типа товара.
+  $instances = field_info_instances('site_commerce', 'site_commerce_basic');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Purge all field infromation.
+  field_purge_batch(1000);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  //Перестраиваем меню.
+  menu_rebuild();
+
+  // Удаляем алиасы позиций.
+  db_delete('url_alias')
+    ->condition('source', 'site-commerce/%', 'LIKE')
+    ->execute();
+
+  // Удаляем словари.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_countries');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_manufactures');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_contractors');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_categories');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  // @TODO: Доработать удаление словарей параметров.
+
+  // Удаляем переменные модуля.
+  db_delete('variable')
+    ->condition('name', 'site_commerce_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function site_commerce_schema() {
+  $schema = array();
+  $schema['site_commerce'] = array(
+    'description' => 'The base table for products.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'The primary identifier for the product.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'import_id' => array(
+        'description' => 'The primary identifier for the imported product in other database.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => 'The {site_commerce_type}.type of this product.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'tid' => array(
+         'description' => 'The term ID.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'tidc' => array(
+         'description' => 'The term ID of contractor.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'type_condition' => array(
+         'description' => 'The type of condition.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The title of this product, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that owns this product; initially, this is the user that created it.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Status position in stock.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'type_sale' => array(
+        'description' => 'Type of sale.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'disabled' => array(
+        'description' => 'Boolean indicating whether the product is published (visible to non-administrators).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the product was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the product was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'comment' => array(
+        'description' => 'Whether comments are allowed for this product: 0 = no, 1 = closed (read only), 2 = open (read/write).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this product.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => 'und',
+      ),
+      'sticky' => array(
+        'description' => 'Boolean indicating whether the product is new: 0 = no, 1 = new product.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'cost_set' => array(
+        'description' => 'Boolean indicating 1 is count value as the sum of a set of.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tpid' => array(
+        'description' => 'The translation set id for this product, which equals the site_commerce pid of the source post in each set.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'translate' => array(
+        'description' => 'A boolean indicating whether this translation page needs to be updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'site_commerce_changed'   => array('changed'),
+      'site_commerce_created'   => array('created'),
+      'site_commerce_sticky'    => array('sticky'),
+      'site_commerce_title'     => array('title'),
+      'site_commerce_type'      => array(array('type', 32)),
+      'site_commerce_uid'       => array('uid'),
+      'site_commerce_import_id' => array(array('import_id', 255)),
+      'site_commerce_type_condition' => array('type_condition'),
+    ),
+    'foreign keys' => array(
+      'site_commerce_users' => array(
+      'table'               => 'users',
+      'columns'             => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+
+  $schema['site_commerce_type'] = array(
+    'description' => 'Stores information about all defined {site_commerce} types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The human-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'translatable' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'A brief description of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+      'module' => array(
+        'description' => 'The module defining this products.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'path' => array(
+        'description' => 'The path for alias of type this products.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'countries_vocabulary' => array(
+        'description' => 'The {taxonomy_vocabulary}.vid.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'manufactures_vocabulary' => array(
+        'description' => 'The {taxonomy_vocabulary}.vid.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'contractors_vocabulary' => array(
+        'description' => 'The {taxonomy_vocabulary}.vid.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'categories_vocabulary' => array(
+        'description' => 'The {taxonomy_vocabulary}.vid.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'description' => 'Status of type position. If 1 - enable, 0 - disable.',
+      ),
+      'status_term_alias_delete' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Status of type deletion of taxonome alias. If 1 - enable, 0 - disable.',
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {taxonomy_vocabulary}.vid.',
+      ),
+    ),
+    'primary key' => array('type'),
+  );
+
+  $schema['site_commerce_taxonomy_index'] = array(
+    'description' => 'Maintains denormalized information about site_commerce/term relationships.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'The {site_commerce_}.pid this record tracks.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tid' => array(
+         'description' => 'The term ID.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the product was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'site_commerce_taxonomy_index_tid' => array('tid'),
+      'site_commerce_taxonomy_index_pid' => array('pid'),
+    ),
+    'foreign keys' => array(
+      'site_commerce_taxonomy_index_site_commerce' => array(
+        'table' => 'site_commerce',
+        'columns' => array('pid' => 'pid'),
+      ),
+      'site_commerce_taxonomy_index_taxonomy_term_data' => array(
+        'table' => 'taxonomy_term_data',
+        'columns' => array('tid' => 'tid'),
+      ),
+    ),
+  );
+
+  // Таблица корзины заказов
+  $schema['site_commerce_cart'] = array(
+    'description' => 'Таблица: корзина заказов.',
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор записи позиции в корзине.',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid corresponding to a session, or 0 for anonymous user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'sid' => array(
+        'description' => "A session ID. The value is generated by Drupal's session handlers.",
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Идентификатор позиции site_commerce.nid.',
+      ),
+      'oid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Номер заказа, к которому принадлежит позиция корзины.',
+      ),
+      'cost' => array(
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 2,
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Стоимость.',
+      ),
+      'quantity' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Количество.',
+      ),
+      'data' => array(
+        'description' => 'The data of other parametrs.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'description' => 'Статус позиции в корзине: 0 - удалена из корзины, 1 - доступна к оформлению в заказ, 2 - отложенна в заказ.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата регистрации позиции в корзине.',
+      ),
+    ),
+    'indexes' => array(
+      'site_commerce_cart_pid' => array('pid'),
+      'site_commerce_cart_user' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'site_commerce_cart_site_commerce' => array(
+        'table' => 'site_commerce',
+        'columns' => array('pid' => 'pid'),
+      ),
+      'site_commerce_cart_site_commerce_orders' => array(
+        'table' => 'site_commerce_orders',
+        'columns' => array('oid' => 'oid'),
+      ),
+      'site_commerce_cart_users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+
+  $schema['site_commerce_search'] = array(
+    'description' => 'Stores information about all search requests.',
+    'fields' => array(
+      'sid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор поискового запроса.',
+      ),
+      'search_string' => array(
+        'description' => 'A search string.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'description' => 'Status of search request. If 1 - enable, 0 - disable for view.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp date of create request.',
+      ),
+      'hostname' => array(
+        'type' => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The hostname.',
+      ),
+    ),
+    'primary key' => array('sid'),
+  );
+
+  $schema['site_commerce_position_index'] = array(
+    'description' => 'Maintains denormalized information about site_commerce positions relationships.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'The {site_commerce_}.pid main position id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rpid' => array(
+         'description' => 'The {site_commerce_}.pid related position id.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'site_commerce_position_index_pid' => array('pid'),
+      'site_commerce_position_index_rpid' => array('rpid'),
+    ),
+    'foreign keys' => array(
+      'site_commerce_taxonomy_index_site_commerce' => array(
+        'table' => 'site_commerce',
+        'columns' => array('pid' => 'pid'),
+      ),
+    ),
+  );
+
+  $schema['site_commerce_parametrs'] = array(
+    'description' => 'Maintains information about site_commerce positions ajax parametrs.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор параметра.',
+      ),
+      'vid' => array(
+         'description' => 'The {taxonomy_vocabulary}.vid taxonomy vocabulary id.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'name' => array(
+        'description' => 'The {taxonomy_vocabulary}.name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'machine_name' => array(
+        'description' => 'The {taxonomy_vocabulary}.machine_name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'foreign keys' => array(
+      'site_commerce_taxonomy_vocabulary_parametrs' => array(
+        'table' => 'taxonomy_vocabulary',
+        'columns' => array('vid' => 'vid'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  // Таблица выбранных параметров товаров.
+  $schema['site_commerce_cart_parametrs'] = array(
+    'description' => 'Таблица: параметры товаров при добавлении в корзину.',
+    'fields' => array(
+      'cpid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор записи.',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid corresponding to a session, or 0 for anonymous user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'sid' => array(
+        'description' => "A session ID. The value is generated by Drupal's session handlers.",
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+      'machine_name' => array(
+        'description' => 'Название параметра.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'tid' => array(
+         'description' => 'The {taxonomy_term_data}.tid.',
+         'type' => 'int',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+         'default' => 0,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Идентификатор позиции site_commerce.pid.',
+      ),
+      'cost' => array(
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 2,
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Стоимость.',
+      ),
+      'oid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Номер заказа.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Дата регистрации.',
+      ),
+    ),
+    'indexes' => array(
+      'site_commerce_cart_parametr_pid' => array('pid'),
+      'site_commerce_cart_parametr_user' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'site_commerce_cart_parametr_site_commerce' => array(
+        'table' => 'site_commerce',
+        'columns' => array('pid' => 'pid'),
+      ),
+      'site_commerce_cart_parametr_users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('cpid'),
+  );
+
+  $schema['site_commerce_import'] = array(
+    'description' => 'Таблица для хранения данных импорта товаров.',
+    'fields' => array(
+      'import_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Идентификатор записи.',
+      ),
+      'pid' => array(
+        'description' => 'Идентификатор пользователя {users}.uid.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'value' => array(
+        'description' => 'Данные для импорта.',
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+      ),
+    ),
+    'foreign keys' => array(
+      'site_commerce' => array(
+        'table' => 'site_commerce',
+        'columns' => array('pid' => 'pid'),
+      ),
+    ),
+    'primary key' => array('import_id'),
+  );
+
+  $schema['cache_site_commerce'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  return $schema;
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7000() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7001() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7002() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаем новое поле.
+  $schema = array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 1,
+    'description' => 'Статус позиции в корзине: 0 - удалена из корзины, 1 - доступна к оформлению в заказ, 2 - отложенна в заказ.',
+  );
+  db_add_field('site_commerce_cart', 'status', $schema);
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7003() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаем новое поле.
+  $schema = array(
+    'description' => 'The module defining this products.',
+    'type' => 'varchar',
+    'length' => 255,
+    'default' => 'site_commerce',
+    'not null' => TRUE,
+  );
+  db_add_field('site_commerce_type', 'module', $schema);
+
+  $schema = array(
+    'description' => 'The path for alias of type this products.',
+    'type' => 'varchar',
+    'length' => 255,
+    'default' => 'basic',
+    'not null' => TRUE,
+  );
+  db_add_field('site_commerce_type', 'path', $schema);
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7004() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  $schema = array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 1,
+    'description' => 'Status of type position. If 1 - enable, 0 - disable.',
+  );
+  db_add_field('site_commerce_type', 'status', $schema);
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7005() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+  variable_set('site_commerce_search_form_title', 'Search in the online store, among @count products.');
+}
+
+/**
+ * Language update and db structure. Add new features for save search requests.
+ */
+function site_commerce_update_7006() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  db_create_table('site_commerce_search', drupal_get_schema_unprocessed('site_commerce', 'site_commerce_search'));
+  return 'Add the site_commerce_search table for the site_commerce module.';
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7007() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Удаляем переменные модуля.
+  variable_del('site_commerce_catalog_imagecache_preset');
+  variable_del('site_commerce_page_first_imagecache_preset');
+  variable_del('site_commerce_page_second_imagecache_preset');
+  variable_del('site_commerce_colorbox_imagecache_preset');
+
+  // Удаляем поле в БД таблица site_commerce_orders.
+  db_drop_field('site_commerce_orders', 'timestamp_delivery');
+
+  // Создаем поле в БД таблица site_commerce_orders.
+  $schema = array(
+    'type' => 'varchar',
+    'length'   => 50,
+    'not null' => TRUE,
+    'default' => '',
+    'description' => 'IP с которого зарегистрирован заказ.',
+  );
+  db_add_field('site_commerce_orders', 'hostname', $schema);
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7008() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создание полей для словаря таксономии.
+  foreach (_site_commerce_installed_taxonomy_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Создание экземпляров полей для словаря таксономии.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_vocabulary';
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+  return 'Language and db structure of site commerce updated';
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7009() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаем словарь для поставщиков.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_contractors_vocabulary');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => t('Сontractors'),
+      'machine_name' => 'site_commerce_contractors_vocabulary',
+      'description' => t('Сontractors'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    variable_set('site_commerce_contractors_vocabulary', $vocabulary->vid);
+  }
+
+  // Создаем новое поле.
+  $schema = array(
+    'description' => 'The term ID of contractor.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('site_commerce', 'tidc', $schema);
+
+  // Создание полей.
+  foreach (_site_commerce_installed_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Cоздаём экземпляры полей.
+  foreach (_site_commerce_installed_instances() as $instance) {
+    if ($instance['field_name'] == 'field_site_commerce_contractor') {
+      $instance['entity_type'] = 'site_commerce';
+      $instance['bundle'] = 'site_commerce_basic';
+      // Если тип поля существует, а экземпляр отсутствует.
+      // Создаем экземпляр поля.
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+  return 'Language and db structure of site commerce updated';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7010() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Database update.
+ */
+function site_commerce_update_7011() {
+  $field = array(
+    'type' => 'text',
+    'size' => 'normal',
+    'not null' => TRUE,
+  );
+
+  db_change_field('field_data_field_site_commerce_tags', 'field_site_commerce_tags_value', 'field_site_commerce_tags_value', $field);
+
+  db_change_field('field_revision_field_site_commerce_tags', 'field_site_commerce_tags_value', 'field_site_commerce_tags_value', $field);
+
+  db_update('field_config')
+  ->fields(array(
+    'type' => 'text_long',
+  ))
+  ->condition('field_name', 'field_site_commerce_tags')
+  ->execute();
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7012() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Database update.
+ */
+function site_commerce_update_7013() {
+  //----------------------------------------------------------------------------
+  // Изменяем значения экземпляра поля field_site_commerce_tags.
+  //----------------------------------------------------------------------------
+
+  // Получаем массив с параметрами экземпляра.
+  $entity_type = 'taxonomy_term';
+  $field_name = 'field_site_commerce_tags';
+  $bundle_name = 'site_commerce_vocabulary';
+  $instance_info = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  // Изменяем параметры.
+  $instance_info['widget']['type'] = 'text_textarea';
+  unset($instance_info['widget']['settings']['size']);
+
+  // Сохраняем изменения.
+  field_update_instance($instance_info);
+
+  //----------------------------------------------------------------------------
+  // Изменяем значения экземпляра поля field_site_commerce_tags.
+  //----------------------------------------------------------------------------
+
+  // Получаем массив с параметрами экземпляра.
+  $entity_type = 'taxonomy_term';
+  $field_name = 'field_image';
+  $bundle_name = 'site_commerce_vocabulary';
+  $instance_info = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  // Удаляем существующий экземпляр.
+  field_delete_instance($instance_info, $field_cleanup = TRUE);
+
+  // Создание экземпляров полей для словаря таксономии.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_vocabulary';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+}
+
+/**
+ * Database update.
+ */
+function site_commerce_update_7014() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  //----------------------------------------------------------------------------
+  // Создаём новые поля в site_commerce_type.
+  //----------------------------------------------------------------------------
+
+  // Создаем поле - категорий.
+  $schema = array(
+    'description' => 'The {taxonomy_vocabulary}.vid.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('site_commerce_type', 'categories_vocabulary', $schema);
+
+  // Создаем поле - поставщики.
+  $schema = array(
+    'description' => 'The {taxonomy_vocabulary}.vid.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('site_commerce_type', 'contractors_vocabulary', $schema);
+
+  // Создаем поле - производители и бренды.
+  $schema = array(
+    'description' => 'The {taxonomy_vocabulary}.vid.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('site_commerce_type', 'manufactures_vocabulary', $schema);
+
+  // Создаем поле - страны производителей.
+  $schema = array(
+    'description' => 'The {taxonomy_vocabulary}.vid.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('site_commerce_type', 'countries_vocabulary', $schema);
+
+  // Создаем поле - разрешить удаление алиасов таксономии при обновлении алиасов.
+  $schema = array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Status of type deletion of taxonome alias. If 1 - enable, 0 - disable.',
+  );
+  db_add_field('site_commerce_type', 'status_term_alias_delete', $schema);
+
+  // Устанавливаем значения по умолчанию.
+  db_update('site_commerce_type')
+  ->fields(array(
+    'categories_vocabulary' => variable_get('site_commerce_vocabulary'),
+    'contractors_vocabulary' => variable_get('site_commerce_contractors_vocabulary'),
+    'manufactures_vocabulary' => variable_get('site_commerce_manufactures_vocabulary'),
+    'countries_vocabulary' => variable_get('site_commerce_country_vocabulary'),
+  ))
+  ->condition('type', 'site_commerce_basic')
+  ->execute();
+
+  //----------------------------------------------------------------------------
+  // Изменяем названия полей.
+  //----------------------------------------------------------------------------
+
+  // Изменяем названия поля field_site_commerce_country.
+  $name = 'field_site_commerce_country';
+  $new_name = 'field_country_' . variable_get('site_commerce_country_vocabulary');
+  $field_scheme = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  kvantstudio_rename_field($name, $new_name, $field_scheme);
+
+  // Изменяем названия поля field_site_commerce_manufacture.
+  $name = 'field_site_commerce_manufacture';
+  $new_name = 'field_manufacture_' . variable_get('site_commerce_manufactures_vocabulary');
+  $field_scheme = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  kvantstudio_rename_field($name, $new_name, $field_scheme);
+
+  // Изменяем названия поля field_site_commerce_brand.
+  $name = 'field_site_commerce_brand';
+  $new_name = 'field_brand_' . variable_get('site_commerce_manufactures_vocabulary');
+  $field_scheme = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  kvantstudio_rename_field($name, $new_name, $field_scheme);
+
+  // Изменяем названия поля field_site_commerce_contractor.
+  $name = 'field_site_commerce_contractor';
+  $new_name = 'field_contractor_' . variable_get('site_commerce_contractors_vocabulary');
+  $field_scheme = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  kvantstudio_rename_field($name, $new_name, $field_scheme);
+
+  // Изменяем названия поля field_site_commerce_taxonomy.
+  $name = 'field_site_commerce_taxonomy';
+  $new_name = 'field_category_' . variable_get('site_commerce_vocabulary');
+  $field_scheme = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  kvantstudio_rename_field($name, $new_name, $field_scheme);
+
+  //----------------------------------------------------------------------------
+  // Изменяем значения экземпляров полей у словаря site_commerce_categories.
+  //----------------------------------------------------------------------------
+  db_update('field_config_instance')
+  ->fields(array(
+    'bundle' => 'site_commerce_categories',
+  ))
+  ->condition('field_name', 'field_site_commerce_tags')
+  ->condition('entity_type', 'taxonomy_term')
+  ->condition('bundle', 'site_commerce_vocabulary')
+  ->execute();
+
+  db_update('field_config_instance')
+  ->fields(array(
+    'bundle' => 'site_commerce_categories',
+  ))
+  ->condition('field_name', 'field_site_commerce_image')
+  ->condition('entity_type', 'taxonomy_term')
+  ->condition('bundle', 'site_commerce_vocabulary')
+  ->execute();
+
+  //----------------------------------------------------------------------------
+  // Изменяем названия словарей.
+  //----------------------------------------------------------------------------
+  db_update('taxonomy_vocabulary')
+  ->fields(array(
+    'machine_name' => 'site_commerce_categories',
+  ))
+  ->condition('machine_name', 'site_commerce_vocabulary')
+  ->execute();
+
+  db_update('taxonomy_vocabulary')
+  ->fields(array(
+    'machine_name' => 'site_commerce_contractors',
+  ))
+  ->condition('machine_name', 'site_commerce_contractors_vocabulary')
+  ->execute();
+
+  db_update('taxonomy_vocabulary')
+  ->fields(array(
+    'machine_name' => 'site_commerce_manufactures',
+  ))
+  ->condition('machine_name', 'site_commerce_manufactures_vocabulary')
+  ->execute();
+
+  db_update('taxonomy_vocabulary')
+  ->fields(array(
+    'machine_name' => 'site_commerce_countries',
+  ))
+  ->condition('machine_name', 'site_commerce_country_vocabulary')
+  ->execute();
+
+  //----------------------------------------------------------------------------
+  // Изменяем значения настройки привязки словарей к полям.
+  //----------------------------------------------------------------------------
+  $field_info = field_info_field('field_country_' . variable_get('site_commerce_country_vocabulary'));
+  $field_info['settings']['allowed_values'][0]['vocabulary'] = 'site_commerce_countries';
+  field_update_field($field_info);
+
+  $field_info = field_info_field('field_contractor_' . variable_get('site_commerce_contractors_vocabulary'));
+  $field_info['settings']['allowed_values'][0]['vocabulary'] = 'site_commerce_contractors';
+  field_update_field($field_info);
+
+  $field_info = field_info_field('field_manufacture_' . variable_get('site_commerce_manufactures_vocabulary'));
+  $field_info['settings']['allowed_values'][0]['vocabulary'] = 'site_commerce_manufactures';
+  field_update_field($field_info);
+
+  $field_info = field_info_field('field_brand_' . variable_get('site_commerce_manufactures_vocabulary'));
+  $field_info['settings']['allowed_values'][0]['vocabulary'] = 'site_commerce_manufactures';
+  field_update_field($field_info);
+
+  $field_info = field_info_field('field_contractor_' . variable_get('site_commerce_contractors_vocabulary'));
+  $field_info['settings']['allowed_values'][0]['vocabulary'] = 'site_commerce_contractors';
+  field_update_field($field_info);
+
+  $field_info = field_info_field('field_category_' . variable_get('site_commerce_vocabulary'));
+  $field_info['settings']['allowed_values'][0]['vocabulary'] = 'site_commerce_categories';
+  field_update_field($field_info);
+
+  // Удаляем переменные.
+  variable_del('site_commerce_vocabulary');
+  variable_del('site_commerce_contractors_vocabulary');
+  variable_del('site_commerce_manufactures_vocabulary');
+  variable_del('site_commerce_country_vocabulary');
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  return 'The structure of a database is updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7015() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7017() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7017 updated.';
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7018() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7018 updated.';
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7019() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7019 updated.';
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7020() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    locale_system_update(array('site_commerce_special_offers'));
+    return 'Language site_commerce_update_7020 updated.';
+  }
+}
+
+/**
+ * Update db structure.
+ */
+function site_commerce_update_7021() {
+  // Включаем необходимые модули.
+  module_enable(array('site_commerce_special_offers'), TRUE);
+
+  // Обновляем сущности.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_basic']);
+
+  return 'Database structure of site commerce updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7022() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7022 updated.';
+  }
+}
+
+/**
+ * Update database structure.
+ */
+function site_commerce_update_7023() {
+  $style = variable_get('site_commerce_imagecache_image_new_block', 'thumbnail');
+  variable_set('site_commerce_imagecache_block', $style);
+  variable_del('site_commerce_imagecache_image_new_block');
+
+  variable_set('site_commerce_note_minimal_cost', t('The price is specified for the products in a base complete set. Final cost will depend on a complete set after registration of the order. We shall call back to you for specification of full cost of the products.'));
+
+  $table = 'site_commerce_position_index';
+  if (!db_table_exists($table)) {
+    db_create_table($table, drupal_get_schema_unprocessed('site_commerce', $table));
+    return 'Add the site_commerce_position_index table for the site_commerce module.';
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7024() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7024 updated.';
+  }
+}
+
+/**
+ * Update database structure.
+ */
+function site_commerce_update_7025() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Изменяем переменные.
+  variable_del('site_commerce_search_form_title');
+
+  // Обновление значений статусов.
+  db_update('site_commerce')
+  ->fields(array(
+    'status' => 5,
+  ))
+  ->condition('status', 0)
+  ->execute();
+
+  variable_set('site_commerce_catalog_allow_statuses', FALSE);
+  db_update('variable')
+  ->fields(array(
+    'value' => 'a:6:{i:5;s:1:"5";i:10;s:2:"10";i:20;s:2:"20";i:30;s:2:"30";i:40;s:2:"40";i:50;s:2:"50";}',
+  ))
+  ->condition('name', 'site_commerce_catalog_allow_statuses')
+  ->execute();
+
+  return 'Status of positions was updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7026() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7026 updated.';
+  }
+}
+
+/**
+ * Update database structure.
+ */
+function site_commerce_update_7027() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаем новое поле.
+  $schema = array(
+    'description' => 'Type of sale.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 1,
+  );
+  db_add_field('site_commerce', 'type_sale', $schema);
+
+  return 'The structure of the database has been updated successfully.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7028() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7028 updated.';
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7029() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+    return 'Language site_commerce_update_7029 updated.';
+  }
+}
+
+/**
+ * Update database structure. Fix errors.
+ */
+function site_commerce_update_7030() {
+  // Обновляем название словарей, которые могут быть не переведены.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_categories');
+  $vocabulary->name = t('Categories the online store');
+  $vocabulary->description = t('The dictionary of categories of online store.');
+  taxonomy_vocabulary_save($vocabulary);
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_contractors');
+  $vocabulary->name = t('Сontractors');
+  $vocabulary->description = "";
+  taxonomy_vocabulary_save($vocabulary);
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_manufactures');
+  $vocabulary->name = t('Manufacturers and brands');
+  $vocabulary->description = "";
+  taxonomy_vocabulary_save($vocabulary);
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_countries');
+  $vocabulary->name = t('The country of the manufacturer');
+  $vocabulary->description = "";
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Изменение параметров поля.
+  $query = db_select('field_config', 'i');
+  $query->fields('i', array('data'));
+  $query->condition('i.field_name', 'field_site_commerce_tags');
+  $result = $query->execute()->fetchField();
+  $data = unserialize($result);
+  $data['settings']['max_length'] = 0;
+
+  db_update('field_config')
+  ->fields(array(
+    'data' => serialize($data),
+    'type' => 'text_long',
+  ))
+  ->condition('field_name', 'field_site_commerce_tags')
+  ->execute();
+
+  $field = array(
+   'type' => 'text',
+   'size' => 'big',
+   'not null' => FALSE,
+  );
+  db_change_field('field_data_field_site_commerce_tags', 'field_site_commerce_tags_value', 'field_site_commerce_tags_value', $field);
+  db_change_field('field_revision_field_site_commerce_tags', 'field_site_commerce_tags_value', 'field_site_commerce_tags_value', $field);
+
+  // Clear caches.
+  field_cache_clear(TRUE);
+
+  return 'The structure of the database has been updated successfully.';
+}
+
+/**
+ * Update database structure.
+ */
+function site_commerce_update_7031() {
+  $schema = array();
+  $schema['cache_site_commerce'] = drupal_get_schema_unprocessed('system', 'cache');
+  db_create_table('cache_site_commerce', $schema['cache_site_commerce']);
+  return 'Add the cache_site_commerce table for the site_commerce module.';
+}
+
+/**
+ * Update database structure.
+ */
+function site_commerce_update_7032() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаем словарь для выбора цвета.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_colors');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => t('Color'),
+      'machine_name' => 'site_commerce_colors',
+      'description' => t('The colors of goods.'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['colors_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создаем словарь для выбора материала изготовления.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_materials');
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => t('Material'),
+      'machine_name' => 'site_commerce_materials',
+      'description' => t('The materials of goods.'),
+      'hierarchy' => 1,
+      'module' => 'site_commerce',
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    $vocabularies['materials_vocabulary'] = $vocabulary->vid;
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_colors.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_colors';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    if ($instance['field_name'] == 'field_site_commerce_image' || $instance['field_name'] == 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_materials.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_materials';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    if ($instance['field_name'] == 'field_site_commerce_image' || $instance['field_name'] == 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  // Создаём и добавляем поля к сущности товар.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_basic'], FALSE);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  $schema = array(
+    'description' => 'The data of other parametrs.',
+    'type' => 'blob',
+    'not null' => FALSE,
+    'size' => 'big',
+  );
+  db_add_field('site_commerce_cart', 'data', $schema);
+
+  return 'The vocabularies and the fields was added. The structure of the database has been updated successfully.';
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7033() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаём поля и сущности для базового типа товара.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_basic'], FALSE);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  return 'Language and db structure of site commerce updated.';
+}
+
+/**
+ * Update vocabulary name and db structure. Fix errors.
+ */
+function site_commerce_update_7034() {
+  // Проверка минимальной версии обновления модуля kvantstudio.
+  $schema_version = (int) db_query("SELECT schema_version FROM {system} WHERE name = 'kvantstudio' AND type = 'module'")->fetchField();
+  if ($schema_version < 7003) {
+    // In case of an error, simply throw an exception with an error message.
+    throw new DrupalUpdateException('Update module 7034 SiteCommerce not satisfied. Run the update again.');
+  }
+
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Обновляем название словарей, которые могут быть не переведены.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_categories');
+  $vocabulary->name = t('Categories the online store');
+  $vocabulary->description = t('The dictionary of categories of online store.');
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Из-за ошибки обновления site_commerce_update_7034 могли появится пустые
+  // не используемые таблицы в базе данных. Их нужно удалить.
+  // Помечаем поля для удаления.
+  $field = array(
+    'field_site_commerce_brand',
+    'field_site_commerce_category',
+    'field_site_commerce_contractor',
+    'field_site_commerce_country',
+    'field_site_commerce_manufacture'
+  );
+  foreach ($field as $field_name) {
+    field_delete_field($field_name);
+  }
+
+  // Помечаем образцы полей и их данные для удаления.
+  $fields_info = field_info_instances('site_commerce', 'site_commerce_basic');
+  foreach ($fields_info as $field_name => $value) {
+    if (in_array($field_name, $field)) {
+      field_delete_instance($value);
+    }
+  }
+
+  // Purge all field infromation.
+  field_purge_batch(1000);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  return 'Language and db structure of site commerce updated.';
+}
+
+/**
+ * Update role permissions.
+ */
+function site_commerce_update_7035() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  site_commerce_default_role_permissions();
+
+  return 'Role permissions updated.';
+}
+
+/**
+ * Language update and db structure. Add new features for position parametrs.
+ */
+function site_commerce_update_7037() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  db_create_table('site_commerce_parametrs', drupal_get_schema_unprocessed('site_commerce', 'site_commerce_parametrs'));
+
+  // Выполняем привязку словарей, выбора цвета и материала.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_colors');
+  db_insert('site_commerce_parametrs')
+  ->fields(array(
+    'vid' => $vocabulary->vid,
+    'name' => $vocabulary->name,
+    'machine_name' => $vocabulary->machine_name,
+  ))
+  ->execute();
+  $data = variable_get('site_commerce_allow_color', FALSE);
+  variable_set($vocabulary->machine_name . '_allow', $data);
+  variable_del('site_commerce_allow_color');
+
+  $data = variable_get('site_commerce_allow_color_for_terms', array());
+  variable_set($vocabulary->machine_name . '_allow_for_terms', $data);
+  variable_del('site_commerce_allow_color_for_terms');
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_materials');
+  db_insert('site_commerce_parametrs')
+  ->fields(array(
+    'vid' => $vocabulary->vid,
+    'name' => $vocabulary->name,
+    'machine_name' => $vocabulary->machine_name,
+  ))
+  ->execute();
+  $data = variable_get('site_commerce_allow_material', FALSE);
+  variable_set($vocabulary->machine_name . '_allow', $data);
+  variable_del('site_commerce_allow_material');
+
+  $data = variable_get('site_commerce_allow_material_for_terms', array());
+  variable_set($vocabulary->machine_name . '_allow_for_terms', $data);
+  variable_del('site_commerce_allow_material_for_terms');
+
+  variable_set('site_commerce_allow_button_add_to_cart_in_catalog', FALSE);
+
+  // Очищаем глобальный кэш.
+  cache_clear_all();
+
+  return 'Add the site_commerce_parametrs table for the site_commerce module.';
+}
+
+/**
+ * Setting up access rights to the terms taxonomy.
+ */
+function site_commerce_update_7038() {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_colors');
+  $vocabulary->term_page_access_denied = TRUE;
+  taxonomy_vocabulary_save($vocabulary);
+  $terms = taxonomy_get_tree($vocabulary->vid);
+  foreach ($terms as $term) {
+    $term = taxonomy_term_load($term->tid);
+    $term->term_page_access_denied = TRUE;
+    taxonomy_term_save($term);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_materials');
+  $vocabulary->term_page_access_denied = TRUE;
+  taxonomy_vocabulary_save($vocabulary);
+  $terms = taxonomy_get_tree($vocabulary->vid);
+  foreach ($terms as $term) {
+    $term = taxonomy_term_load($term->tid);
+    $term->term_page_access_denied = TRUE;
+    taxonomy_term_save($term);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_countries');
+  $vocabulary->term_page_access_denied = TRUE;
+  taxonomy_vocabulary_save($vocabulary);
+  $terms = taxonomy_get_tree($vocabulary->vid);
+  foreach ($terms as $term) {
+    $term = taxonomy_term_load($term->tid);
+    $term->term_page_access_denied = TRUE;
+    taxonomy_term_save($term);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_manufactures');
+  $vocabulary->term_page_access_denied = TRUE;
+  taxonomy_vocabulary_save($vocabulary);
+  $terms = taxonomy_get_tree($vocabulary->vid);
+  foreach ($terms as $term) {
+    $term = taxonomy_term_load($term->tid);
+    $term->term_page_access_denied = TRUE;
+    taxonomy_term_save($term);
+  }
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_contractors');
+  $vocabulary->term_page_access_denied = TRUE;
+  taxonomy_vocabulary_save($vocabulary);
+  $terms = taxonomy_get_tree($vocabulary->vid);
+  foreach ($terms as $term) {
+    $term = taxonomy_term_load($term->tid);
+    $term->term_page_access_denied = TRUE;
+    taxonomy_term_save($term);
+  }
+
+  return 'Created access rights to the terms taxonomy.';
+}
+
+/**
+ * Delete unused fields.
+ */
+function site_commerce_update_7039() {
+  $field_name = 'field_site_commerce_color';
+  field_delete_field($field_name);
+
+  $field_name = 'field_site_commerce_material';
+  field_delete_field($field_name);
+
+  // Purge all field infromation.
+  field_purge_batch(1000);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  return 'Deleted unused fields.';
+}
+
+/**
+ * Update db structure. Create table site_commerce_cart_parametrs.
+ */
+function site_commerce_update_7040() {
+  $table = 'site_commerce_cart_parametrs';
+  if (!db_table_exists($table)) {
+    db_create_table($table, drupal_get_schema_unprocessed('site_commerce', $table));
+    return 'Add the site_commerce_cart_parametrs table for the site_commerce module.';
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7041() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7042() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаём поля и сущности для базового типа товара.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_basic']);
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  return 'Language and db structure of site commerce updated.';
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7043() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаем новое поле.
+  $schema = array(
+    'description' => 'Boolean indicating 1 is count value as the sum of a set of.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('site_commerce', 'cost_set', $schema);
+
+  return 'Language and db structure of site commerce updated.';
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_commerce_update_7044() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создаём параметр для выбора цвета.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_colors');
+  if ($vocabulary) {
+    site_commerce_create_parametr_by_vid($vocabulary->vid);
+  }
+
+  // Создаём параметр для выбора материала изготовления.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_materials');
+  if ($vocabulary) {
+    site_commerce_create_parametr_by_vid($vocabulary->vid);
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_colors.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_colors';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    if ($instance['field_name'] == 'field_site_commerce_image' || $instance['field_name'] == 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_materials.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_materials';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    if ($instance['field_name'] == 'field_site_commerce_image' || $instance['field_name'] == 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  return 'Language and db structure of site commerce updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7045() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7046() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Первоначальная настройка переводов по умолчанию для многоязыковых переменных.
+  _site_commerce_default_translations();
+
+  variable_initialize();
+
+  // Переназначение и удаление переменных.
+  variable_del('site_commerce_allow_create_order');
+  variable_del('site_commerce_global_note_cost');
+
+  variable_set('site_commerce_cart_title_button_add', variable_get('site_commerce_add_to_cart_title'));
+  variable_del('site_commerce_add_to_cart_title');
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7047() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  variable_initialize();
+
+  variable_set('site_commerce_imagecache_select', 'sc_select');
+}
+
+/**
+ * Language update. Variables update.
+ */
+function site_commerce_update_7048() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  variable_initialize();
+
+  variable_del('site_commerce_limit');
+
+  // Переменные - настройка поиска.
+  $value = variable_get('site_commerce_search_form_bottom');
+  if (empty($value)) {
+    variable_set('site_commerce_search_form_bottom', t('The help under a field of input of the search form') . ' <a href="/admin/config/kvantstudio/site-commerce">' . t('Edit') . '</a> (' . t('Setup search') . ')');
+  }
+  $value = variable_get('site_commerce_search_form_up');
+  if (empty($value)) {
+    variable_set('site_commerce_search_form_up', t('The help above a field of input of the search form'));
+  }
+  $value = variable_get('site_commerce_search_form_alt');
+  if (empty($value)) {
+    variable_set('site_commerce_search_form_alt', t('The emerging help at prompting the mouse on a floor of input of the search form'));
+  }
+  $value = variable_get('site_commerce_search_form_title');
+  if (empty($value)) {
+    variable_set('site_commerce_search_form_title', t('Title of the form of search'));
+  }
+}
+
+/**
+ * Variables update.
+ */
+function site_commerce_update_7049() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  variable_initialize();
+
+  variable_del('site_commerce_image_styles_taxonomy');
+  variable_del('site_commerce_image_styles_taxonomy_block');
+  variable_del('site_commerce_image_styles_subtaxonomy');
+  variable_del('site_commerce_image_styles_select');
+  variable_del('site_commerce_image_styles_select_card');
+  variable_del('site_commerce_imagecache_catalog');
+  variable_del('site_commerce_imagecache_first_image');
+  variable_del('site_commerce_imagecache_second_image');
+  variable_del('site_commerce_imagecache_other_image');
+  variable_del('site_commerce_imagecache_index_image');
+  variable_del('site_commerce_imagecache_full_image');
+  variable_del('site_commerce_imagecache_block_image');
+  variable_del('site_commerce_imagecache_first_image_new');
+  variable_del('site_commerce_imagecache_other_image_new');
+  variable_del('site_commerce_imagecache_index_image_new');
+
+  _site_commerce_default_imagecache();
+
+  $uri = file_default_scheme() . '://styles';
+  file_unmanaged_delete_recursive($uri);
+
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Update db structure.
+ */
+function site_commerce_update_7050() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Включаем прочие модули.
+  module_enable(array('imagecache_canvasactions'), TRUE);
+
+  $uri = file_default_scheme() . '://styles';
+  file_unmanaged_delete_recursive($uri);
+
+  return 'Language and db structure of site commerce updated.';
+}
+
+/**
+ * Variables update.
+ */
+function site_commerce_update_7051() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  variable_initialize();
+
+  _site_commerce_default_imagecache();
+
+  $uri = file_default_scheme() . '://styles';
+  file_unmanaged_delete_recursive($uri);
+
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Variables update.
+ */
+function site_commerce_update_7052() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  variable_initialize();
+
+  $values = array(
+    'full_name' => 'full_name',
+    'postcode' => 'postcode',
+    'city' => 'city',
+    'address_delivery' => 'address_delivery',
+    'phone' => 'phone',
+    'email' => 'email',
+    'comment' => 'comment',
+  );
+  variable_set('site_commerce_order_fields', $values);
+
+  $values = array(
+    'full_name_required' => 'full_name_required',
+    'postcode_required' => 'postcode_required',
+    'city_required' => 'city_required',
+    'address_delivery_required' => 'address_delivery_required',
+    'phone_required' => 'phone_required',
+    'email_required' => 'email_required',
+  );
+  variable_set('site_commerce_order_fields_required', $values);
+
+  cache_clear_all('variables', 'cache_bootstrap');
+
+  return 'Language and variables updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7053() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  $uri = file_default_scheme() . '://styles';
+  file_unmanaged_delete_recursive($uri);
+
+  return 'Language updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7054() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  db_update('site_commerce_type')
+  ->fields(array(
+    'name' => t('Product'),
+  ))
+  ->condition('type', 'site_commerce_basic')
+  ->execute();
+
+  return 'Language and db structure updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7055() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  $schema = site_commerce_schema();
+
+  if (db_field_exists('site_commerce', 'import_pid')) {
+    db_drop_field('site_commerce', 'import_pid');
+  }
+  db_add_field('site_commerce', 'import_id', $schema['site_commerce']['fields']['import_id']);
+  db_add_index('site_commerce', 'site_commerce_import_id', array(array('import_id', 255)));
+
+  db_drop_index('site_commerce', 'site_commerce_type');
+  db_add_index('site_commerce', 'site_commerce_type', array(array('type', 32)));
+
+  db_add_field('site_commerce', 'type_condition', $schema['site_commerce']['fields']['type_condition']);
+  db_add_index('site_commerce', 'site_commerce_type_condition', array('type_condition'));
+
+  return 'Language and db structure updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7056() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Добавляем поля и индексы.
+  site_commerce_create_schema_alter();
+
+  return 'Language and db structure updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7057() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+  variable_initialize();
+
+  variable_set('pathauto_site_commerce_pattern', '[site_commerce:product-path]');
+  variable_set('pathauto_taxonomy_term_site_commerce_categories_pattern', '[term:category-path]');
+  variable_set('pathauto_taxonomy_term_pattern', '[term:name]');
+}
+
+/**
+ * Update database structure.
+ */
+function site_commerce_update_7058() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  $schema = array();
+  $schema['site_commerce_import'] = drupal_get_schema_unprocessed('site_commerce', 'site_commerce_import');
+  db_create_table('site_commerce_import', $schema['site_commerce_import']);
+
+  return 'Add the site_commerce_import table for the site_commerce module.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7059() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  return 'Language updated.';
+}

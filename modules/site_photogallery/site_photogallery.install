@@ -1,0 +1,477 @@
+<?php
+// $Id:
+
+/**
+ * @file
+ * Файл установки, обновления, удаления модуля - site_photogallery.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function site_photogallery_install() {
+  $t = get_t();
+
+  // Создаем словарь.
+  _site_photogallery_create_vocabularies();
+
+  // Разрешаем модулям обновление базы данных.
+  field_associate_fields('site_photogallery');
+
+  // Создание полей.
+  foreach (_site_photogallery_installed_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Создание экземпляров полей.
+  foreach (_site_photogallery_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'site_photogallery';
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+
+  // Добавляем поле содержимое.
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['site_photogallery'], $t('Body'));
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  //Перестраиваем меню.
+  menu_rebuild();
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  $permissions = array('view site photogallery content');
+  user_role_grant_permissions(1, $permissions);
+  $permissions = array('view site photogallery content');
+  user_role_grant_permissions(2, $permissions);
+}
+
+/**
+ * Создание словаря.
+ */
+function _site_photogallery_create_vocabularies() {
+  $t = get_t();
+
+  // Создаем словарь для категорий фотоальбомов.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+  if (empty($vocabulary)) {
+    $edit = array(
+      'name' => $t('Categories of the photo gallery'),
+      'machine_name' => 'site_photogallery_vocabulary',
+      'description' => $t('The dictionary of categories of photo gallery.'),
+      'hierarchy' => 1,
+      'module' => 'site_photogallery',
+      'weight' => -10,
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+  }
+
+  // Разрешаем модулям обновление базы данных.
+  field_associate_fields('site_photogallery_vocabulary');
+
+  // Создание полей.
+  foreach (_site_photogallery_installed_taxonomy_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Cоздаём экземпляр поля для изображения.
+  foreach (_site_photogallery_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = $vocabulary->machine_name;
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+}
+
+/**
+ * Функция: массив полей.
+ */
+function _site_photogallery_installed_taxonomy_fields() {
+  $t = get_t();
+  $fields = array(
+    'site_photogallery_status' => array(
+      'field_name'  => 'field_site_photogallery_status',
+      'type' => 'list_text',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          '1' => $t('Show'),
+          '0' => $t('To not show')
+        )
+      ),
+    ),
+  );
+  return $fields;
+}
+
+/**
+ * Функция: создание массива инстанций полей.
+ */
+function _site_photogallery_installed_taxonomy_instances() {
+  $t = get_t();
+  $instances = array(
+    'site_photogallery_taxonomy_image' => array(
+      'field_name' => 'field_image',
+      'label' => $t('Image'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'pictures/site_photogallery',
+        'file_extensions' => 'jpg gif png jpeg',
+        'max_filesize' => '10 M',
+        'max_resolution' => '1024x768',
+        'alt_field' => TRUE,
+        'title_field' => TRUE,
+      ),
+      'widget' => array('type' => 'image_image',),
+      'display' => array(
+        'default' => array(
+          'type' => 'image',
+        ),
+      ),
+    ),
+    'site_photogallery_taxonomy_status' => array(
+      'field_name' => 'field_site_photogallery_status',
+      'label' => $t('Status'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'options_select'
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+  );
+  return $instances;
+}
+
+/**
+ * Функция: массив полей.
+ */
+function _site_photogallery_installed_fields() {
+  $t = get_t();
+  $fields = array(
+    'site_photogallery_taxonomy' => array(
+      'field_name'  => 'field_site_photogallery_taxonomy',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_photogallery_vocabulary',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => TRUE,
+    ),
+    'site_photogallery_image' => array(
+      'field_name' => 'field_site_photogallery_image',
+      'type' => 'image',
+      'settings' => array(),
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'translatable' => FALSE,
+    ),
+    'site_photogallery_weight' => array(
+      'field_name'  => 'field_site_photogallery_weight',
+      'type'        => 'number_integer',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    ),
+  );
+  return $fields;
+}
+
+/**
+ * Функция: создание массива инстанций полей.
+ */
+function _site_photogallery_installed_instances() {
+  $t = get_t();
+  $instances = array(
+    'site_photogallery_taxonomy' => array(
+      'field_name' => 'field_site_photogallery_taxonomy',
+      'label' => $t('Category'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_photogallery_tags' => array(
+      'field_name' => 'field_tags',
+      'label' => $t('Tags'),
+      'required' => FALSE,
+      'module' => 'taxonomy',
+      'settings' => array(
+        'size' => 60,
+        'autocomplete_path' => 'taxonomy/autocomplete',
+      ),
+      'widget' => array('type' => 'taxonomy_autocomplete',),
+    ),
+    'site_photogallery_image' => array(
+      'field_name' => 'field_site_photogallery_image',
+      'label' => $t('Image'),
+      'required' => TRUE,
+      'settings' => array(
+        'file_directory' => 'pictures/site_photogallery',
+        'file_extensions' => 'jpg gif png jpeg',
+        'max_filesize' => '10 M',
+        'max_resolution' => '1024x768',
+        'alt_field' => TRUE,
+        'title_field' => TRUE,
+      ),
+      'widget' => array('type' => 'image_image',),
+      'display' => array(
+        'default' => array(
+          'type' => 'image',
+        ),
+      ),
+    ),
+    'site_photogallery_status' => array(
+      'field_name' => 'field_site_photogallery_status',
+      'label' => $t('Status'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'options_select'
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+    'site_photogallery_weight' => array(
+      'field_name'  => 'field_site_photogallery_weight',
+      'label' => $t('Weight'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'number',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'number_integer',
+        ),
+      ),
+      'settings' => array(),
+      'default_value' => array(0 => array('value' => 0)),
+    ),
+  );
+  return $instances;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function site_photogallery_uninstall() {
+  // Помечаем каждое поле и его образцы для удаления.
+  foreach (array_keys(_site_photogallery_installed_fields()) as $field_name) {
+    $field_name = 'field_' . $field_name;
+    field_delete_field($field_name);
+  }
+
+  // Помечаем образцы полей и их данные для удаления.
+  $instances = field_info_instances('node', 'site_photogallery');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Помечаем каждое поле термина словаря и его образцы для удаления.
+  foreach (array_keys(_site_photogallery_installed_taxonomy_fields()) as $field_name) {
+    $field_name = 'field_' . $field_name;
+    field_delete_field($field_name);
+  }
+
+  // Удаляем привязку поля изображения к терминам словаря.
+  $instances = field_info_instances('taxonomy_term', 'site_photogallery_vocabulary');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Purge all field infromation.
+  field_purge_batch(1000);
+
+  //Перестраиваем меню.
+  menu_rebuild();
+
+  // Удаляем словарь.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  // Удаляем переменные модуля.
+  db_delete('variable')
+    ->condition('name', 'site_photogallery_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language update and db structure.
+ */
+function site_photogallery_update_7000() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_photogallery'));
+  }
+
+  // Создаем новое поле.
+  $field = array(
+    'field_name'  => 'field_site_photogallery_weight',
+    'type'        => 'number_integer',
+    'cardinality' => 1,
+    'translatable' => FALSE,
+  );
+  field_create_field($field);
+
+  // Создаем сущность.
+  $instance = array(
+    'entity_type' => 'node',
+    'bundle' => 'site_photogallery',
+    'field_name'  => 'field_site_photogallery_weight',
+    'label' => t('Weight'),
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'number',
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'number_integer',
+      ),
+    ),
+    'settings' => array(),
+    'default_value' => array(0 => array('value' => 0)),
+  );
+  $value = field_info_field($instance['field_name']);
+  if ($value) {
+    field_create_instance($instance);
+  }
+
+  // Обновляем значение веса по умолчанию для существующих фотоальбомов.
+  // Перечень доступных фотоальбомов.
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'));
+  $query->condition('n.type', 'site_photogallery');
+  $result = $query->execute();
+
+  // Iterate through each database result.
+  foreach ($result as $row) {
+    $node = node_load($row->nid);
+    $node->field_site_photogallery_weight[LANGUAGE_NONE][0]['value'] = 0;
+    node_save($node);
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_photogallery_update_7001() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_photogallery'));
+  }
+}
+
+/**
+ * Update URL alias of photo albums.
+ */
+function site_photogallery_update_7002() {
+  // Перечень доступных фотоальбомов.
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'));
+  $query->condition('n.type', 'site_photogallery');
+  $result = $query->execute();
+  foreach ($result as $row) {
+    $node = node_load($row->nid);
+    // Удаляем существующий путь.
+    path_delete($node->path['pid']);
+    node_save($node);
+  }
+}
+
+/**
+ * Update variables.
+ */
+function site_photogallery_update_7003() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_photogallery'));
+  }
+
+  // Удаляем переменные модуля.
+  variable_del('site_photogallery_image_in_row');
+
+  //Перестраиваем меню.
+  menu_rebuild();
+}
+
+/**
+ * Language update.
+ */
+function site_photogallery_update_7004() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_photogallery'));
+  }
+
+  //Перестраиваем меню.
+  menu_rebuild();
+}
+
+/**
+ * Update role permissions.
+ */
+function site_photogallery_update_7005() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_photogallery'));
+  }
+
+  variable_del('site_photogallery_vocabulary');
+
+  if (module_exists('site_photogallery')) {
+    // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+    $permissions = array('view site photogallery content');
+    user_role_grant_permissions(1, $permissions);
+
+    $permissions = array('view site photogallery content');
+    user_role_grant_permissions(2, $permissions);
+  }
+
+  return 'Role permissions updated.';
+}

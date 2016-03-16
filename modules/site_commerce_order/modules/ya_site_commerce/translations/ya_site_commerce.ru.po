@@ -1,0 +1,37 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  ya_site_commerce.module: n/a
+#  ya_site_commerce.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-07-14 14:37+0500\n"
+"PO-Revision-Date: 2015-07-14 14:38+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.2\n"
+
+#: ya_site_commerce.module:78
+msgid "Payment method"
+msgstr "Способ оплаты"
+
+#: ya_site_commerce.info:0
+msgid "Yandex SiteCommerce"
+msgstr "Яндекс SiteCommerce"
+
+#: ya_site_commerce.info:0
+msgid "Yandex.Money module for Drupal SiteCommerce."
+msgstr "Модуль Yandex.Money для Drupal SiteCommerce."
+
+#: ya_site_commerce.info:0
+msgid "Yandex.Money"
+msgstr "Яндекс.Деньги"

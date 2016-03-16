@@ -1,0 +1,40 @@
+/* Оформление блока "Корзина". */
+.site-commerce-goto-cart {
+    background: url(../images/shopping-basket-full.png) no-repeat left;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-left: 45px;
+    line-height: 40px;
+}
+.site-commerce-empty-cart {
+    background: url(../images/shopping-basket.png) no-repeat left;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-left: 45px;
+    line-height: 40px;
+}
+/* Таблица c перечнем позиций новинок в блоке. */
+table.site-commerce-novelties-items {
+    min-width: 100%;
+    margin-top: 1em;
+}
+table.site-commerce-novelties-items th {
+    display: none;
+}
+table.site-commerce-novelties-items tr {
+    background-color: transparent;
+    border-bottom: none;
+}
+table.site-commerce-novelties-items td {
+    text-align: left;
+    padding: 0.2em;
+    vertical-align: top;
+}
+
+table.site-commerce-novelties-items a {
+    text-decoration: none;
+    font-weight: bold;
+}
+table.site-commerce-novelties-items a:hover {
+    text-decoration: underline;
+}

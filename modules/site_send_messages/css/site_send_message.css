@@ -1,0 +1,18 @@
+/* $Id:
+
+/* Оформление замеки в форме отправки сообщения */
+.site-send-messages-note{
+	margin-bottom: 10px;
+	margin-top: 10px;	
+}
+.site-send-request-form-title {
+	font-weight: bold;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align: center;
+}
+#site-send-request-form {
+	background-color: #EBEBEB;
+	padding: 5px;
+	margin-top: 10px;
+}

@@ -1,0 +1,365 @@
+<?php
+
+/**
+ * @file
+ * Файл установки, обновления, удаления модуля - site_news.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function site_news_install() {
+  $t = get_t();
+
+  // Создаем словари.
+  _site_news_create_vocabularies();
+
+  // Разрешаем модулям обновление базы данных.
+  field_associate_fields('site_news');
+
+  // Создание полей.
+  foreach (_site_news_installed_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Создание экземпляров полей.
+  foreach (_site_news_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'site_news';
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+
+  // Добавляем поле содержимое.
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['site_news'], $t('Body'));
+
+  // Clear the field info and field data caches.
+  field_cache_clear();
+
+  //Перестраиваем меню.
+  menu_rebuild();
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  $permissions = array('view site news content');
+  user_role_grant_permissions(1, $permissions);
+
+  $permissions = array('view site news content');
+  user_role_grant_permissions(2, $permissions);
+
+  // Первоначальная настройка параметров по умолчанию.
+  _site_news_default_settings();
+}
+
+/**
+ * Функция: первоначальная настройка параметров по умолчанию.
+ */
+function _site_news_default_settings() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  variable_initialize();
+
+  variable_set('site_news_title', $t('Press center'));
+  variable_set('pathauto_node_site_news_pattern', '[node:site-news-node-path]');
+  variable_set('pathauto_taxonomy_term_site_news_vocabulary_pattern', '[term:site-news-term-path]');
+}
+
+/**
+ * Создание словаря.
+ */
+function _site_news_create_vocabularies() {
+  $t = get_t();
+
+  // Создаем словарь для категорий новостей.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_news_vocabulary');
+  if (empty($vocabulary)) {
+    $edit = array(
+      'name' => $t('The categories of press centre'),
+      'machine_name' => 'site_news_vocabulary',
+      'description' => $t('The dictionary of categories of press centre.'),
+      'hierarchy' => 1,
+      'module' => 'site_news',
+      'weight' => -10,
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+  }
+}
+
+/**
+ * Функция: массив полей.
+ */
+function _site_news_installed_fields() {
+  $t = get_t();
+  $fields = array(
+    'site_news_taxonomy' => array(
+      'field_name'  => 'field_site_news_taxonomy',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_news_vocabulary',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => TRUE,
+    ),
+    'site_news_file' => array(
+      'field_name' => 'field_site_news_file',
+      'type' => 'file',
+      'translatable' => TRUE,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    ),
+    'site_news_image' => array(
+      'field_name' => 'field_site_news_image',
+      'type' => 'image',
+      'settings' => array(),
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'translatable' => FALSE,
+    ),
+  );
+  return $fields;
+}
+
+/**
+ * Функция: создание массива инстанций полей.
+ */
+function _site_news_installed_instances() {
+  $t = get_t();
+  $instances = array(
+    'site_news_taxonomy' => array(
+      'field_name' => 'field_site_news_taxonomy',
+      'label' => $t('Category'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+    ),
+    'site_news_tags' => array(
+      'field_name' => 'field_tags',
+      'label' => $t('Tags'),
+      'required' => FALSE,
+      'module' => 'taxonomy',
+      'settings' => array(
+        'size' => 60,
+        'autocomplete_path' => 'taxonomy/autocomplete',
+      ),
+      'widget' => array('type' => 'taxonomy_autocomplete',),
+    ),
+    'site_news_file' => array(
+      'field_name' => 'field_site_news_file',
+      'label' => $t('File'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'documents/site_news',
+        'file_extensions' => variable_get('site_files_extensions', 'txt doc docx pdf xls xlsx odt rtf jpg gif png jpeg rar zip 7z bzip2 gzip tar wim xz'),
+        'max_filesize' => variable_get('site_files_size', '50') . ' M',
+        'description_field' => TRUE,
+      ),
+      'widget' => array('type' => 'file_generic',),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'file_default',
+        ),
+      ),
+    ),
+    'site_news_image' => array(
+      'field_name' => 'field_site_news_image',
+      'label' => $t('Image'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'pictures/site_news',
+        'file_extensions' => 'jpg gif png jpeg',
+        'max_filesize' => '10 M',
+        'max_resolution' => '1024x768',
+        'alt_field' => TRUE,
+        'title_field' => TRUE,
+      ),
+      'widget' => array('type' => 'image_image',),
+      'display' => array(
+        'default' => array(
+          'type' => 'image',
+        ),
+      ),
+    ),
+  );
+  return $instances;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function site_news_uninstall() {
+  // Помечаем каждое поле и его образцы для удаления.
+  foreach (array_keys(_site_news_installed_fields()) as $field_name) {
+    $field_name = 'field_' . $field_name;
+    field_delete_field($field_name);
+  }
+
+  // Помечаем образцы полей и их данные для удаления.
+  $instances = field_info_instances('node', 'site_news');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Purge all field infromation.
+  field_purge_batch(1000);
+
+  //Перестраиваем меню.
+  menu_rebuild();
+
+  // Удаляем словарь.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_news_vocabulary');
+  if (isset($vocabulary->vid)) {
+    taxonomy_vocabulary_delete($vocabulary->vid);
+  }
+
+  // Удаляем переменные модуля.
+  db_delete('variable')
+    ->condition('name', 'site_news_%', 'LIKE')
+    ->execute();
+
+  variable_del('pathauto_node_site_news_pattern');
+  variable_del('pathauto_taxonomy_term_site_news_vocabulary_pattern');
+
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language update.
+ */
+function site_news_update_7000() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_news'));
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_news_update_7001() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_news'));
+  }
+
+  variable_initialize();
+
+  variable_set('site_news_title', 'Press center');
+
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language update.
+ */
+function site_news_update_7002() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_news'));
+  }
+}
+
+/**
+ * Language update.
+ */
+function site_news_update_7003() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_news'));
+  }
+}
+
+/**
+ * Enable php module.
+ */
+function site_news_update_7004() {
+  // Включаем необходимые модули.
+  module_enable(array('php'), TRUE);
+}
+
+/**
+ * Updating for inclusion of support of work on several languages.
+ */
+function site_news_update_7005() {
+  variable_initialize();
+
+  variable_del('site_news_vocabulary');
+  variable_del('site_news_link');
+
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Update role permissions.
+ */
+function site_news_update_7006() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_news'));
+  }
+
+  // Назначаем права доступа к модулю. Которые должны быть выставлены по умолчанию.
+  $permissions = array('view site news content');
+  user_role_grant_permissions(1, $permissions);
+  $permissions = array('view site news content');
+  user_role_grant_permissions(2, $permissions);
+
+  return 'Role permissions updated.';
+}
+
+/**
+ * Updating for inclusion of support of work on several languages.
+ */
+function site_news_update_7007() {
+  variable_initialize();
+
+  variable_del('site_news_title');
+
+  // Обновляем алиасы категорий новостей.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_news_vocabulary');
+  $results = db_query('SELECT n.tid FROM {taxonomy_term_data} n WHERE n.vid = :vid', array(':vid' => $vocabulary->vid));
+  $count_terms = 0;
+  foreach ($results as $row) {
+    $term = taxonomy_term_load($row->tid);
+    taxonomy_term_save($term);
+    $count_terms++;
+  }
+
+  // Обновляем алиасы новостей.
+  $nodes = node_load_multiple(NULL, array('type' => "site_news"));
+  $count_nodes = 0;
+  foreach ($nodes as $nid => $node) {
+    node_save($node);
+    $count_nodes++;
+  }
+
+  cache_clear_all('variables', 'cache_bootstrap');
+
+  return "Updated term - $count_terms. Updated nodes - $count_nodes.";
+}
+
+/**
+ * Update default variables settings.
+ */
+function site_news_update_7008() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_news'));
+  }
+
+  // Первоначальная настройка параметров по умолчанию.
+  _site_news_default_settings();
+}

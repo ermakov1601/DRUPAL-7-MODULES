@@ -1,0 +1,50 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  xmlsitemap_site_commerce.module: n/a
+#  xmlsitemap_site_commerce.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2014-08-29 15:41+0600\n"
+"PO-Revision-Date: 2014-08-29 15:42+0600\n"
+"Last-Translator: \n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n"
+"%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.6.7\n"
+
+#: xmlsitemap_site_commerce.module:7
+msgid "Online store"
+msgstr "Интернет-магазин"
+
+#: xmlsitemap_site_commerce.module:8
+msgid "Types of products"
+msgstr "Типы товаров"
+
+#: xmlsitemap_site_commerce.module:76
+msgid "XML sitemap"
+msgstr "XML sitemap"
+
+#: xmlsitemap_site_commerce.module:77
+msgid "XML sitemap module element"
+msgstr "Элемент модуля XML Sitemap"
+
+#: xmlsitemap_site_commerce.info:0
+msgid "XML sitemap site commerce"
+msgstr "XML sitemap site commerce"
+
+#: xmlsitemap_site_commerce.info:0
+msgid "Integration the online store with the module xmlsitemap."
+msgstr "Интеграция интернет-магазина с модулем xmlsitemap."
+
+#: xmlsitemap_site_commerce.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"

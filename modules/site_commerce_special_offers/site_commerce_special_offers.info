@@ -1,0 +1,11 @@
+name = Site commerce special offers
+description = "Creation of special offers in the online store."
+version = "1.7"
+core = 7.x
+package = Kvantstudio
+
+dependencies[] = site_commerce
+
+files[] = site_commerce_special_offers.module
+files[] = site_commerce_special_offers.install
+files[] = site_commerce_special_offers.settings.inc

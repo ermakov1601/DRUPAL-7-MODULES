@@ -1,0 +1,88 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_subscription.module: n/a
+#  site_subscription.install: n/a
+#  site_subscription.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-09-15 20:01+0500\n"
+"PO-Revision-Date: 2015-09-15 20:04+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):"
+"(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?"
+"(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: site_subscription.module:24
+msgid "E-mail address"
+msgstr "E-mail адрес"
+
+#: site_subscription.module:28
+msgid "A valid e-mail address."
+msgstr "Действительный адрес электронной почты."
+
+#: site_subscription.module:30
+msgid "For example, «ivanov@gmail.com»"
+msgstr "Например, «ivanov@gmail.com»"
+
+#: (duplicate) site_subscription.module:34 site_subscription.install:46
+msgid "Categories subscription"
+msgstr "Категории подписки"
+
+#: site_subscription.module:45
+msgid "Subscribe"
+msgstr "Подписаться"
+
+#: site_subscription.module:60
+msgid "The e-mail address %mail is not valid."
+msgstr "Адрес электронной почты %mail некорректен."
+
+#: site_subscription.module:107
+msgid "New subscriber in your site @mail"
+msgstr "Новый подписчик на вашем сайте @mail"
+
+#: site_subscription.module:112
+msgid "New subscriber."
+msgstr "Новый подписчик."
+
+#: site_subscription.module:110
+msgid "New subscriber"
+msgstr "Новый подписчик"
+
+#: site_subscription.module:110
+msgid "@value"
+msgstr "@value"
+
+#: (duplicate) site_subscription.install:60
+msgid "News and events about the system"
+msgstr "Новости и события о системе"
+
+#: (duplicate) site_subscription.install:65
+msgid "Сourses and exercises"
+msgstr "Курсы и упражнения"
+
+#: (duplicate) site_subscription.install:70
+msgid "Expert Articles"
+msgstr "Статьи экспертов"
+
+#: site_subscription.info:0
+msgid "Site subscription"
+msgstr "Подписка"
+
+#: site_subscription.info:0
+msgid "Creating subscription and mailing of materials."
+msgstr "Создание подписки и рассылки материалов."
+
+#: site_subscription.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"

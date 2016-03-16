@@ -1,0 +1,17 @@
+.block-site-commerce-cart__item {
+  margin: 0 0 1em 0;
+}
+
+.block-site-commerce-cart__image {
+  display: inline-block;
+  padding-right: 5px;
+  vertical-align: middle;
+}
+
+.block-site-commerce-cart__quantity_postponed {
+  font-size: 0.875em;
+}
+
+.block-site-commerce-cart__link_full {
+  font-size: 1.5em;
+}

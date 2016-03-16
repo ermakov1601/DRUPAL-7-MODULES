@@ -1,0 +1,28 @@
+.site-commerce-block-categories {
+  margin: 0;
+  padding: 0;
+}
+
+.site-commerce-block-categories__item {
+  vertical-align: middle;
+}
+
+.site-commerce-block-categories__image {
+  display: inline-block;
+  padding-right: 5px;
+  vertical-align: middle;
+}
+
+.site-commerce-block-categories__link,
+.site-commerce-block-categories__link:visited {
+  padding: 5px;
+  display: block;
+  background-color: #F8F8F8;
+  border-bottom: 1px solid #F0F0F0;
+  text-decoration: none;
+}
+
+.site-commerce-block-categories__link:hover {
+  text-decoration: none;
+  background-color: #F0F0F0;
+}

@@ -1,0 +1,123 @@
+#site-commerce-order-button {
+  padding: 10px;
+  font-weight: bold;
+  font-size: 1.4em;
+  width: 250px;
+}
+
+/* Оформление таблицы регистрации заказа */
+.site-commerce-order-register  {
+  margin-bottom: 10px;
+  width: auto;
+  font-size: 0.8em;
+}
+
+.site-commerce-order-register tbody {
+  border: 0;
+}
+
+.site-commerce-order-register tr.even, .site-commerce-order-register tr.odd {
+  background: none;
+  border: 0;
+}
+
+.site-commerce-order-register td {
+  padding: 5px;
+}
+
+.site-commerce-order-register td.site-commerce-order-item-title {
+  padding-right: 10px;
+}
+
+.site-commerce-order-register label.required::after {
+  display: inline-block;
+  padding-left: 3px;
+  content: "*";
+  color: #F60;
+}
+
+.site-commerce-order-title-required {
+  margin: 20px 0 0 0;
+  font-size: 0.8em;
+}
+
+.site-commerce-order-title-required sup {
+  color: #F60;
+  font-size: 1em;
+}
+
+.site-commerce-order-register h4 {
+  text-transform: uppercase;
+  font-weight: bold
+}
+
+/* Оформление рядов tr, td, основные свойства таблицы. */
+.site-commerce-order td {
+  padding: 0.5em;
+  vertical-align: middle;
+}
+
+/* Заголовок таблицы корзины. */
+.site-commerce-order thead tr th {
+  text-align: center;
+  vertical-align: middle;
+  height: 40px;
+  padding: 5px;
+}
+
+.site-commerce-order th.site-commerce-order-header-title {
+  text-align: left;
+}
+
+.site-commerce-order th.site-commerce-order-header-cost {
+  text-align: center;
+}
+
+.site-commerce-order th.site-commerce-order-header-quantity {
+  text-align: center;
+}
+
+/* Оформление элементов с данными. */
+.site-commerce-order td.site-commerce-order-title {
+  text-align: left;
+  white-space: normal;
+  width: 100%;
+}
+
+.site-commerce-order td.site-commerce-order-cost {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.site-commerce-order td.site-commerce-order-quantity {
+  text-align: center;
+}
+
+.site-commerce-order td.site-commerce-order-action {
+  text-align: center;
+}
+
+.site-commerce-order .form-item {
+  white-space: normal;
+}
+
+/* Оформление строк итоговой суммы заказа. */
+.site-commerce-order tr.site-commerce-order-row-discount, .site-commerce-order tr.site-commerce-order-row-cost {
+  background: transparent;
+  border: transparent;
+}
+
+.site-commerce-order tr.site-commerce-order-row-discount td, .site-commerce-order tr.site-commerce-order-row-cost td {
+  text-align: right;
+  text-transform: lowercase
+}
+
+.site-commerce-order tr.site-commerce-order-row-total-cost {
+  background: #F1EDDA;
+  border: transparent;
+}
+
+.site-commerce-order tr.site-commerce-order-row-total-cost td {
+  text-align: right;
+  white-space: nowrap;
+}

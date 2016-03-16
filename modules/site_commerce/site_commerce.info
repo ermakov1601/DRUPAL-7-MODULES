@@ -1,0 +1,62 @@
+name = Site commerce
+description = "Online store"
+version = "2.87"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-commerce
+project status url = http://kvantstudio.ru/node/34
+
+dependencies[] = kvantstudio (>=1.6)
+
+files[] = site_commerce.module
+files[] = site_commerce.install
+files[] = site_commerce.admin.inc
+files[] = site_commerce.cart.inc
+files[] = site_commerce.import.csv.inc
+files[] = site_commerce.import.taxonomy.tags.csv.inc
+files[] = site_commerce.pages.inc
+files[] = site_commerce.position.index.inc
+files[] = site_commerce.settings.inc
+files[] = site_commerce.types.inc
+files[] = site_commerce.tokens.inc
+files[] = site_commerce.users.inc
+files[] = site_commerce.yandex.market.inc
+files[] = site_commerce.variable.inc
+files[] = includes/site_commerce.imagestyles.inc
+files[] = includes/site_commerce.select.inc
+files[] = includes/site_commerce.taxonomy_menu.inc
+
+; Перечень шаблонов оформления.
+files[] = templates/site-commerce.tpl.php
+files[] = templates/site-commerce-block-cart.tpl.php
+files[] = templates/site-commerce-block-categories.tpl.php
+files[] = templates/site-commerce-block-content.tpl.php
+files[] = templates/site-commerce-cart.tpl.php
+files[] = templates/site-commerce-catalog.tpl.php
+files[] = templates/site-commerce-cost.tpl.php
+files[] = templates/site-commerce-create-search-form.tpl.php
+files[] = templates/site-commerce-data.tpl.php
+files[] = templates/site-commerce-other-positions.tpl.php
+files[] = templates/site-commerce-position-index.tpl.php
+files[] = templates/site-commerce-select.tpl.php
+files[] = templates/site-commerce-selected-parametr.tpl.php
+files[] = templates/site-commerce-selected-parametrs.tpl.php
+files[] = templates/site-commerce-status.tpl.php
+files[] = templates/site-commerce-subcategories.tpl.php
+files[] = templates/site-commerce-term.tpl.php
+files[] = templates/site-commerce-total-cost.tpl.php
+
+; Подключение css файлов.
+stylesheets[all][] = css/site_commerce.main.css
+stylesheets[all][] = css/site_commerce_create_search_form.css
+stylesheets[all][] = css/site_commerce_block_cart.css
+stylesheets[all][] = css/site_commerce_block_content.css
+stylesheets[all][] = css/site_commerce_block_categories.css
+stylesheets[all][] = css/site_commerce_term.css
+stylesheets[all][] = css/site_commerce_subcategories.css
+stylesheets[all][] = css/site_commerce_cost.css
+stylesheets[all][] = css/site_commerce.css
+stylesheets[all][] = css/site_commerce_selected_parametr_item.css
+stylesheets[all][] = css/site_commerce_other_positions.css
+stylesheets[all][] = css/site_commerce_select.css
+stylesheets[all][] = css/site_commerce_cart.css

@@ -1,0 +1,1379 @@
+<?php
+
+/**
+* @file
+* Главный файл модуля site commerce order.
+*
+* Содержит в себе основные функции, которые реализуют
+* функционал оформления заказов интернет-магазина SiteCommerce.
+*/
+
+/**
+ * Implement hook_init().
+ */
+function site_commerce_order_init() {
+  drupal_add_js(array('site_commerce_captcha_phone' => variable_get('site_commerce_captcha_phone', FALSE)), 'setting');
+  drupal_add_js(array('pattern_date_maskedinput' => t('dd.mm.yyyy')), 'setting');
+}
+
+/**
+ * Функция: перечень статусов заказа.
+ */
+function site_commerce_order_status() {
+  $status = array(
+    0  => 'Не подтвержден', // Заказ принят, но не подтвержден, соответственно товар не зарезервирован за покупателем. Данный заказ для дальнейшей обработки требует подтверждения со стороны покупателя!.
+    10 => 'Ожидает обработки', // Заказ подтвержден но не принят в работу сотрудником магазина.
+    20 => 'Зарезервирован', // Заказ подтвержден покупателем, товар по данному заказу находится в его резерве. Товары снимаются из резерва покупателя в случае не поступления оплаты (предоплаты) в установленный срок, либо если данный заказ по каким-нибудь причинам не был отправлен или возвращен.
+    30 => 'Ожидание оплаты', // Заказ с предоплатой ожидает поступления денег.
+    40 => 'Оплачено', // Внесена предоплата по заказу.
+    50 => 'Формируется', // В процессе обработки заказа в подробной информации о нём будет указана доступность каждого товара.
+    60 => 'Заказ отправлен',
+    70 => 'Доставлен', // Это финальный статус заказа, означающий, что обработка заказа завершена.
+    80 => 'Удалён', // Этот статус, применительно ко всему заказу, означает, что ни один из товаров заказа не будет Вам доставлен, и обработка этого заказа прекратилась.
+    90 => 'Отказ поставщика', // Позиции заказа сняты поставщиком из-за отсутствия в наличии.
+  );
+  return $status;
+}
+
+/**
+ * Функция: перечень статусов отправки заказа.
+ */
+function site_commerce_order_delivery_status() {
+  $status = array(
+    0  => 'Статус не выбран',
+    10 => 'Ожидается поступление на склад',
+    20 => 'Поступил на склад',
+    30 => 'Комплектуется',
+    40 => 'В пункте самовывоза',
+    50 => 'Передан на упаковку',
+    60 => 'Ожидает отправки в службу доставки',
+    70 => 'Доставляется',
+    80 => 'Доставлен и получен',
+    90 => 'Удалён'
+  );
+  return $status;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function site_commerce_order_permission() {
+  $perms = array(
+    'site commerce order create' => array(
+      'title' => t('To resolve access to page registration of the order'),
+      'restrict access' => FALSE,
+    ),
+    'site commerce order view' => array(
+      'title' => t('To resolve access to page of display of the order'),
+      'restrict access' => FALSE,
+    ),
+  );
+  return $perms;
+}
+
+/**
+ * Set default role permissions.
+ */
+function site_commerce_order_default_role_permissions() {
+  $permissions = array("site commerce order create");
+  user_role_grant_permissions(1, $permissions);
+
+  $permissions = array("site commerce order create", "site commerce order view");
+  user_role_grant_permissions(2, $permissions);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function site_commerce_order_menu() {
+  $items = array();
+  $items[variable_get('site_commerce_catalog_link', 'tovary') . '/orders/item/%'] = array(
+    'title' => 'Order',
+    'title callback' => 'site_commerce_order_title_callback',
+    'title arguments' => array(3),
+    'page callback' => 'site_commerce_order_item',
+    'page arguments' => array(3, 4),
+    'access arguments' => array('site commerce order view'),
+    'type' => MENU_CALLBACK,
+  );
+
+  // Управление заказами.
+  $items['admin/content/site-commerce-orders'] = array(
+    'title' => 'Orders',
+    'page callback' => 'site_commerce_orders',
+    'access callback' => 'site_commerce_edit_access',
+    'type' => MENU_LOCAL_TASK | MENU_NORMAL_ITEM,
+    'file' => 'site_commerce_order.orders.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Title callback.
+ */
+function site_commerce_order_title_callback($number) {
+  return t('Order №@number', array('@number' => $number));
+}
+
+/**
+ * Implements hook_theme().
+ */
+function site_commerce_order_theme($existing, $type, $theme, $path) {
+  return array(
+    'site_commerce_order_form' => array(
+      'render element' => 'form',
+      'template' => 'templates/site-commerce-order-form',
+    ),
+    'site_commerce_order' => array(
+      'variables' => array('oid' => NULL),
+    ),
+    'site_commerce_element_date' => array(
+      'arguments' => array('element' => NULL),
+      'render element' => 'element',
+    ),
+    'site_commerce_element_time' => array(
+      'arguments' => array('element' => NULL),
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Способы доставки.
+ *
+ * @return stage
+ */
+function site_commerce_order_stage_delivery() {
+  $stage = array(
+    'stage_self_delivery' => array(
+      'title' => t('Self delivery'),
+      'description' => '',
+    ),
+    'stage_courier' => array(
+      'title' => t('Express delivery'),
+      'description' => '',
+    ),
+    'stage_mail' => array(
+      'title' => t('Mail'),
+      'description' => '',
+    ),
+    'stage_transport_company' => array(
+      'title' => t('The transport company'),
+      'description' => '',
+    ),
+    'stage_itself_export' => array(
+      'title' => t('Item of delivery of orders'),
+      'description' => '',
+    ),
+  );
+  return $stage;
+}
+
+/**
+ * Создает объект с полной информацией о заказе.
+ *
+ * @param $order
+ *   Числовой порядковый номер заказа.
+ */
+function site_commerce_order_load($order) {
+  if (is_numeric($order)) {
+    $record = db_query("SELECT * FROM {site_commerce_orders} n WHERE n.oid = :order", array(':order' => $order))->fetchObject();
+    return $record;
+  }
+}
+
+/**
+ * Отображение содержимого заказа.
+ */
+function theme_site_commerce_order($variables) {
+  $oid = $variables['oid'];
+
+  $output = '';
+  $rows = array();
+  $row_table = '';
+
+  // Формируем позиции заказа если переданы номер заказа и пароль.
+  $result = db_query("SELECT * FROM {site_commerce_cart} n WHERE n.oid = :oid", array(':oid' => $oid));
+
+  // Cтоимость.
+  $cost_result = 0;
+
+  // Валюта по умолчанию.
+  $currency = variable_get('site_commerce_default_currency');
+
+  foreach ($result as $row) {
+    // Загружаем информацию о позиции.
+    $position = site_commerce_position_load($row->pid);
+
+    $quantity = $row->quantity;
+
+    $cost = site_commerce_cost_format($row->cost);
+
+    // Определяем дополнительные опции.
+    $cost_result_markup = 0;
+    $text_markup = "";
+    $user_parametrs = site_commerce_get_user_parametrs($row->pid, $oid, TRUE, TRUE);
+    if ($user_parametrs) {
+      $text_markup = $user_parametrs;
+      // Итоговая стоимость.
+      $cost_result_markup = site_commerce_get_cost_parametrs($row->pid, $oid);
+    }
+
+    // Общая стоимость с учетом дополнительных опций.
+    if ($cost_result_markup > 0) {
+      $cost = $cost + $cost_result_markup;
+    }
+
+    // Формируем поля для указания количества.
+    if (variable_get('site_commerce_allow_quantity', TRUE)) {
+      if ($position->field_site_commerce_measure) {
+        $quantity = $quantity . '&nbsp;' . $position->field_site_commerce_measure;
+      }
+    }
+
+    // Валюта.
+    $position->currency = variable_get('site_commerce_default_currency');
+
+    // Путь к изображению позиции по умолчанию.
+    $position->field_site_commerce_image['uri'] = site_commerce_default_position_image_uri($position->pid);
+
+    // Определяем параметры изображения, высоту и ширину если они не заданы.
+    if (empty($position->field_site_commerce_image['width']) || empty($position->field_site_commerce_image['height'])) {
+      $info = image_get_info($position->field_site_commerce_image['uri']);
+      $position->field_site_commerce_image['width'] = $info['width'];
+      $position->field_site_commerce_image['height'] = $info['height'];
+    }
+
+    // Определяем теги изображения, описание и заголовок если они не заданы.
+    if (empty($position->field_site_commerce_image['alt'])) {
+      $position->field_site_commerce_image['alt'] = NULL;
+    }
+    if (empty($position->field_site_commerce_image['title'])) {
+      $position->field_site_commerce_image['title'] = NULL;
+    }
+
+    $image = '';
+    if (isset($position->field_site_commerce_image['uri'])) {
+      $variables = array(
+        'style_name' => 'thumbnail',
+        'style_name_popup' => '',
+        'image_path' => $position->field_site_commerce_image['uri'],
+        'alt' => $position->field_site_commerce_image['alt'],
+        'title' => $position->field_site_commerce_image['title'],
+        'width' => $position->field_site_commerce_image['width'],
+        'height' => $position->field_site_commerce_image['height'],
+        'attributes' => array(),
+        'class' => array(''),
+        'link' => FALSE,
+        'gid' => NULL,
+      );
+      $image =  theme('kvantstudio_image', $variables);
+    }
+
+    // Формируем массив с данными.
+    $rows[] = array(
+      'data' => array(
+        array('data' => $image, 'class' => array('site-commerce-order-image')),
+        array('data' => $position->identifier, 'class' => array('site-commerce-order-identifier')),
+        array('data' => $position->title . $text_markup, 'class' => array('site-commerce-order-title')),
+        array('data' => $quantity, 'class' => array('site-commerce-order-quantity')),
+        array('data' => $cost . ' ' . $position->currency, 'class' => array('site-commerce-order-cost')),
+      )
+    );
+  }
+
+  // Вывод строки с итоговой суммой заказа.
+  $cost_result = site_commerce_cost_order($oid);
+  if ($cost_result) {
+    $rows[] = array(
+      'data' => array(
+        array('data' => t('Total, without delivery'), 'colspan' => 4),
+        array('data' => $cost_result . ' ' . $currency, 'class' => array('site-commerce-order-cost')),
+      ),
+      'class' => array('site-commerce-order-row-total-cost'),
+    );
+  }
+
+  $header = array(
+    array('data' => t('Image'), 'class' => array('site-commerce-order-header-image')),
+    array('data' => t('Identifier'), 'class' => array('site-commerce-order-header-identifier')),
+    array('data' => t('The name'), 'class' => array('site-commerce-order-header-title')),
+    array('data' => t('Quantity'), 'class' => array('site-commerce-order-header-quantity')),
+    array('data' => t('Cost'), 'class' => array('site-commerce-order-header-cost')),
+  );
+  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('site-commerce-order'))));
+
+  return $output;
+}
+
+///**
+// * Отображение содержимого заказа.
+// */
+//function theme_site_commerce_order($variables) {
+//  $order = $variables['order'];
+//  $password = $variables['password'];
+//
+//  $output    = ''; $rows = array(); $row_table = '';
+//
+//  $result_order = 0;
+//
+//  // Формируем позиции заказа если переданы номер заказа и пароль.
+//  if (is_numeric($order)) {
+//    $result_order = db_query("SELECT n.oid FROM {site_commerce_orders} n WHERE n.oid = :order AND n.password = :password", array(':order' => $order, ':password' => $password))->fetchField();
+//  }
+//  else {
+//    $result_order = db_query("SELECT n.oid FROM {site_commerce_orders} n WHERE n.number = :number AND n.password = :password", array(':number' => $order, ':password' => $password))->fetchField();
+//  }
+//  if ($result_order) {
+//    $result = db_query("SELECT * FROM {site_commerce_cart} n WHERE n.oid = :order", array(':order' => $result_order));
+//  }
+//
+//  // Формируем позиции заказа, которые еще не оформлены.
+//  if ($order === 0) {
+//    // Получаем содержимое корзины.
+//    $user_id = site_commerce_user_id();
+//    if (is_numeric($user_id)) {
+//      $result = db_query("SELECT * FROM {site_commerce_cart} n WHERE n.oid = :order AND n.uid = :uid AND n.status = :status", array(':order' => $order, ':uid' => $user_id, ':status' => 1));
+//    }
+//    else {
+//      $result = db_query("SELECT * FROM {site_commerce_cart} n WHERE n.oid = :order AND n.sid = :sid AND n.status = :status", array(':order' => $order, ':sid' => $user_id, ':status' => 1));
+//    }
+//  }
+//
+//  // Общая стоимость.
+//  $cost_result = 0;
+//
+//  foreach ($result as $row) {
+//    // Загружаем информацию о позиции.
+//    $position = site_commerce_position_load($row->pid);
+//
+//    $quantity = $row->quantity;
+//
+//    $cost = site_commerce_cost_format($row->cost);
+//
+//    // Определяем дополнительные опции.
+//    $cost_result_markup = 0;
+//    $text_markup = "";
+//    $user_parametrs = site_commerce_get_user_parametrs($row->pid, $result_order, TRUE, TRUE);
+//    if ($user_parametrs) {
+//      $text_markup = $user_parametrs;
+//      // Итоговая стоимость.
+//      $cost_result_markup = site_commerce_get_cost_parametrs($row->pid, $result_order);
+//    }
+//
+//    // Общая стоимость с учетом дополнительных опций.
+//    if ($cost_result_markup > 0) {
+//      $cost = $cost + $cost_result_markup;
+//    }
+//
+//    $cost_all = round($cost * $quantity, 2);
+//    $cost_result = $cost_result + $cost_all;
+//
+//    // Формируем поля для указания количества.
+//    if (variable_get('site_commerce_allow_quantity', TRUE)) {
+//      if ($position->field_site_commerce_measure) {
+//        $quantity = $quantity . '&nbsp;' . $position->field_site_commerce_measure;
+//      }
+//    }
+//
+//    // Валюта.
+//    $position->currency = variable_get('site_commerce_default_currency');
+//
+//    // Путь к изображению позиции по умолчанию.
+//    $position->field_site_commerce_image['uri'] = site_commerce_default_position_image_uri($position->pid);
+//
+//    // Определяем параметры изображения, высоту и ширину если они не заданы.
+//    if (empty($position->field_site_commerce_image['width']) || empty($position->field_site_commerce_image['height'])) {
+//      $info = image_get_info($position->field_site_commerce_image['uri']);
+//      $position->field_site_commerce_image['width'] = $info['width'];
+//      $position->field_site_commerce_image['height'] = $info['height'];
+//    }
+//
+//    // Определяем теги изображения, описание и заголовок если они не заданы.
+//    if (empty($position->field_site_commerce_image['alt'])) {
+//      $position->field_site_commerce_image['alt'] = NULL;
+//    }
+//    if (empty($position->field_site_commerce_image['title'])) {
+//      $position->field_site_commerce_image['title'] = NULL;
+//    }
+//
+//    $image = '';
+//    if (isset($position->field_site_commerce_image['uri'])) {
+//      $variables = array(
+//        'style_name' => 'thumbnail',
+//        'style_name_popup' => '',
+//        'image_path' => $position->field_site_commerce_image['uri'],
+//        'alt' => $position->field_site_commerce_image['alt'],
+//        'title' => $position->field_site_commerce_image['title'],
+//        'width' => $position->field_site_commerce_image['width'],
+//        'height' => $position->field_site_commerce_image['height'],
+//        'attributes' => array(),
+//        'class' => array(''),
+//        'link' => FALSE,
+//        'gid' => NULL,
+//      );
+//      $image =  theme('kvantstudio_image', $variables);
+//    }
+//
+//    // Формируем массив с данными.
+//    $rows[] = array(
+//      'data' => array(
+//        array('data' => $image, 'class' => array('site-commerce-order-image')),
+//        array('data' => $position->identifier, 'class' => array('site-commerce-order-identifier')),
+//        array('data' => $position->title . $text_markup, 'class' => array('site-commerce-order-title')),
+//        array('data' => $quantity, 'class' => array('site-commerce-order-quantity')),
+//        array('data' => $cost . ' ' . $position->currency, 'class' => array('site-commerce-order-cost')),
+//      )
+//    );
+//  }
+//
+//  // Валюта.
+//  $currency = variable_get('site_commerce_default_currency');
+//
+//  // Стоимость с учетом скидки.
+//  $cost_result_discount = site_commerce_order_discount($cost_result);
+//  if ($cost_result_discount['cost'] <> $cost_result) {
+//    $text = t('Discount @discount%', array('@discount' => $cost_result_discount['discount']));
+//    $cost_discount = (int) ($cost_result - $cost_result_discount['cost']);
+//    $cost_result = (int) $cost_result_discount['cost'];
+//
+//    $rows[] = array(
+//      'data' => array(
+//        array('data' => $text, 'colspan' => 4),
+//        array('data' => $cost_discount . ' ' . $currency),
+//      ),
+//      'class' => array('site-commerce-order-row-discount'),
+//    );
+//  }
+//
+//  // Вывод строки с итоговой суммой заказа.
+//  if ($cost_result) {
+//    if ($order) {
+//      $cost_result = site_commerce_cost_order($order);
+//    }
+//    $rows[] = array(
+//      'data' => array(
+//        array('data' => t('Total, without delivery'), 'colspan' => 4),
+//        array('data' => $cost_result . ' ' . $currency, 'class' => array('site-commerce-order-cost')),
+//      ),
+//      'class' => array('site-commerce-order-row-total-cost'),
+//    );
+//  }
+//
+//  $header = array(
+//    array('data' => t('Image'), 'class' => array('site-commerce-order-header-image')),
+//    array('data' => t('Identifier'), 'class' => array('site-commerce-order-header-identifier')),
+//    array('data' => t('The name'), 'class' => array('site-commerce-order-header-title')),
+//    array('data' => t('Quantity'), 'class' => array('site-commerce-order-header-quantity')),
+//    array('data' => t('Cost'), 'class' => array('site-commerce-order-header-cost')),
+//  );
+//  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('site-commerce-order'))));
+//
+//  return $output;
+//}
+
+/**
+ * Числовое значение стоимости заказа.
+ */
+function site_commerce_cost_order($order) {
+  // Формируем позиции заказа если передан номер заказа.
+  // Проверяем действительно ли существует такой номер заказа.
+  if (is_numeric($order)) {
+    $result_order = db_query("SELECT n.oid FROM {site_commerce_orders} n WHERE n.oid = :order", array(':order' => $order))->fetchField();
+  }
+  else {
+    $result_order = db_query("SELECT n.oid FROM {site_commerce_orders} n WHERE n.number = :number", array(':number' => $order))->fetchField();
+  }
+  if ($result_order) {
+    $result = db_query("SELECT * FROM {site_commerce_cart} n WHERE n.oid = :order", array(':order' => $result_order));
+  }
+  else {
+    return 0;
+  }
+
+  // Общая стоимость.
+  $cost_result = 0;
+
+  foreach ($result as $row) {
+    // Загружаем информацию о позиции.
+    $position = site_commerce_position_load($row->pid);
+
+    $quantity = $row->quantity;
+
+    $cost = site_commerce_cost_format($row->cost);
+
+    // Определяем дополнительные опции.
+    $cost_result_markup = 0;
+    $user_parametrs = site_commerce_get_user_parametrs($row->pid, $result_order, TRUE, TRUE);
+    if ($user_parametrs) {
+      // Итоговая стоимость.
+      $cost_result_markup = site_commerce_get_cost_parametrs($row->pid, $result_order);
+    }
+
+    // Общая стоимость с учетом дополнительных опций.
+    if ($cost_result_markup > 0) {
+      $cost = $cost + $cost_result_markup;
+    }
+
+    $cost_all = round($cost * $quantity, 2);
+    $cost_result = $cost_result + $cost_all;
+  }
+
+  // Стоимость с учетом скидки.
+  $cost_result_discount = site_commerce_order_discount($cost_result);
+  if ($cost_result_discount['cost'] <> $cost_result) {
+    $cost_discount = (int) ($cost_result - $cost_result_discount['cost']);
+    $cost_result = (int) $cost_result_discount['cost'];
+  }
+
+  return $cost_result;
+}
+
+/**
+ * Страница с перечнем заказанных товаров и реквизитами доступа на просмотр заказа.
+ */
+function site_commerce_order_item($order, $password) {
+  // Запрет на индексацию страницы.
+  $data = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array('name' => 'robots', 'content' => 'noindex, nofollow'),
+  );
+  drupal_add_html_head($data, 'site-commerce-order');
+
+  // Формируем заголовок страницы.
+  drupal_set_title(t('Order № @number', array("@number" => $order)));
+
+  // Формируем breadcrumb ссылки.
+  $breadcrumb = array();
+  $breadcrumb[] = l(t('Home'), '<front>');
+  $breadcrumb[] = l(variable_get('site_commerce_catalog_title', 'Online store'), variable_get('site_commerce_catalog_link', 'tovary'));
+  if (user_access("administer site commerce products")) {
+    $breadcrumb[] = l(t('Orders'), 'admin/content/site-commerce-orders');
+  }
+  drupal_set_breadcrumb($breadcrumb);
+
+  $output = '';
+
+  // Порядковый номер заказа.
+  if (is_numeric($order)) {
+    $oid = db_query("SELECT n.oid FROM {site_commerce_orders} n WHERE n.oid = :order AND n.password = :password", array(':order' => $order, ':password' => $password))->fetchField();
+  }
+  else {
+    $oid = db_query("SELECT n.oid FROM {site_commerce_orders} n WHERE n.number = :number AND n.password = :password", array(':number' => $order, ':password' => $password))->fetchField();
+  }
+
+  // Если такой заказ существует.
+  if ($oid) {
+    // Информация о текущем заказе.
+    $order_data = site_commerce_order_load($oid);
+    $delivery_information = unserialize($order_data->data);
+
+    // Темизация содержимого заказа.
+    $output .= '<h2>' . t('Order information') . '</h2>';
+    $output .= theme('site_commerce_order', array('oid' => $oid));
+
+    // Информация о оплате и доставке заказа.
+    $count_payment = 0;
+    $payment_information = '<h2>' . t('The information for payment and deliveries of the order') . '</h2>';
+    $payment_information .= '<ul>';
+      foreach ($delivery_information as $item => $key) {
+        if (isset($key['title']) && $key['value']) {
+          $payment_information .= '<li><b>' . $key['title'] . ':</b>&nbsp;' . $key['value'] . '</li>';
+          $count_payment++;
+        }
+      }
+    $payment_information .= '</ul>';
+
+    if ($count_payment) {
+      $output .= $payment_information;
+    }
+
+    // Подключаем способ оплаты Яндекс.Касса.
+    if (module_exists('ya_site_commerce') && $order_data->status < 40) {
+      $customer_number = t('Order № @number', array("@number" => $oid . " (" . $order_data->number . ")"));
+      $sum = site_commerce_cost_order($oid);
+
+      $cust_name = "";
+      if (isset($delivery_information['full_name']['value'])) {
+        $cust_name = $delivery_information['full_name']['value'];
+      }
+
+      $cust_addr = "";
+      if (isset($delivery_information['delivery_type'])) {
+        $cust_addr = $delivery_information['delivery_type']['value'];
+      }
+      if (isset($delivery_information['address_delivery'])) {
+        $cust_addr .= " " . $delivery_information['address_delivery']['value'];
+      }
+
+      $cust_email = "";
+      if (isset($delivery_information['email']['value'])) {
+        $cust_email = $delivery_information['email']['value'];
+      }
+
+      $form = drupal_get_form('ya_site_commerce_eshop_form', $customer_number, $sum, $cust_name, $cust_addr, $cust_email);
+
+      $output .= '<h2>' . t('You can pay now') . '</h2>';
+      $output .= drupal_render($form);
+    }
+
+    // Информация о статусе заказа и доставке.
+    if ($order_data->status == 80) {
+      drupal_set_message(t('The order has been cancelled.'), "warning");
+    }
+  }
+  else {
+    $output = '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">' . t('Order no. @order missing on site or you have indicated an incorrect access code @password.', array('@order' => $order, '@password' => $password)) . '</div>';
+  }
+
+  return $output;
+}
+
+/**
+ * Формирует объект заказа со всеми возможными полями и значениями по умолчанию.
+ * @return object order.
+ */
+function site_commerce_order_prepare() {
+  $order = new stdClass();
+  $order->full_name = '';
+  $order->last_name = '';
+  $order->first_name = '';
+  $order->patronymic = '';
+  $order->organisation = '';
+  $order->position = '';
+  $order->postcode = '';
+  $order->city = '';
+  $order->address_delivery = '';
+  $order->delivery_type = '';
+  $order->itself_export = '';
+  $order->date = '';
+  $order->time = '';
+  $order->phone = '';
+  $order->email = '';
+  $order->comment = '';
+  return $order;
+}
+
+/**
+ * Форма подтверждения заказа.
+ *
+ * @see site_commerce_order_form().
+ *
+ * @param type $form.
+ * @param type $form_state.
+ * @return type.
+ */
+function site_commerce_order_delivery_information($form, $form_state) {
+
+  // Формирует объект заказа со всеми возможными полями и значениями по умолчанию.
+  $order = site_commerce_order_prepare();
+
+  $delivery_information = array();
+
+  // Определяем какие поля отображать.
+  $form_fields = array();
+  $form_fields = variable_get('site_commerce_order_fields');
+  extract($form_fields);
+
+  if ($full_name) {
+    $order->full_name = trim($form_state['values']['full_name']);
+  }
+  if ($last_name) {
+    $order->last_name = trim($form_state['values']['last_name']);
+  }
+  if ($first_name) {
+    $order->first_name = trim($form_state['values']['first_name']);
+  }
+  if ($patronymic) {
+    $order->patronymic = trim($form_state['values']['patronymic']);
+  }
+
+  // Определяем ФИО.
+  $delivery_information['full_name'] = array(
+    'title' => t('Full name'),
+    'value' => $order->full_name,
+  );
+  if (empty($order->full_name) && empty($order->first_name)) {
+    $order->full_name = t('The visitor of a site');
+    $delivery_information['full_name'] = array(
+      'title' => t('Full name'),
+      'value' => $order->full_name,
+    );
+  }
+  elseif (empty($order->full_name) && !empty($order->first_name)) {
+    $order->full_name = $order->last_name . ' ' . $order->first_name . ' ' . $order->patronymic;
+    $order->full_name = trim($order->full_name);
+    $delivery_information['full_name'] = array(
+      'title' => t('Full name'),
+      'value' => $order->full_name,
+    );
+  }
+
+  if ($organization) {
+    $order->organisation = trim($form_state['values']['organization']);
+    if ($order->organisation) {
+      $delivery_information['organization'] = array(
+        'title' => t('Organization'),
+        'value' => $order->organisation,
+      );
+    }
+  }
+
+  if ($position) {
+    $order->position = trim($form_state['values']['position']);
+    if ($order->position) {
+      $delivery_information['position'] = array(
+        'title' => t('Position in the organization'),
+        'value' => $order->position,
+      );
+    }
+  }
+
+  if ($postcode) {
+    $order->postcode = trim($form_state['values']['postcode']);
+    if ($order->postcode) {
+      $delivery_information['postcode'] = array(
+        'title' => t('Postcode'),
+        'value' => $order->postcode,
+      );
+    }
+  }
+
+  if ($city) {
+    $order->city = trim($form_state['values']['city']);
+    if ($order->city) {
+      $delivery_information['city'] = array(
+        'title' => t('City'),
+        'value' => $order->city,
+      );
+    }
+  }
+
+  if ($address_delivery) {
+    $order->address_delivery = trim($form_state['values']['address_delivery']);
+    if ($order->address_delivery) {
+      $delivery_information['address_delivery'] = array(
+        'title' => t('The address of delivery'),
+        'value' => $order->address_delivery,
+      );
+    }
+  }
+
+  if (isset($form_state['values']['delivery_type'])) {
+    $type = site_commerce_order_stage_delivery();
+    $order->delivery_type = trim($form_state['values']['delivery_type']);
+    if ($type[$order->delivery_type]['title']) {
+      $delivery_information['delivery_type'] = array(
+        'title' => t('Way of delivery'),
+        'value' => $type[$order->delivery_type]['title'],
+      );
+
+      // Если выбран пункт выдачи заказа.
+      if ($form_state['values']['itself_export']) {
+        $tid = (int) trim($form_state['values']['itself_export']);
+        $term = taxonomy_term_load($tid);
+        $delivery_information['delivery_type'] = array(
+          'title' => t('Way of delivery'),
+          'value' => $type[$order->delivery_type]['title'] . ': ' . $term->name,
+        );
+      }
+    }
+  }
+
+  if ($date) {
+    $order->date = trim($form_state['values']['date']);
+    if ($order->date) {
+      $delivery_information['date'] = array(
+        'title' => t('Date'),
+        'value' => $order->date,
+      );
+    }
+  }
+
+  if ($time) {
+    $order->time = trim($form_state['values']['time']);
+    if ($order->time) {
+      $delivery_information['time'] = array(
+        'title' => t('Time'),
+        'value' => $order->time,
+      );
+    }
+  }
+
+  if ($phone) {
+    $order->phone = trim($form_state['values']['phone']);
+    if ($order->phone) {
+      $delivery_information['phone'] = array(
+        'title' => t('Contact phone'),
+        'value' => $order->phone,
+      );
+    }
+  }
+
+  if ($email) {
+    $order->email = trim($form_state['values']['email']);
+    if ($order->email) {
+      $delivery_information['email'] = array(
+        'title' => t('E-mail'),
+        'value' => $order->email,
+      );
+    }
+  }
+
+  if ($comment) {
+    $order->comment = trim($form_state['values']['comment']);
+    if ($order->comment) {
+      $delivery_information['comment'] = array(
+        'title' => t('Comment'),
+        'value' => $order->comment,
+      );
+    }
+  }
+
+  return $delivery_information;
+}
+
+/**
+ * Темизация информации о доставке заказа.
+ */
+function theme_site_commerce_order_delivery_information($variables) {
+  $delivery_information = $variables['delivery_information'];
+
+  $output = '<h2>' . t('Parameters of delivery') . '</h2>';
+
+  $rows = array();
+
+  foreach ($delivery_information as $item => $key) {
+    if ($key['value']) {
+      $rows[] = array(
+        'data' => array(
+          array('data' => $key['title'], 'class' => array('site-commerce-order-item-title')),
+          array('data' => filter_xss($key['value']), 'class' => array('site-commerce-order-item-value')),
+        )
+      );
+    }
+  }
+
+  $header = array();
+  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('site-commerce-order-register'))));
+
+  return $output;
+}
+
+/**
+ * Implements hook_element_info()
+ */
+function site_commerce_order_element_info() {
+  $types['datefield'] = array(
+    '#input' => TRUE,
+    '#theme' => 'site_commerce_element_date',
+  );
+
+  $types['timefield'] = array(
+    '#input' => TRUE,
+    '#theme' => 'site_commerce_element_time',
+  );
+
+  return $types;
+}
+
+function theme_site_commerce_element_date($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'date';
+  element_set_attributes($element, array('id', 'name'));
+  _form_set_class($element, array('form-text', 'form-date'));
+
+  $output = '<input' . drupal_attributes($element['#attributes']) . ' />';
+
+  return $output;
+}
+
+function theme_site_commerce_element_time($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'time';
+  element_set_attributes($element, array('id', 'name'));
+  _form_set_class($element, array('form-text', 'form-time'));
+
+  $output = '<input' . drupal_attributes($element['#attributes']) . ' />';
+
+  return $output;
+}
+
+/**
+ * Форма оформления заказа.
+ */
+function site_commerce_order_form($form, &$form_state) {
+  // Определяем какие поля отображать.
+  $form_fields = array();
+  $form_fields = variable_get('site_commerce_order_fields', array('full_name', 'phone', 'email', 'comment'));
+  $form_fields += array('delivery_type', 'itself_export');
+  extract($form_fields);
+
+  // Определяем какие поля обязательные для заполнения.
+  $form_fields_required = array();
+  $form_fields_required = variable_get('site_commerce_order_fields_required', array('full_name_required', 'address_delivery_required', 'phone_required', 'email_required'));
+  extract($form_fields_required);
+
+  $form = array();
+
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'site_commerce_order') . '/js/site_commerce_order.js',
+  );
+
+  $form['site_commerce_order'] = array('#tree' => TRUE);
+  $form['#attributes'] = array();
+
+  $form['stage_order_register']['form_fields'] = array(
+    '#type' => 'value',
+    '#value' => $form_fields,
+  );
+
+  $form['stage_order_register']['full_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Full name'),
+    '#maxlength' => 255,
+    '#required' => isset($full_name_required) ? $full_name_required : FALSE,
+    '#access' => isset($full_name) ? $full_name : FALSE,
+    '#attributes' => array('placeholder' => t('Borisov Peter Nikolaevich')),
+  );
+
+  $form['stage_order_register']['last_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Last name'),
+    '#maxlength' => 255,
+    '#required' => isset($last_name_required) ? $last_name_required : FALSE,
+    '#access' => isset($last_name) ? $last_name : FALSE,
+    '#attributes' => array('placeholder' => t('Borisov')),
+  );
+
+  $form['stage_order_register']['first_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('First name'),
+    '#maxlength' => 255,
+    '#required' => isset($first_name_required) ? $first_name_required : FALSE,
+    '#access' => isset($first_name) ? $first_name : FALSE,
+    '#attributes' => array('placeholder' => t('Peter')),
+  );
+
+  $form['stage_order_register']['patronymic'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Patronymic'),
+    '#maxlength' => 255,
+    '#required' => isset($patronymic_required) ? $patronymic_required : FALSE,
+    '#access' => isset($patronymic) ? $patronymic : FALSE,
+    '#attributes' => array('placeholder' => t('Nikolaevich')),
+  );
+
+  $form['stage_order_register']['phone'] = array(
+    '#type' => 'telfield',
+    '#title' => t('Contact phone'),
+    '#maxlength' => 255,
+    '#required' => isset($phone_required) ? $phone_required : FALSE,
+    '#access' => isset($phone) ? $phone : FALSE,
+    '#attributes' => array('class' => array('form-tel-maskedinput'), 'placeholder' => '+79001234567'),
+  );
+
+  $form['stage_order_register']['email'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('E-mail'),
+    '#maxlength' => 255,
+    '#required' => isset($email_required) ? $email_required : FALSE,
+    '#access' => isset($email) ? $email : FALSE,
+    '#attributes' => array('placeholder' => 'borisov@gmail.com'),
+  );
+
+  $form['stage_order_register']['organization'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Organization'),
+    '#maxlength' => 255,
+    '#required' => isset($organization_required) ? $organization_required : FALSE,
+    '#access' => isset($organization) ? $organization : FALSE,
+  );
+
+  $form['stage_order_register']['position'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Position in the organization'),
+    '#maxlength' => 255,
+    '#required' => isset($position_required) ? $position_required : FALSE,
+    '#access' => isset($position) ? $position : FALSE,
+  );
+
+  $form['stage_order_register']['postcode'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Postcode'),
+    '#maxlength' => 255,
+    '#required' => isset($postcode_required) ? $postcode_required : FALSE,
+    '#access' => isset($postcode) ? $postcode : FALSE,
+    '#attributes' => array('placeholder' => t('Your postcode')),
+  );
+
+  $form['stage_order_register']['city'] = array(
+    '#type' => 'textfield',
+    '#title' => t('City'),
+    '#maxlength' => 255,
+    '#required' => isset($city_required) ? $city_required : FALSE,
+    '#access' => isset($city) ? $city : FALSE,
+    '#attributes' => array('placeholder' => t('Your city or village')),
+  );
+
+  // Определяем разрешенные способы доставки.
+  $delivery_types = variable_get('site_commerce_order_ways_of_delivery', array('stage_courier'));
+  $delivery_types_allowed = array();
+  $options = array();
+  foreach ($delivery_types as $type => $key) {
+    if ($key) {
+      $delivery_types_allowed[] = $key;
+    }
+  }
+  foreach (site_commerce_order_stage_delivery() as $type_delivery => $key) {
+    if (in_array($type_delivery, $delivery_types_allowed)) {
+      $options[$type_delivery] = $key['title'];
+    }
+  }
+  $form['stage_order_register']['delivery_type'] = array(
+    '#type' => 'radios',
+    '#title' => t('Way of delivery'),
+    '#options' => $options,
+    '#required' => FALSE,
+    '#access' => count($options),
+  );
+
+  // Выберите пункт выдачи заказов.
+  $terms_itself_export = kvantstudio_select_terms('site_commerce_order_itself_export', FALSE);
+  $form['stage_order_register']['itself_export'] = array(
+    '#type' => 'select',
+    '#title' => '',
+    '#title_display' => 'invisible',
+    '#options' => $terms_itself_export,
+    '#default_value' => 0,
+    '#states' => array(
+      'visible' => array(
+        array(
+          array(':input[name=delivery_type]' => array('value' => 'stage_itself_export')),
+        ),
+      ),
+    ),
+    '#required' => FALSE,
+    '#access' => $terms_itself_export,
+  );
+
+  $form['stage_order_register']['address_delivery'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The address of delivery'),
+    '#maxlength' => 255,
+    '#required' => isset($address_delivery_required) ? $address_delivery_required : FALSE,
+    '#access' => isset($address_delivery) ? $address_delivery : FALSE,
+    '#attributes' => array('placeholder' => t('Street, house, flat')),
+  );
+
+  $form['stage_order_register']['date'] = array(
+    '#type' => 'datefield',
+    '#title' => t('Date'),
+    '#maxlength' => 10,
+    '#size' => 10,
+    '#required' => isset($date_required) ? $date_required : FALSE,
+    '#access' => isset($date) ? $date : FALSE,
+    '#attributes' => array('class' => array('form-date-maskedinput')),
+  );
+
+  $form['stage_order_register']['time'] = array(
+    '#type' => 'timefield',
+    '#title' => t('Time'),
+    '#maxlength' => 5,
+    '#size' => 5,
+    '#required' => isset($time_required) ? $time_required : FALSE,
+    '#access' => isset($time) ? $time : FALSE,
+    '#attributes' => array('class' => array('form-time-maskedinput')),
+  );
+
+  $form['stage_order_register']['comment'] = array(
+//    '#type' => 'text_format',
+//    '#base_type' => 'textarea',
+//    '#format' => '',
+    '#type' => 'textarea',
+    '#title' => t('The comment to the order'),
+    '#title_display' => 'invisible',
+    '#rows' => 4,
+    '#cols' => 40,
+    '#required' => isset($comment_required) ? $comment_required : FALSE,
+    '#access' => isset($comment) ? $comment : FALSE,
+    '#attributes' => array('id' => 'site-commerce-order-comment'),
+  );
+
+  // Now we add our submit button, for submitting the form results.
+  // The 'actions' wrapper used here isn't strictly necessary for tabledrag,
+  // but is included as a Form API recommended practice.
+  $form['stage_order_register']['actions'] = array('#type' => 'actions');
+
+  $form['stage_order_register']['actions']['submit_order'] = array(
+    '#type' => 'submit',
+    '#value' => t('To issue the order'),
+  );
+
+  return $form;
+}
+
+/**
+ * Process variables for site-commerce-order-form.tpl.php.
+ * @see site-commerce-order-form.tpl.php.
+ */
+function template_preprocess_site_commerce_order_form(&$variables) {
+  $form = $variables['form'];
+  $variables['order_form'] = array();
+
+  if (isset($form['stage_order_register']['form_fields'])) {
+    // Персональная информация.
+    $key_allowed = array('full_name', 'last_name', 'first_name', 'patronymic', 'phone', 'email', 'organization', 'position');
+    foreach ($form['stage_order_register']['form_fields']['#value'] as $key) {
+      if ($key && in_array($key, $key_allowed)) {
+        $variables['order_form']['personal_information'][$key] = array(
+          'title' => $form['stage_order_register'][$key]['#title'],
+          'element' => drupal_render($form['stage_order_register'][$key]),
+        );
+      }
+    }
+
+    // Информация для доставки.
+    $key_allowed = array('postcode', 'city', 'delivery_type', 'itself_export', 'address_delivery');
+    foreach ($form['stage_order_register']['form_fields']['#value'] as $key) {
+      if ($key && in_array($key, $key_allowed)) {
+        $variables['order_form']['delivery_information'][$key] = array(
+          'title' => $form['stage_order_register'][$key]['#title'],
+          'element' => drupal_render($form['stage_order_register'][$key]),
+        );
+      }
+    }
+
+    // Переменные даты и времени.
+    $variables['order_form']['datetime'] = array();
+    if ($form['stage_order_register']['date']['#access'] && !$form['stage_order_register']['time']['#access']) {
+      $variables['order_form']['datetime']['date'] = drupal_render($form['stage_order_register']['date']);
+    }
+    if (!$form['stage_order_register']['date']['#access'] && $form['stage_order_register']['time']['#access']) {
+      $variables['order_form']['datetime']['time'] = drupal_render($form['stage_order_register']['time']);
+    }
+    if ($form['stage_order_register']['date']['#access'] && $form['stage_order_register']['time']['#access']) {
+      $variables['order_form']['datetime']['date_time'] = drupal_render($form['stage_order_register']['date']) . drupal_render($form['stage_order_register']['time']);
+    }
+
+    // Дополнительная информация.
+    $key_allowed = array('comment');
+    foreach ($form['stage_order_register']['form_fields']['#value'] as $key) {
+      if ($key && in_array($key, $key_allowed)) {
+        $variables['order_form']['comment'] = drupal_render($form['stage_order_register'][$key]);
+      }
+    }
+  }
+
+  $variables['render_children'] = drupal_render_children($form);
+}
+
+/**
+ * Master validation function for the customer survey form - uses per-stage
+ * validation and calls functions for each one.
+ *
+ * @param type $form
+ * @param type $form_state
+ * @return type
+ */
+function site_commerce_order_form_validate($form, &$form_state) {
+  // Проверка на корректность указанного mail и имени.
+  if ($form_state['values']['email']) {
+    // Проверка mail на корректность ввода.
+    if (!valid_email_address($form_state['values']['email'])) {
+      form_set_error('email', t('The e-mail address %mail is not valid.', array('%mail' => $form_state['values']['email'])));
+    }
+  }
+
+  // Проверка корректно ли заполнено поле Контактный номер.
+  if (variable_get('site_commerce_captcha_phone', FALSE)) {
+    $phone = trim($form_state['values']['phone']);
+    $phone = str_replace('_', '', $phone);
+    $phone_count = strlen($phone);
+    if ($phone_count > 0 && $phone_count <> 17) {
+      form_set_error('phone', t('Contact phone number <strong>@param</strong> is incorrect.', array('@param' => $phone)));
+    }
+  }
+}
+
+/**
+  * Handles the submission of the final stage
+  *
+  * Sends an email to the user confirming their entry
+  *
+  * @param type $form
+  * @param type $form_state
+  */
+function site_commerce_order_form_submit($form, &$form_state) {
+  global $user;
+  global $base_root;
+
+  // Информация для оплаты и доставки заказа.
+  $delivery_information = site_commerce_order_delivery_information($form, $form_state);
+  $data = serialize($delivery_information);
+
+  // Формируем пароль.
+  $password = kvantstudio_random_string(10, $type = 'small_all');
+
+  // Формируем уникальный строковый номер заказа.
+  $number = 'SC' . kvantstudio_random_string(5, $type = 'small_all');
+
+  try {
+    // Регистрация заказа.
+    $order = db_insert('site_commerce_orders', array('return' => Database::RETURN_INSERT_ID))
+    ->fields(array(
+      'number' => $number,
+      'uid' => $user->uid,
+      'data' => $data,
+      'created' => REQUEST_TIME,
+      'password' => $password,
+      'hostname' => ip_address(),
+      'sum' => 0,
+    ))
+    ->execute();
+
+    // Если не удалось создать заказ.
+    if (empty($order)) {
+      drupal_set_message(t('On a site there was a mistake. Try to repeat operation once again. If the mistake will repeat, we necessarily shall correct it in the near future.'), 'error');
+      $text = '<div>Error create order in {site_commerce_orders} in function site_commerce_order_stage_order_confirm_submit() in file site_commerce.order.submit.inc</div>' . $data;
+      if (variable_get('kvantstudio_developer_mail_allow', TRUE)) {
+        kvantstudio_send_developer_report($text);
+      }
+      watchdog('site_commerce', $text, NULL, WATCHDOG_ERROR);
+      return FALSE;
+    }
+
+    // Идентификатор заказа.
+    $oid = $order;
+
+    // Выполняем привязку товаров в корзине к заказу.
+    if ($user->uid) {
+      // Присваиваем записям в корзине номер текущего заказа.
+      $result = db_update('site_commerce_cart')
+      ->fields(array('oid' => $order))
+      ->condition('uid', $user->uid)
+      ->condition('oid', 0)
+      ->condition('status', 1)
+      ->execute();
+
+      // Присваиваем записям в таблице параметров номер текущего заказа.
+      $result_cart_parametrs = db_update('site_commerce_cart_parametrs')
+      ->fields(array('oid' => $order))
+      ->condition('uid', $user->uid)
+      ->condition('oid', 0)
+      ->execute();
+    }
+    else {
+      $result = db_update('site_commerce_cart')
+      ->fields(array('oid' => $order))
+      ->condition('sid', site_commerce_user_id())
+      ->condition('oid', 0)
+      ->condition('status', 1)
+      ->execute();
+
+      // Присваиваем записям в таблице параметров номер текущего заказа.
+      $result_cart_parametrs = db_update('site_commerce_cart_parametrs')
+      ->fields(array('oid' => $order))
+      ->condition('sid', site_commerce_user_id())
+      ->condition('oid', 0)
+      ->execute();
+    }
+
+    // Присваиваем стоимость текущего заказа.
+    $result = db_update('site_commerce_orders')
+    ->fields(array('sum' => site_commerce_cost_order($order)))
+    ->condition('oid', $order)
+    ->execute();
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    // Отправка системных уведомлений на электронную почту.
+    $text = 'Error update in {site_commerce_cart} in function site_commerce_order_stage_order_confirm_submit() in file site_commerce.order.submit.inc';
+    if (variable_get('kvantstudio_developer_mail_allow', TRUE)) {
+      kvantstudio_send_developer_report($text);
+    }
+    watchdog('site_commerce', $text, NULL, WATCHDOG_ERROR);
+    watchdog_exception('site_commerce', $e);
+    throw $e;
+  }
+
+  // Подменяем значение номер заказа (идентификатор заказа) его строковым представлением.
+  // Чтобы посетитель не видел реальный порядковый номер заказа.
+  if (variable_get('site_commerce_hide_order_number', FALSE)) {
+    $order = $number;
+  }
+
+  // Формируем html тело сообщения.
+  $body = '<h1>' . t('Order № @number', array("@number" => $order)) . '</h1>';
+  $body .= '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">' . t('The information for payment and deliveries of the order') . ':</div>';
+  $body .= '<ul>';
+    foreach ($delivery_information as $item => $key) {
+      $body .= '<li><b>' . $key['title'] . ':</b>&nbsp;' . $key['value'] . '</li>';
+    }
+  $body .= '</ul>';
+
+  // Содержимое заказа.
+  $body .= '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">' . t('Order information') . ':</div>';
+  $body .= theme('site_commerce_order', array('oid' => $oid));
+
+  // Ссылка на страницу с содержимым заказа.
+  if (user_access('site commerce order view')) {
+    $body .= '<div style="color:#FFF;background-color:#036;padding:10px;font-size:14px;font-family:Arial;">' . t('A link to the page of the order') . ':</div>';
+    $body .= '<ul>';
+      $url = variable_get('site_commerce_catalog_link', 'tovary') . '/orders/item/' . $order . '/' . $password;
+      $body .= '<li><b>' . l($base_root . '/' . $url, $base_root . '/' . $url) . '</li>';
+      $body .= '<li><b>' . t('Password') . ':</b>&nbsp;' . $password . '</li>';
+    $body .= '</ul>';
+  }
+
+  // Регистрация заказа в системном журнале.
+  watchdog('site_commerce_order', $body);
+
+  if ($delivery_information['email']['value']) {
+    $from = $delivery_information['email']['value'];
+  }
+  else {
+    $from = '';
+  }
+
+  // Отправка сообщения менеджеру.
+  kvantstudio_mail_send(array(
+    'module'      => 'kvantstudio',
+    'key'         => 'kvantstudio_info_mail',
+    'to'          => '',
+    'from'        => $from,
+    'subject'     => variable_get('site_name', '') . ': ' . t('the new order has acted - @number', array('@number' => $order)),
+    'body'        => $body,
+    'set_message' => FALSE,
+    'attachments' => array(),
+  ));
+
+  // Отправка сообщения покупателю.
+  if ($from) {
+    // Информация для покупателя.
+    if (variable_get('site_commerce_note_order_description')) {
+      $body .= '<div style="margin:10px;padding:10px;background-color:#CCC;border:1px bolder #c3c3c3;border-radius:10px">' . variable_get('site_commerce_note_order_description') . '</div>';
+    }
+    kvantstudio_mail_send(array(
+      'module'      => 'kvantstudio',
+      'key'         => 'kvantstudio_info_mail',
+      'to'          => $from,
+      'from'        => '',
+      'subject'     => variable_get('site_name', '') . ': ' . t('the order is accepted'),
+      'body'        => $body,
+      'set_message' => FALSE,
+      'attachments' => array(),
+    ));
+  }
+
+  // Редирект.
+  if (user_access('site commerce order view')) {
+    $form_state['redirect'] = variable_get('site_commerce_catalog_link', 'tovary') . "/orders/item/" . $order . "/" . $password;
+  }
+  else {
+    drupal_set_message(t('Thank you for buying. Your order number @number.', array('@number' => $order)));
+    $form_state['redirect'] = variable_get('site_commerce_catalog_link', 'tovary');
+  }
+}

@@ -1,0 +1,108 @@
+div.site-photogallery-album-name {
+	padding-bottom: 5px;
+  text-align: center;
+}
+div.site-photogallery-album-name a:link,  div.site-photogallery-album-name a:visited {
+  font-size: 1.2em;
+}
+div.site-photogallery-album-annotation {
+	font-size: 0.9em;
+	color: #999;
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+div.site-photogallery-admin-links {
+	padding-top: 5px;
+  padding-bottom: 5px;
+}
+div.site-photogallery-item-wrapper {
+  clear:both;
+  margin-top: 10px;
+}
+div.site-photogallery-items {
+  width: 100%;
+  margin-bottom: 10px;
+  border-collapse: separate;
+}
+div.site-photogallery-items  a {
+  text-decoration: underline;
+  font-size: 1.2em;
+}
+div.site-photogallery-items a:hover {
+  color: #FF0000;
+}
+div.site-photogallery-item-image {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* Стили оформления тегов. */
+div.site-photogallery-tags-block {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+div.site-photogallery-tags-block a, a:visited {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.9em;
+	color: #666;
+}
+div.site-photogallery-tags-block .site-photogallery-tags {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1em;
+	font-weight: bold;
+	color: #000;
+}
+/* Оформление списка фотоизображений фотоальбома. */
+div.site-photogallery-wrapper li {
+  display: inline-block;
+  margin: 10px;
+  text-align: center;
+  vertical-align: top;
+}
+ul.site-photogallery-albums {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+/*
+   Чтобы ссылки не нажимались кликом по пустому месту, применим фильтр.
+*/
+.site-photogallery-albums a, .site-photogallery-albums b {
+  display: inline;
+  word-spacing: normal;
+  //display: inline-block;
+  //filter: alpha(opacity=100);
+}
+.site-photogallery-albums a, .site-photogallery-albums b, x:-moz-any-link {
+  display:block;
+}
+/*
+   Если Firefox выше 2.0. Возвращаем a и b в inline.
+*/
+.site-photogallery-albums a, .site-photogallery-albums b, x:-moz-any-link, x:default {
+  display: inline;
+}
+.site-photogallery-albums li, .site-photogallery-albums a, .site-photogallery-albums b {
+  vertical-align: top;
+}
+/*
+   Firefox ниже версии 3 не знает о inline-block.
+   Поэтому указываем для него -moz-inline-stack.
+*/
+.site-photogallery-albums li {
+  margin: 0 10% 0.4em 0;
+  //margin: 0;
+  width: 40%;
+  //width: auto;
+  display: -moz-inline-stack;
+  display: inline-block;
+  //display: inline;
+}
+.site-photogallery-albums ul {
+  width: 100%;
+}
+.site-photogallery-albums a, .columns b {
+  //margin: 0 10% 0.4em 0;
+  //width: 40%;
+}

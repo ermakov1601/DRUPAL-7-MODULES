@@ -1,0 +1,12 @@
+name = Site contacts
+description = "Contacts and requisites of the organization."
+version = "2.7"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-contacts
+
+dependencies[] = kvantstudio
+
+files[] = site_contacts.install
+files[] = site_contacts.module
+files[] = site_contacts.settings.inc

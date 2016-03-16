@@ -1,0 +1,12 @@
+.site-send-messages-form-title {
+    font-size: 20px;
+}
+.site-send-message-form-item-date-time {
+    padding-top: 5px;
+}
+#site-send-messages-form input[type="text"].datepicker, #site-send-messages-form input[type="text"].timepicker {
+    width: 100px;
+}
+form#site-send-messages-form .description {
+    padding-bottom: 5px;
+}

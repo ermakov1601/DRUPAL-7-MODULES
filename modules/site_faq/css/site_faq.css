@@ -1,0 +1,69 @@
+/* $Id$ */
+#site-faq-edit-button-form {
+  margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/* Текущий раздел секции */
+.title-section-faq {
+	background-color: #E5E5E5;
+	padding: 10px;
+	font-size: 1em;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+.title-section-faq a {
+	font-size: 1em;
+	font-weight: bold;
+	color: #E58711;
+}
+.title-section-faq h1 {
+	font-size: 1em;
+	font-weight: bold;
+}
+
+/* Оформление вопроса пользователя */
+.question {
+	background-color: #E5E5E5;
+	padding-top: 2px;
+	padding-right: 15px;
+	padding-bottom: 2px;
+	padding-left: 10px;
+	font-size: 1em;
+	border-left-width: 10px;
+	border-left-style: solid;
+	border-left-color: #E48710;
+}
+.title-question {
+	font-size: 1em;
+	font-weight: bold;
+	margin-bottom: 5px;
+	margin-top: 5px;
+	font-style: italic;
+}
+.text-question {
+	font-size: 0.9em;
+	color: #333;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.answer {
+	padding: 10px;
+	color: #666;
+}
+.title-faq {
+	font-size: 0.8em;
+}
+.site-faq-annotation {
+	font-size: 0.8em;
+	color: #999;
+	text-align: left;
+}
+
+/* Оформление рядов данных */
+.site-faq-even {
+	background-color: #CCC;
+}
+.site-faq-odd {
+	background-color: #DFDFDF;
+}

@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Главный файл модуля интеграции модуля SiteCommerce и Яндекс.Деньги.
+ *
+ * Файл содержит основные функции, которые реализуют функционал интеграции модуля SiteCommerce и Яндекс.Деньги.
+ * Интернет-магазин SiteCommerce - это разработка студии KVANTSTUDIO.RU.
+ * По всем вопросам обращайтесь по адресу info@kvantstudio.ru.
+*/
+
+
+/**
+ * Форма оплаты заказа через Яндекс.Кассу через e-mail протокол.
+ */
+function ya_site_commerce_eshop_form($form, &$form_state, $customer_number, $sum, $cust_name, $cust_addr, $cust_email) {
+  $form = array();
+  if(variable_get('yamoney_mode', 'test') == 'live') {
+    $form['#action'] = 'https://money.yandex.ru/eshop.xml';
+  }
+  else {
+    $form['#action'] = 'https://demomoney.yandex.ru/eshop.xml';
+  }
+
+  $form['shopId'] = array(
+    '#type' => 'hidden',
+    '#value' => variable_get('yamoney_shop_id', ''),
+  );
+
+  $form['scid'] = array(
+    '#type' => 'hidden',
+    '#value' => variable_get('yamoney_scid', ''),
+  );
+
+  // Идентификатор клиента.
+  $form['CustomerNumber'] = array(
+    '#type' => 'hidden',
+    '#value' => $customer_number,
+  );
+
+  // Сумма заказа.
+  $form['sum'] = array(
+    '#type' => 'hidden',
+    '#value' => $sum,
+  );
+
+  // ФИО.
+  $form['custName'] = array(
+    '#type' => 'hidden',
+    '#value' => $cust_name,
+  );
+
+  // Адрес доставки.
+  $form['custAddr'] = array(
+    '#type' => 'hidden',
+    '#value' => $cust_addr,
+  );
+
+  // E-mail.
+  $form['custEmail'] = array(
+    '#type' => 'hidden',
+    '#value' => $cust_email,
+  );
+
+  $payment_method = array(
+    'PC' => 'Со счета в Яндекс.Деньгах (яндекс кошелек)',
+    'AC' => 'С банковской карты',
+    'GP' => 'Оплата по коду через терминал',
+    'WM' => 'Оплата cо счета WebMoney',
+    'AB' => 'Оплата через Альфа-Клик',
+    'PB' => 'Оплата через Промсвязьбанк',
+    'MA' => 'Оплата через MasterPass',
+  );
+
+  $methods = yamoney_get_enabled_payment_methods();
+  $form['paymentType'] = array(
+    '#type' => 'radios',
+    '#title' => t('Payment method'),
+    '#default_value' => isset($_SESSION['pay_method']) ? $_SESSION['pay_method'] : variable_get('yamoney_default_payment_method', YAMONEY_DEFAULT_PAYMENT_METHOD),
+    '#options' => $methods,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Оплатить',
+  );
+
+  return $form;
+}
