@@ -20,7 +20,7 @@ $jQuery(document).ready(function() {
         speed: 100,
         collapsedHeight: Drupal.settings.kvantstudio_readmore_height,
         moreLink: '<a href="#" class="readmore-link readmore-link__more">' + Drupal.settings.kvantstudio_readmore_more + '</a>',
-        lessLink: '<a href="#" class="readmore-link readmore-link__less"">' + Drupal.settings.kvantstudio_readmore_less + '</a>'
+        lessLink: '<a href="#" class="readmore-link readmore-link__less">' + Drupal.settings.kvantstudio_readmore_less + '</a>'
       });
     }
 
