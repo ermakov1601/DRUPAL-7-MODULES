@@ -21,7 +21,6 @@
 <div class="site-commerce-catalog clearfix">
   <?php if(variable_get('site_commerce_search_form', TRUE) && $search_form = site_commerce_create_search_form('site_commerce')): ?>
     <!-- Форма поиска над каталогом товаров. -->
-    <h2><?php print t('Search'); ?></h2>
     <div class="site-commerce-catalog__search-form"><?php print $search_form; ?></div>
   <?php endif; ?>
 

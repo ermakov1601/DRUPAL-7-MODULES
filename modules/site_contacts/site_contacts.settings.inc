@@ -144,21 +144,21 @@ function site_contacts_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('The address of a site in zone RU'),
     '#default_value' => variable_get('site_contacts_url_ru'),
-    '#description' => t('Specify the name of a site without www.'),
+    '#description' => t('The address of a site. For example, @name.', array('@name' => 'http://filinkov.ru')),
     '#required' => FALSE,
   );
   $form['coordinates']['site_contacts_url_rf'] = array(
     '#type' => 'textfield',
-    '#title' => t('The address of a site in zone РФ'),
+    '#title' => t('The address of a site in zone RF'),
     '#default_value' => variable_get('site_contacts_url_rf'),
-    '#description' => t('Specify the name of a site without www.'),
+    '#description' => t('The address of a site. For example, @name.', array('@name' => 'http://филинков.рф')),
     '#required' => FALSE,
   );
   $form['coordinates']['site_contacts_url_com'] = array(
     '#type' => 'textfield',
     '#title' => t('The address of a site in zone COM'),
     '#default_value' => variable_get('site_contacts_url_com'),
-    '#description' => t('Specify the name of a site without www.'),
+    '#description' => t('The address of a site. For example, @name.', array('@name' => 'http://filinkov.com')),
     '#required' => FALSE,
   );
   $form['coordinates']['site_contacts_other_' . $language->language] = array(

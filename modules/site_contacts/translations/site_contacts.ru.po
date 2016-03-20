@@ -119,11 +119,11 @@ msgid "The address of a site in zone RU"
 msgstr "Адрес сайта в зоне RU"
 
 #: site_contacts.admin.inc:120;127;134 site_contacts.settings.inc:147;154;161
-msgid "Specify the name of a site without www."
-msgstr "Укажите название сайта без www."
+msgid "The address of a site. For example, @name."
+msgstr "Адрес сайта. Например, @name."
 
 #: site_contacts.admin.inc:125 site_contacts.settings.inc:152
-msgid "The address of a site in zone РФ"
+msgid "The address of a site in zone RF"
 msgstr "Адрес сайта в зоне РФ"
 
 #: site_contacts.admin.inc:132 site_contacts.settings.inc:159

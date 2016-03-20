@@ -72,7 +72,7 @@
   <?php if ($cost['basic'] && !$cost['min']): ?>
   <!-- Основная стоимость товара. -->
   <div class="site-commerce-cost site-commerce-cost_basic site-commerce-cost_basic-<?php print $type_call; ?>">
-    <?php print $cost['basic']; ?>&nbsp;<?php print $currency; ?><?php print $measure; ?>
+    <?php print $cost['basic']; ?>&nbsp;<?php print $currency; ?>&nbsp;<?php print $measure; ?>
   </div>
   <?php endif; ?>
 

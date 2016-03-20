@@ -111,7 +111,6 @@ function _site_contacts_data() {
         $output_data .= ', <span itemprop="streetAddress">' . variable_get('site_contacts_street_address_' . $language->language) . '</span>';
         $empty_partition++;
       }
-      $output_data .= '.';
     $output_data .= '</div>';
 
     // Телефон.
@@ -144,15 +143,15 @@ function _site_contacts_data() {
     }
     // URL.
     if (variable_get('site_contacts_url_ru')) {
-      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="http://www.' . variable_get('site_contacts_url_ru') . '">www.' . variable_get('site_contacts_url_ru') . '</a></div>';
+      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="' . variable_get('site_contacts_url_ru') . '">' . variable_get('site_contacts_url_ru') . '</a></div>';
       $empty_partition++;
     }
     if (variable_get('site_contacts_url_rf')) {
-      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="http://www.' . variable_get('site_contacts_url_rf') . '">www.' . variable_get('site_contacts_url_rf') . '</a></div>';
+      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="' . variable_get('site_contacts_url_rf') . '">' . variable_get('site_contacts_url_rf') . '</a></div>';
       $empty_partition++;
     }
     if (variable_get('site_contacts_url_com')) {
-      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="http://www.' . variable_get('site_contacts_url_com') . '">www.' . variable_get('site_contacts_url_com') . '</a></div>';
+      $output_data .= '<div class="site-contacts-url"><a class="url" itemprop="url" href="' . variable_get('site_contacts_url_com') . '">' . variable_get('site_contacts_url_com') . '</a></div>';
       $empty_partition++;
     }
   $output_data .= '</div>';

@@ -1,6 +1,6 @@
 name = Site contacts
 description = "Contacts and requisites of the organization."
-version = "2.7"
+version = "2.8"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/site-contacts

@@ -101,3 +101,13 @@ function site_contacts_update_7002() {
   variable_del('site_contacts_bank_bik');
   variable_del('site_contacts_map');
 }
+
+/**
+ * Language update and enable multi-languages support.
+ */
+function site_contacts_update_7003() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_contacts'));
+  }
+}
