@@ -6717,20 +6717,25 @@ function template_preprocess_site_commerce_catalog(&$variables) {
           }
         }
 
+        // Термин корневой категории.
         $variables['terms'][$term->tid]['root'] = $term;
 
         // Формируем дочерние категории.
         $variables['terms'][$term->tid]['childrens'] = array();
         if (variable_get('site_commerce_allow_view_subcategories', TRUE)) {
           $tree = taxonomy_get_tree($vid, $row->tid, 1, TRUE);
+
           foreach ($tree as $term_children) {
+            // Количество позиций у текущей дочерней категории.
+            $count_positions = site_commerce_count_positions($term_children->tid, $allow_view_statuses, SITE_COMMERCE_PUBLISHED, TRUE, TRUE);
+
             // Если разрешено отображать количество позиций в категории каталога.
             $term_children->count = 0;
             if (variable_get('site_commerce_allow_count_catalog', FALSE)) {
-              $term_children->count = site_commerce_count_positions($term_children->tid, $allow_view_statuses, SITE_COMMERCE_PUBLISHED, TRUE, TRUE);
+              $term_children->count = $count_positions;
             }
 
-            if (variable_get('site_commerce_allow_null_category', TRUE) || $term_children->count) {
+            if (variable_get('site_commerce_allow_null_category', TRUE) || $count_positions) {
               // Определяем изображение категории.
               $term_children->image_url = '';
               $term_children->image_style_url = '';

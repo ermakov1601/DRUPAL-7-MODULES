@@ -55,7 +55,7 @@
               <a class="site-commerce-category-title__link" href="<?php print base_path(); ?><?php print $term['root']->alias; ?>">
                 <!-- Название корневой категории. -->
                 <?php print $term['root']->name; ?>
-                <!-- количество позиций. -->
+                <!-- Количество позиций. -->
                 <?php if($term['root']->count): ?>
                 <span class="site-commerce-category-title__count">(<?php print $term['root']->count; ?>)</span>
                 <?php endif; ?>
