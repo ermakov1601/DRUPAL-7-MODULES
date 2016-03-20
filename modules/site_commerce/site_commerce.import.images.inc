@@ -128,14 +128,25 @@ function site_commerce_import_form_submit($form, &$form_state) {
       //Количество строк.
 		  $xlsrcnt = $excel_reader->sheets[0]['numRows'] + 1;
 
+      $delete_exist = 0;
+
       $data = array();
       for($i = 1; $i < $xlsrcnt; $i++) {
+        if ($form_state['values']['delete'] && !$delete_exist) {
+          $delete = 1;
+        }
+        else {
+          $delete = 0;
+        }
         if (!in_array($excel_reader->val($i, 1), site_commerce_import_keys_fields())) {
           // Формируем данные.
           $data['field'] = $form_state['values']['field'];
           $data['value'] = $excel_reader->val($i, 1);
           $data['url'] = $excel_reader->val($i, 2);
-          $data['delete'] = $form_state['values']['delete'];
+          $data['title_suffix'] = $excel_reader->val($i, 3);
+          $data['delete'] = $delete;
+
+          $delete_exist = 1;
 
           $batch['operations'][] = array('site_commerce_import_data', array(array_map('base64_encode', $data)));
         }
@@ -188,19 +199,37 @@ function site_commerce_import_data($data, &$context) {
  * Сохраняем данные в БД.
  */
 function site_commerce_import_save($data) {
+  global $user;
+
   // Описание массива, строки входных данных передаваемых из csv файла.
   $field = $data['field']; // Ключевое поле.
   $value = trim($data['value']); // Идентификатор поля.
   $url = trim($data['url']); // URL файла.
-  $delete = $data['delete']; // Удалить все файлы.
+  $title_suffix = trim($data['title_suffix']);
+  $delete = (int) $data['delete']; // Удалить все файлы.
 
   // Создаем обьект позиции.
   $site_commerce = new stdClass();
 
+  // Идентификатор по умолчанию.
+  $pid = $value;
+
+  // Если поиск по артикулу.
+  if ($field == 'code') {
+    $pid = db_query("SELECT n.entity_id FROM {field_data_field_site_commerce_code} n WHERE n.field_site_commerce_code_value = :value", array(':value' => $value))->fetchField();
+  }
+
+  // Идентификатор для подсистемы автозапчастей.
   if ($field == 'oem') {
     $pid = db_query("SELECT n.entity_id FROM {field_data_field_site_commerce_oem} n WHERE n.field_site_commerce_oem_value = :value", array(':value' => $value))->fetchField();
   }
 
+  // Если не удалось определить идентификатор товара.
+  if (!$pid) {
+    exit();
+  }
+
+  // Загружаем товар.
   $site_commerce = site_commerce_load($pid);
 
   if (is_object($site_commerce)) {
@@ -229,7 +258,16 @@ function site_commerce_import_save($data) {
     }
 
     // Формирует новое имя файла.
-    $filename = 'image-' . $site_commerce->pid . '-' . $field . '-' . $value;
+    if ($title_suffix) {
+      $title_suffix = ' ' . $title_suffix;
+    }
+    $filename = $site_commerce->title . $title_suffix . '-' . $pid . '-' . kvantstudio_random_string(5);
+
+    // Имя файла для подсистемы автозапчастей.
+    if ($field == 'oem') {
+      $filename = $field . '-' . $value . '-articul-' . $site_commerce->pid . '-random-' . kvantstudio_random_string(5);
+    }
+
     $filename = mb_strtolower($filename, "UTF-8");
     $filename = pathauto_cleanstring($filename) . '.' . kvantstudio_get_extension($url);
 
@@ -253,12 +291,18 @@ function site_commerce_import_save($data) {
 
         if (file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS)) {
           $destination = $directory . '/' . $filename;
-          //$file = file_move($file, $destination, FILE_EXISTS_REPLACE);
+          $file->uid  = $user->uid;
           $file = file_copy($file, $destination);
           $file->status = FILE_STATUS_PERMANENT;
+          $file->filemime = file_get_mimetype($file->uri);
           file_save($file);
           $count = count($site_commerce->field_site_commerce_image[LANGUAGE_NONE]);
           $site_commerce->field_site_commerce_image[LANGUAGE_NONE][$count]['fid'] = $file->fid;
+
+          $text_alt = kvantstudio_summary($site_commerce->title . $title_suffix, 512);
+          $text_title = kvantstudio_summary($site_commerce->title . $title_suffix, 1024);
+          $site_commerce->field_site_commerce_image[LANGUAGE_NONE][$count]['alt'] = $text_alt;
+          $site_commerce->field_site_commerce_image[LANGUAGE_NONE][$count]['title'] = $text_title;
         }
       }
 

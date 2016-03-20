@@ -7430,9 +7430,10 @@ function site_commerce_category_path($term) {
 function site_commerce_import_keys_fields() {
   $keys_fields = array(
     'pid' => t('Product Id table site_commerce'),
+    'code' => t('Part number'),
   );
 
-  $keys_fields = module_invoke_all('site_commerce_import_keys_fields', $keys_fields);
+  $keys_fields += module_invoke_all('site_commerce_import_keys_fields', $keys_fields);
 
   return $keys_fields;
 }
