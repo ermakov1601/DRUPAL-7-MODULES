@@ -61,13 +61,13 @@ function site_faq_questions() {
     if (isset($data['hostname'])) {
       $contact_data .= '<div><b>IP адрес:</b> '.$data['hostname'].'</div>';
     }
-
+    $form = drupal_get_form('site_faq_answer_form', $qid);
     $rows_table .= '
       <tr id="question-' . $qid . '"  class="' . $class_tr . '">
         <td width="50" align="center">'.$i.'</td>
         <td>
           <div class="text_question">'.$question.'</div>
-          '. drupal_render(drupal_get_form('site_faq_answer_form', $qid)) .'
+          '. drupal_render($form) .'
         </td>
         <td width="300" valign="top">
           '.$contact_data.'
