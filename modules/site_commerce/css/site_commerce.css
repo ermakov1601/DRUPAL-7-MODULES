@@ -123,6 +123,10 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
 }
 
+.site-commerce-content__switcher-link:focus {
+  text-decoration: none;
+}  
+
 .site-commerce-content__switcher-link_detail {
   text-decoration: none !important;
   border: 0;
