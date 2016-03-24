@@ -1,0 +1,23 @@
+name = Site commerce auto
+description = "Online store of autospare parts."
+version = "3.19"
+core = 7.x
+package = Kvantstudio
+configure = admin/config/kvantstudio/site-commerce-auto
+
+dependencies[] = site_commerce
+
+files[] = site_commerce_auto.install
+files[] = site_commerce_auto.module
+files[] = site_commerce_auto_delete_csv.inc
+files[] = site_commerce_auto_import.csv.inc
+files[] = site_commerce_auto_set_taxonomy.inc
+files[] = site_commerce_auto_settings.inc
+files[] = site-commerce-auto.tpl.php
+files[] = site-commerce-auto-search-form.tpl.php
+
+; Подключение css файлов.
+stylesheets[all][] = css/site_commerce_auto.css
+
+; Подключение js файлов.
+scripts[] = js/site_commerce_auto.js

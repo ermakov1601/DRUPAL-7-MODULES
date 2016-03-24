@@ -1,0 +1,424 @@
+<?php
+
+/**
+ * @file
+ * Главный файл модуля интернет-магазина автозапчасти SiteCommerce.
+ *
+ * Файл содержит основные функции, которые реализуют функционал интернет-магазина автозапчасти SiteCommerce.
+ * Интернет-магазин SiteCommerce - это разработка студии KVANTSTUDIO.RU.
+ * Разработка модуля ведется с 2010 г. По всем вопросам обращайтесь по адресу info@kvantstudio.ru.
+*/
+
+/**
+ * Implements hook_menu().
+ */
+function site_commerce_auto_menu() {
+  $items['admin/config/kvantstudio/site-commerce-auto'] = array(
+    'title' => 'Set up catalogue of autospare parts',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('site_commerce_auto_settings_form'),
+    'access arguments' => array('administer site commerce'),
+    'file' => 'site_commerce_auto.settings.inc',
+  );
+
+  $items['admin/content/site-commerce/import-autospare-parts'] = array(
+    'title' => 'Import',
+    'page callback' => 'site_commerce_auto_import_page',
+    'access arguments' => array('administer site commerce products'),
+    'file' => 'site_commerce_auto.import.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['admin/content/site-commerce/delete-autospare-parts'] = array(
+    'title' => 'Delete positions',
+    'page callback' => 'site_commerce_auto_import_page',
+    'access arguments' => array('administer site commerce products'),
+    'file' => 'site_commerce_auto.delete.csv.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['admin/content/site-commerce/taxonomy-autospare-parts'] = array(
+    'title' => 'Update the categories of positions',
+    'page callback' => 'site_commerce_auto_set_taxonomy_page',
+    'access arguments' => array('administer site commerce products'),
+    'file' => 'site_commerce_auto.taxonomy.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_site_commerce_title().
+ */
+function site_commerce_auto_site_commerce_title($site_commerce) {
+  if ($site_commerce->type === 'site_commerce_auto') {
+    $site_commerce->title = $site_commerce->title . ' ' . $site_commerce->field_site_commerce_oem[LANGUAGE_NONE][0]['value'] . ' ' . $site_commerce->field_site_commerce_trade_mark[LANGUAGE_NONE][0]['value'];
+  }
+}
+
+/**
+ * Implements hook_site_commerce_theme().
+ */
+function site_commerce_auto_site_commerce_theme($site_commerce) {
+  $type = site_commerce_type_get_type($site_commerce->type);
+  if ($type->module == 'site_commerce_auto') {
+    $site_commerce->theme = 'site_commerce';
+  }
+}
+
+/**
+* Implementation of hook_kvantstudio_term_page().
+*/
+function site_commerce_auto_kvantstudio_term_page($term) {
+  $value = array();
+
+  // Название модуля, который реализует тип товара.
+  $module = db_query('SELECT n.module FROM {site_commerce_type} n WHERE n.categories_vocabulary = :vid', array(':vid' => $term->vid))->fetchField();
+  if ($module == "site_commerce_auto") {
+    $value = array(
+      'module' => 'site_commerce', // Имя модуля.
+      'file' => 'site_commerce', // Файл в котором располагается функция реализующая отображение термина таксономии.
+      'extension' => 'module', // Расширение файла.
+      'function' => 'site_commerce_term_page', // Функция, которая реализует отображение термина таксономии.
+    );
+    return $value;
+  }
+}
+
+/**
+ * Implements hook_site_commerce_identificator().
+ */
+function site_commerce_auto_site_commerce_identifier($position) {
+  if ($position->type == 'site_commerce_auto') {
+    if ($position->field_site_commerce_code) {
+      $position->identifier = $position->field_site_commerce_code;
+    }
+    else {
+      $position->identifier = $position->pid;
+    }
+  }
+}
+
+/**
+* Implementation of hook_site_commerce_term_validate().
+*/
+function site_commerce_auto_site_commerce_term_validate($term) {
+  // Создаём параметр валидации термина.
+  if (!isset($term->validate)) {
+    $term->validate = FALSE;
+  }
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_auto_vocabulary');
+  if ($term->vid == $vocabulary->vid) {
+    $term->validate = TRUE;
+  }
+}
+
+/**
+ * Отображение перечня товаров по категории.
+ */
+function site_commerce_auto_catalog_load() {
+  $output = '';
+
+  if (variable_get('site_commerce_auto_price', FALSE)) {
+    $output = site_commerce_auto_price();
+  }
+  else {
+    $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_auto_vocabulary');
+    $output = site_commerce_catalog_load($vocabulary->vid);
+  }
+
+  return $output;
+}
+
+/**
+ * Отключаем видимость всех позиций перед импортом.
+ */
+function site_commerce_auto_reset() {
+  db_update('site_commerce')
+    ->fields(array('disabled' => 1))
+    ->condition('type', 'site_commerce_auto')
+    ->execute();
+}
+
+/**
+ * Формируем перечень дочерних терминов.
+ */
+function site_commerce_auto_ajax_get_models($form, &$form_state) {
+  // Возвращаем элемент формы, который должен быть перезагружен.
+  return $form['site_commerce_auto_model'];
+}
+
+/**
+ * Форма создания поиска.
+ */
+function site_commerce_auto_mark_form($form, &$form_state, $title = NULL) {
+  $form = array(
+    '#prefix' => '<div class="container-inline">',
+    '#suffix' => '</div>',
+  );
+
+  $form['site_commerce_auto_mark'] = array(
+    '#type' => 'select',
+    '#title' => t('Mark'),
+    '#options' => kvantstudio_select_terms('site_commerce_auto_categories_cars', TRUE, FALSE),
+    '#default_value' => '',
+    '#ajax' => array(
+      'callback' => 'site_commerce_auto_ajax_get_models',
+      'wrapper' => 'site-commerce-auto-models',
+      'method' => 'replace',
+      'effect' => 'fade',
+      'progress'=> array(
+        'type' => '',
+        'message' => '',
+        'url' => '',
+        'interval' => '500'
+      ),
+    ),
+  );
+
+  // Если сработал AJAX - в $form_state будут переданы все значения формы.
+  // Поэтому здесь проверка - если сработал AJAX - то значение берётся из
+  // отправленной формы.
+  $model = array();
+  if (isset($form_state['values']['site_commerce_auto_mark'])) {
+    $tid = $form_state['values']['site_commerce_auto_mark'];
+    $model = kvantstudio_taxonomy_get_children_all($tid, TRUE);
+  }
+
+  $form['site_commerce_auto_model'] = array(
+    '#type' => 'select',
+    '#title' => t('Model'),
+    '#options' => $model,
+    '#default_value' => '',
+    '#prefix' => '<div id = "site-commerce-auto-models">',
+    '#suffix' => '</div>',
+  );
+
+  $form['title'] = array(
+    '#type' => 'value',
+    '#value' => $title,
+  );
+
+  // Определяем элементы управления.
+  $form['actions'] = array(
+    '#weight' => 100,
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('To show on mark and model'),
+    '#submit' => array('site_commerce_auto_mark_form_submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * site_commerce_auto_mark_form_submit.
+ */
+function site_commerce_auto_mark_form_submit($form, &$form_state) {
+  $title = ($form_state['values']['title']);
+  $mark = taxonomy_term_load(($form_state['values']['site_commerce_auto_mark']))->name;
+  $model = taxonomy_term_load(($form_state['values']['site_commerce_auto_model']))->name;
+  $search_string = $title . " " . $mark . " " . $model;
+  if ($search_string) {
+    // Выполняем редирект.
+    $form_state['redirect'] = variable_get('site_commerce_catalog_link', 'tovary') . '/search/site-commerce-auto/' . $search_string;
+  }
+}
+
+/**
+ * Назначаем категорию каталога для позиции.
+ */
+function site_commerce_auto_set_tid($title) {
+  $title_array = explode(" ", $title);
+  $array_tids = array();
+  $tid = 0;
+
+  foreach ($title_array as $key) {
+    // Преобразуем слово в нижний регистр.
+    $key = trim(mb_strtolower($key, 'UTF-8'));
+    // Получаем перечень всех тегов.
+    $result = db_query('SELECT n.entity_id, n.field_site_commerce_tags_value FROM {field_data_field_site_commerce_tags} n');
+    foreach ($result as $row) {
+      // Получаем массив тегов по категории.
+      if (isset($row->field_site_commerce_tags_value)) {
+        $tags_array = explode(" ", trim(mb_strtolower($row->field_site_commerce_tags_value, 'UTF-8')));
+        if (in_array($key, $tags_array)) {
+          if (isset($array_tids[$row->entity_id] )) {
+            $array_tids[$row->entity_id] = $array_tids[$row->entity_id] + 1;
+          }
+          else {
+            $array_tids[$row->entity_id] = 1;
+          }
+        }
+      }
+    }
+  }
+
+  // Определяем tid по максимальному значению в массиве.
+  if (count($array_tids)) {
+    $max_value = max($array_tids);
+    $array_tids = array_flip($array_tids);
+    $tid = $array_tids[$max_value];
+  }
+
+  if ($tid > 0) {
+    $field_site_commerce_auto_term = $tid;
+  }
+  else {
+    $field_site_commerce_auto_term = variable_get('site_commerce_auto_default_term');
+  }
+
+  return $field_site_commerce_auto_term;
+}
+
+/**
+ * Implementation of hook_site_commerce_data.
+ */
+function site_commerce_auto_site_commerce_data($variables) {
+  if ($variables['type'] == 'site_commerce_auto') {
+    $field_name_allowed = array(
+      'field_site_commerce_oem',
+      'field_site_commerce_orig',
+      'field_site_commerce_trade_mark',
+      'field_site_commerce_car',
+    );
+    return $field_name_allowed;
+  }
+}
+
+/**
+* Implementation of hook_search_execute().
+*/
+function site_commerce_auto_search_execute($keys = NULL, $conditions = NULL) {
+  $find = site_commerce_search_execute($keys, $conditions);
+  return $find;
+}
+
+/**
+ * Implements hook_search_page().
+ */
+function site_commerce_auto_search_page($results) {
+  $output = site_commerce_search_page($results);
+  return drupal_render($output);
+}
+
+/**
+ * Implements hook_cron().
+ */
+function site_commerce_auto_cron() {
+  //Подключаем инструменты для чтения Excel-файла и открываем файл.
+	require_once drupal_get_path('module', 'kvantstudio') . '/includes/excel_reader2.php';
+
+  // Определяем выполнять ли импорт позиций из файла.
+  // Определяем хэш предыдущего и текущего файла для импорта.
+  $site_commerce_hash_imported_positions = variable_get('site_commerce_hash_imported_positions', "0");
+
+  // Параметр полного импорта позиций из файла.
+  $site_commerce_import_positions_complete = FALSE;
+
+  // Проверяем существует ли файл для импорта.
+  $file = 'sites/default/files/import/import.xls';
+  if(file_exists($file)) {
+    $site_commerce_hash_positions = md5_file($file);
+
+    // Выполняем импорт позиций из файла.
+    // Импорт выполняем порциями.
+    if ($site_commerce_hash_imported_positions <> $site_commerce_hash_positions) {
+      $excel_reader = new Spreadsheet_Excel_Reader($file, FALSE);
+
+      //Количество строк.
+      $xlsrcnt = $excel_reader->sheets[0]['numRows'] + 1;
+
+      $data = array();
+
+      // Определяем с какой строки начать импорт.
+      $start = variable_get('site_commerce_import_cron_row', 1);
+      if ($start == 1) {
+        db_truncate('site_commerce_import')->execute();
+      }
+
+      for($i = $start; $i < $xlsrcnt && $i < $start+5000; $i++) {
+        // Формируем данные.
+        $data[1] = $excel_reader->val($i, 1);
+        $data[2] = $excel_reader->val($i, 2);
+        $data[3] = $excel_reader->val($i, 3);
+        $data[4] = $excel_reader->val($i, 4);
+        $data[5] = $excel_reader->val($i, 5);
+        $data[6] = $excel_reader->val($i, 6);
+        $data[7] = $excel_reader->val($i, 7);
+        $data[8] = $excel_reader->val($i, 8);
+        $data[9] = $excel_reader->val($i, 9);
+        $data[10] = $excel_reader->val($i, 10);
+        $data[11] = $excel_reader->val($i, 11);
+        $data[12] = $excel_reader->val($i, 12);
+        $data[13] = $excel_reader->val($i, 13);
+        $data[14] = $excel_reader->val($i, 14);
+        $data[15] = $excel_reader->val($i, 15);
+        $data[16] = $excel_reader->val($i, 16);
+        $data[17] = $excel_reader->val($i, 17);
+        $data[18] = $excel_reader->val($i, 18);
+        $data[19] = $excel_reader->val($i, 19);
+
+        // Сохраняем данные.
+        $data_save = array(
+          'pid' => $data[1],
+          'value' => serialize($data),
+        );
+        drupal_write_record('site_commerce_import', $data_save);
+
+        variable_set('site_commerce_import_cron_row', $i);
+      }
+
+      // Если импорт не выполнен.
+      if ($i > $xlsrcnt) {
+        // Если импорт выполнен.
+        variable_set('site_commerce_import_cron_row', 1);
+        variable_set('site_commerce_hash_imported_positions', md5_file($file));
+        drupal_set_message(t('The file with the goods fully imported.'));
+      }
+    }
+    else {
+      $site_commerce_import_positions_complete = TRUE;
+      drupal_set_message(t('The file with the goods had previously been imported. The changes are not made.'));
+    }
+  }
+
+  // Если позиции импортированы. Выполняем их регистрацию в таблице товаров.
+  // Определяем количество товаров для импорта.
+  $count = db_query('SELECT 1 FROM {site_commerce_import}')->rowCount();
+  if ($site_commerce_import_positions_complete && $count) {
+    // Определяем с какой строки начать импорт.
+    $start = variable_get('site_commerce_import_cron_row', 1);
+    module_load_include('inc', 'site_commerce_auto', 'site_commerce_auto.import');
+
+    for($i = $start; $i < $count && $i < $start+1500; $i++) {
+      $row = db_query('SELECT n.value FROM {site_commerce_import} n WHERE n.import_id = :import_id', array(':import_id' => $i))->fetchField();
+      $data = unserialize($row);
+      site_commerce_auto_import_save($data);
+      variable_set('site_commerce_import_cron_row', $i);
+    }
+
+    // Если импорт не выполнен.
+    if ($i < $count) {
+      drupal_set_message(t("Import goods from the !start to the !end position from !count.", array('!start' => $start, '!end' => $i, '!count' => $count)));
+    }
+    else {
+      // Если импорт выполнен.
+      variable_set('site_commerce_import_cron_row', 1);
+      db_truncate('site_commerce_import')->execute();
+      drupal_set_message(t('The file with the goods fully imported.'));
+    }
+  }
+}
+
+/**
+ * Создает массив доступных для импорта ключей-полей в БД.
+ */
+function site_commerce_auto_site_commerce_import_keys_fields($keys_fields) {
+  $keys_fields += array(
+    'oem' => t('OEM') . ' OEM',
+  );
+  return $keys_fields;
+}

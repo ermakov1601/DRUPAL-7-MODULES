@@ -1,0 +1,9 @@
+.site-commerce-auto-applicability {
+    display: inline-block;
+    height: 48px;
+    overflow: hidden;
+}
+.site-commerce-auto-applicability-note a:link {
+   text-decoration: none;
+   border-bottom: dotted;
+}

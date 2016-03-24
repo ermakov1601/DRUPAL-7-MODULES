@@ -1,0 +1,267 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  site_commerce_auto.delete.csv.inc: n/a
+#  site_commerce_auto.module: n/a
+#  site_commerce_auto.import.csv.inc: n/a
+#  site_commerce_auto.import.inc: n/a
+#  site_commerce_auto.taxonomy.inc: n/a
+#  site_commerce_auto.settings.inc: n/a
+#  site_commerce_auto.install: n/a
+#  site_commerce_auto.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2015-08-15 01:12+0500\n"
+"PO-Revision-Date: 2015-08-15 01:16+0500\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: site_commerce_auto.delete.csv.inc:7 site_commerce_auto.module:33
+msgid "Delete positions"
+msgstr "Удалить позиции"
+
+#: site_commerce_auto.delete.csv.inc:20 site_commerce_auto.import.csv.inc:18
+msgid "Choose CSV a file for import"
+msgstr "Выберите CSV файл для импорта"
+
+#: site_commerce_auto.delete.csv.inc:22 site_commerce_auto.import.csv.inc:20 site_commerce_auto.import.inc:27
+msgid "The <strong>maximum upload file size is !max_size</strong>."
+msgstr "<strong>Максимальный размер загружаемого файла !max_size</strong>."
+
+#: site_commerce_auto.delete.csv.inc:27
+msgid "To execute delete"
+msgstr "Выполнить удаление"
+
+#: site_commerce_auto.delete.csv.inc:59 site_commerce_auto.import.csv.inc:57 site_commerce_auto.import.inc:71
+msgid "Unable to copy upload file to !dest."
+msgstr "Невозможно скопировать загруженный файл в !dest."
+
+#: site_commerce_auto.delete.csv.inc:89 site_commerce_auto.import.csv.inc:73 site_commerce_auto.import.inc:87
+msgid "Unable to read uploaded file !filepath."
+msgstr "Невозможно прочитать загруженный файл !filepath."
+
+#: site_commerce_auto.delete.csv.inc:100 site_commerce_auto.import.csv.inc:84 site_commerce_auto.import.inc:98
+msgid "Import of positions is carried out, wait..."
+msgstr "Выполняется импорт позиций, подождите..."
+
+#: site_commerce_auto.delete.csv.inc:102 site_commerce_auto.import.csv.inc:86 site_commerce_auto.import.inc:100 site_commerce_auto.taxonomy.inc:33
+msgid "Preparation of data"
+msgstr "Подготовка данных"
+
+#: site_commerce_auto.delete.csv.inc:103 site_commerce_auto.import.csv.inc:87 site_commerce_auto.import.inc:101 site_commerce_auto.taxonomy.inc:34
+msgid "It is executed @current from @total."
+msgstr "Выполнено @current из @total."
+
+#: site_commerce_auto.delete.csv.inc:104 site_commerce_auto.import.csv.inc:88 site_commerce_auto.import.inc:102 site_commerce_auto.taxonomy.inc:35
+msgid "An error occurred during processing."
+msgstr "Во время выполнения произошла ошибка."
+
+#: site_commerce_auto.delete.csv.inc:168
+msgid "The position has been deleted %title"
+msgstr "Позиция была удалена %title"
+
+#: site_commerce_auto.delete.csv.inc:171
+msgid "The position is not found %title"
+msgstr "Позиция не найдена %title"
+
+#: site_commerce_auto.delete.csv.inc:186 site_commerce_auto.import.csv.inc:161 site_commerce_auto.import.inc:358
+msgid "Import of a file <strong>@file</strong> is completed."
+msgstr "Импорт файла <strong>@file</strong> завершен."
+
+#: site_commerce_auto.delete.csv.inc:189 site_commerce_auto.import.csv.inc:164 site_commerce_auto.import.inc:361
+msgid "Import file <strong>@file</strong> completed with errors."
+msgstr "Импорт файла <strong>@file</strong> завершен с ошибками."
+
+#: site_commerce_auto.import.csv.inc:25 site_commerce_auto.import.inc:39
+msgid "To execute import"
+msgstr "Выполнить импорт"
+
+#: site_commerce_auto.import.csv.inc:144 site_commerce_auto.import.inc:196
+msgid "The position has been added %title"
+msgstr "Добавлена позиция %title"
+
+#: site_commerce_auto.import.inc:12 site_commerce_auto.module:25
+msgid "Import"
+msgstr "Импорт"
+
+#: site_commerce_auto.import.inc:25
+msgid "Choose file for import"
+msgstr "Выберите файл для импорта"
+
+#: site_commerce_auto.import.inc:31
+msgid "Continue import from line @line"
+msgstr "Продолжить импорт со строки @line"
+
+#: site_commerce_auto.settings.inc:16
+msgid "Edit"
+msgstr "Правка"
+
+#: site_commerce_auto.settings.inc:24
+msgid "Basic settings"
+msgstr "Основные настройки"
+
+#: site_commerce_auto.settings.inc:30
+msgid "Category of the goods by default"
+msgstr "Категория товаров по умолчанию"
+
+#: site_commerce_auto.settings.inc:51
+msgid "Access denied"
+msgstr "Доступ запрещен"
+
+#: site_commerce_auto.taxonomy.inc:19 site_commerce_auto.module:41
+msgid "Update the categories of positions"
+msgstr "Обновить категории у позиций"
+
+#: site_commerce_auto.taxonomy.inc:31
+msgid "The update is in progress, please wait..."
+msgstr "Идет процесс обновления, подождите..."
+
+#: site_commerce_auto.taxonomy.inc:88
+msgid "Update categories of positions successfully completed."
+msgstr "Обновление категорий позиций успешно завершено."
+
+#: site_commerce_auto.taxonomy.inc:91
+msgid "Update categories of positions completed with errors."
+msgstr "Обновление категорий позиций завершено с ошибками."
+
+#: site_commerce_auto.module:163
+msgid "Mark"
+msgstr "Марка"
+
+#: site_commerce_auto.module:191
+msgid "Model"
+msgstr "Модель"
+
+#: site_commerce_auto.module:209
+msgid "To show on mark and model"
+msgstr "Показать по марке и модели"
+
+#: site_commerce_auto.module:379;411
+msgid "The file with the goods fully imported."
+msgstr "Файл успешно импортирован."
+
+#: site_commerce_auto.module:384
+msgid "The file with the goods had previously been imported. The changes are not made."
+msgstr "Загруженный файл был ранее импортирован. Изменения не вносились."
+
+#: site_commerce_auto.module:405
+msgid "Import goods from the !start to the !end position from !count."
+msgstr "Импорт товаров c !start по !end из !count."
+
+#: site_commerce_auto.module:421
+msgid "OEM"
+msgstr "Номер производителя"
+
+#: site_commerce_auto.module:17
+msgid "Set up catalogue of autospare parts"
+msgstr "Настройки каталога автозапчастей"
+
+#: site_commerce_auto.install:641
+msgid "Categories of autospare parts"
+msgstr "Категории автозапчастей"
+
+#: site_commerce_auto.install:642
+msgid "The dictionary for accommodation of categories of autospare parts."
+msgstr "Словарь для категорий автозапчастей."
+
+#: (duplicate) site_commerce_auto.install:745;300
+msgid "OEM number"
+msgstr "OEM номер"
+
+#: (duplicate) site_commerce_auto.install:761;308
+msgid "Catalogue number"
+msgstr "Каталожный номер"
+
+#: (duplicate) site_commerce_auto.install:777;322
+msgid "Manufacturer product"
+msgstr "Производитель изделия"
+
+#: (duplicate) site_commerce_auto.install:793;344
+msgid "Unique number of a product RecID"
+msgstr "Уникальный номер изделия RecID"
+
+#: (duplicate) site_commerce_auto.install:821;83
+msgid "Categories of auto parts"
+msgstr "Категории автозапчастей"
+
+#: (duplicate) site_commerce_auto.install:822;831;85
+msgid "The dictionary for accommodation of categories of auto parts."
+msgstr "Словарь для категорий автозапчастей."
+
+#: (duplicate) site_commerce_auto.install:830;95
+msgid "Other auto parts"
+msgstr "Прочие автозапчасти"
+
+#: (duplicate) site_commerce_auto.install:837;22
+msgid "Auto part"
+msgstr "Автозапчасть"
+
+#: (duplicate) site_commerce_auto.install:838;23
+msgid "Type product, which is designed to create the directory auto parts and accessories."
+msgstr "Тип продукта, который предназначен для создания каталога автозапчастей и аксессуаров."
+
+#: (duplicate) site_commerce_auto.install:56
+msgid "Body"
+msgstr "Содержимое"
+
+#: (duplicate) site_commerce_auto.install:107
+msgid "Marks and models of cars"
+msgstr "Марки и модели автомобилей"
+
+#: (duplicate) site_commerce_auto.install:275
+msgid "Part number"
+msgstr "Артикул"
+
+#: (duplicate) site_commerce_auto.install:283
+msgid "Category"
+msgstr "Категория"
+
+#: (duplicate) site_commerce_auto.install:292
+msgid "Сontractor"
+msgstr "Поставщик"
+
+#: (duplicate) site_commerce_auto.install:336
+msgid "Car"
+msgstr "Автомобиль"
+
+#: (duplicate) site_commerce_auto.install:352
+msgid "Unique number of a product SupID"
+msgstr "Уникальный номер изделия SupID"
+
+#: (duplicate) site_commerce_auto.install:360
+msgid "Cost"
+msgstr "Стоимость"
+
+#: (duplicate) site_commerce_auto.install:385
+msgid "Quantity in stock"
+msgstr "Кол-во на складе"
+
+#: (duplicate) site_commerce_auto.install:403
+msgid "Unit of measure of quantity"
+msgstr "Единица измерения кол-ва"
+
+#: (duplicate) site_commerce_auto.install:411
+msgid "Image"
+msgstr "Изображение"
+
+#: site_commerce_auto.info:0
+msgid "Site commerce auto"
+msgstr "Site commerce auto"
+
+#: site_commerce_auto.info:0
+msgid "Online store of autospare parts."
+msgstr "Интернет-магазин автозапчастей."
+
+#: site_commerce_auto.info:0
+msgid "Kvantstudio"
+msgstr "Kvantstudio"
