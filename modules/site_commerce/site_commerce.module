@@ -7434,7 +7434,7 @@ function site_commerce_category_path($term) {
  */
 function site_commerce_import_keys_fields() {
   $keys_fields = array(
-    'pid' => t('Product Id table site_commerce'),
+    'pid' => t('ID product'),
     'code' => t('Part number'),
   );
 

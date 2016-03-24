@@ -119,6 +119,14 @@ function site_commerce_import_form_submit($form, &$form_state) {
 
   setlocale(LC_ALL, 'ru_RU.UTF-8');
 
+  // Подготавливаем директории.
+  $directory = file_default_scheme() . '://import_pictures';
+  file_unmanaged_delete_recursive($directory);
+	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+  $directory = file_default_scheme() . '://pictures/site_commerce';
+	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
   if (isset($form_state['values']['file_upload'])) {
     if (($handle = fopen($form_state['values']['file_upload'], "r")) !== FALSE) {
       $batch['operations'][] = array('site_commerce_import_filename', array($form_state['values']['filename']));
@@ -276,7 +284,7 @@ function site_commerce_import_save($data) {
 
     // Подготавливаем директорию для импорта.
     $directory = file_default_scheme() . '://import_pictures';
-    if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    if (file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS)) {
       // Импортируем файл.
       site_commerce_save_image($url, $destination);
 
@@ -288,7 +296,6 @@ function site_commerce_import_save($data) {
         $file->uri = $destination;
 
         $directory = file_default_scheme() . '://pictures/site_commerce';
-
         if (file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS)) {
           $destination = $directory . '/' . $filename;
           $file->uid  = $user->uid;

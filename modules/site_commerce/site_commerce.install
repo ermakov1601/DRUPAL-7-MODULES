@@ -3295,3 +3295,15 @@ function site_commerce_update_7059() {
 
   return 'Language updated.';
 }
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7060() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  return 'Language updated.';
+}
