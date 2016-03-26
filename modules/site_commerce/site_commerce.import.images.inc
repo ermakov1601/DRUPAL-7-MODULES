@@ -221,7 +221,9 @@ function site_commerce_import_save(&$data) {
   $delete = (int) $data['delete']; // Удалить все файлы.
 
   // Идентификатор по умолчанию.
-  $pid = (int) $value;
+  if ($field == 'pid') {
+    $pid = db_query("SELECT n.pid FROM {site_commerce} n WHERE n.pid = :value", array(':value' => (int) $value))->fetchField();
+  }
 
   // Если поиск по артикулу.
   if ($field == 'code') {
@@ -235,11 +237,14 @@ function site_commerce_import_save(&$data) {
 
   // Загружаем товар.
   $site_commerce = new stdClass();
-  $site_commerce = site_commerce_load($pid);
+  $site_commerce->pid = 0;
+  if ($pid && is_numeric($pid)) {
+    $site_commerce = site_commerce_load($pid);
+  }
 
   $data['title'] = "";
-  if (is_object($site_commerce)) {
 
+  if ($site_commerce->pid) {
     // Удаление файлов.
     if ($delete) {
       // Получаем файлы изображений.
