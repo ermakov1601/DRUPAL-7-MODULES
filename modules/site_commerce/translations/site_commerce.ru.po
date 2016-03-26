@@ -1972,3 +1972,9 @@ msgstr "Включите для переопределения ссылок эт
 
 msgid "ID product"
 msgstr "Идентификатор товара"
+
+msgid "The images has been added for position: <b>%title</b>."
+msgstr "Изображения добавлены для позиции: <b>%title</b>."
+
+msgid "The key <b>%title</b> not found."
+msgstr "Идентификатор <b>%title</b> не найден."

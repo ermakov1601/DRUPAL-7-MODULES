@@ -93,6 +93,19 @@ function site_commerce_import_form_validate_fileupload($form, &$form_state) {
  */
 function site_commerce_import_form_validate($form, &$form_state) {
   if (isset($form_state['values']['file_upload'])) {
+    // Подготавливаем директории.
+    $directory = file_default_scheme() . '://import_pictures';
+    file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+    file_unmanaged_delete_recursive($directory);
+  	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+    $directory = file_default_scheme() . '://styles';
+    file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+    file_unmanaged_delete_recursive($directory);
+
+    $directory = file_default_scheme() . '://pictures/site_commerce';
+  	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
     if (($handle = fopen($form_state['values']['file_upload'], "r")) !== FALSE) {
       fclose($handle);
     }
@@ -119,14 +132,6 @@ function site_commerce_import_form_submit($form, &$form_state) {
 
   setlocale(LC_ALL, 'ru_RU.UTF-8');
 
-  // Подготавливаем директории.
-  $directory = file_default_scheme() . '://import_pictures';
-  file_unmanaged_delete_recursive($directory);
-	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
-
-  $directory = file_default_scheme() . '://pictures/site_commerce';
-	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
-
   if (isset($form_state['values']['file_upload'])) {
     if (($handle = fopen($form_state['values']['file_upload'], "r")) !== FALSE) {
       $batch['operations'][] = array('site_commerce_import_filename', array($form_state['values']['filename']));
@@ -136,25 +141,17 @@ function site_commerce_import_form_submit($form, &$form_state) {
       //Количество строк.
 		  $xlsrcnt = $excel_reader->sheets[0]['numRows'] + 1;
 
-      $delete_exist = 0;
-
       $data = array();
+
       for($i = 1; $i < $xlsrcnt; $i++) {
-        if ($form_state['values']['delete'] && !$delete_exist) {
-          $delete = 1;
-        }
-        else {
-          $delete = 0;
-        }
+
         if (!in_array($excel_reader->val($i, 1), site_commerce_import_keys_fields())) {
           // Формируем данные.
           $data['field'] = $form_state['values']['field'];
           $data['value'] = $excel_reader->val($i, 1);
           $data['url'] = $excel_reader->val($i, 2);
           $data['title_suffix'] = $excel_reader->val($i, 3);
-          $data['delete'] = $delete;
-
-          $delete_exist = 1;
+          $data['delete'] = $form_state['values']['delete'];
 
           $batch['operations'][] = array('site_commerce_import_data', array(array_map('base64_encode', $data)));
         }
@@ -194,7 +191,14 @@ function site_commerce_import_data($data, &$context) {
 
   site_commerce_import_save($data);
 
-  $context['message'] = t('The position has been added %title', array('%title' => trim($data['key'])));
+  if ($data['title']) {
+    $context['message'] = t('The images has been added for position: <b>%title</b>.', array('%title' => $data['title']));
+  }
+  else {
+    $context['message'] = t('The key <b>%title</b> not found.', array('%title' => trim($data['value'])));
+    watchdog('site_commerce_import_images', t('The key <b>%title</b> not found.', array('%title' => trim($data['value']))), NULL, WATCHDOG_WARNING);
+    drupal_set_message(t('The key <b>%title</b> not found.', array('%title' => trim($data['value']))), 'warning');
+  }
 
   /**
    * In order to slow importing and debug better, we can uncomment
@@ -206,7 +210,7 @@ function site_commerce_import_data($data, &$context) {
 /**
  * Сохраняем данные в БД.
  */
-function site_commerce_import_save($data) {
+function site_commerce_import_save(&$data) {
   global $user;
 
   // Описание массива, строки входных данных передаваемых из csv файла.
@@ -216,31 +220,26 @@ function site_commerce_import_save($data) {
   $title_suffix = trim($data['title_suffix']);
   $delete = (int) $data['delete']; // Удалить все файлы.
 
-  // Создаем обьект позиции.
-  $site_commerce = new stdClass();
-
   // Идентификатор по умолчанию.
-  $pid = $value;
+  $pid = (int) $value;
 
   // Если поиск по артикулу.
   if ($field == 'code') {
     $pid = db_query("SELECT n.entity_id FROM {field_data_field_site_commerce_code} n WHERE n.field_site_commerce_code_value = :value", array(':value' => $value))->fetchField();
   }
 
-  // Идентификатор для подсистемы автозапчастей.
+  // Если поиск по oem.
   if ($field == 'oem') {
     $pid = db_query("SELECT n.entity_id FROM {field_data_field_site_commerce_oem} n WHERE n.field_site_commerce_oem_value = :value", array(':value' => $value))->fetchField();
   }
 
-  // Если не удалось определить идентификатор товара.
-  if (!$pid) {
-    exit();
-  }
-
   // Загружаем товар.
+  $site_commerce = new stdClass();
   $site_commerce = site_commerce_load($pid);
 
+  $data['title'] = "";
   if (is_object($site_commerce)) {
+
     // Удаление файлов.
     if ($delete) {
       // Получаем файлы изображений.
@@ -315,6 +314,7 @@ function site_commerce_import_save($data) {
 
       // Сохранение позиции.
       site_commerce_save($site_commerce);
+      $data['title'] = $site_commerce->title;
     }
   }
 }
@@ -339,8 +339,15 @@ function site_commerce_save_image($url, $destination) {
 function site_commerce_import_finished($success, $results, $operations) {
   if ($success) {
     if (isset($results['uploaded_filename'])) {
-      $uri = file_default_scheme() . '://styles';
-      file_unmanaged_delete_recursive($uri);
+      // Очищаем директории.
+      $directory = file_default_scheme() . '://import_pictures';
+      file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+      file_unmanaged_delete_recursive($directory);
+    	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+      $directory = file_default_scheme() . '://styles';
+      file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+      file_unmanaged_delete_recursive($directory);
 
       drupal_set_message(t('Import of a file <strong>@file</strong> is completed.', array('@file' => $results['uploaded_filename'])));
     }

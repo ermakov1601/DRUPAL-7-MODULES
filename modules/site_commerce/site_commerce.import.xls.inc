@@ -63,6 +63,19 @@ function site_commerce_import_form_validate_fileupload($form, &$form_state) {
   ) ;
 
   if ($file = file_save_upload('file', $validators)) {
+    // Подготавливаем директории.
+    $directory = file_default_scheme() . '://import_pictures';
+    file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+    file_unmanaged_delete_recursive($directory);
+  	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+    $directory = file_default_scheme() . '://styles';
+    file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+    file_unmanaged_delete_recursive($directory);
+
+    $directory = file_default_scheme() . '://pictures/site_commerce';
+  	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
     // The file was saved using file_save_upload() and was added to
     // the files table as a temporary file. We'll make a copy and let
     // the garbage collector delete the original upload.
@@ -428,9 +441,18 @@ function site_commerce_import_save($data) {
 function site_commerce_import_xls_finished($success, $results, $operations) {
   if ($success) {
     if (isset($results['uploaded_filename'])) {
-      $uri = file_default_scheme() . '://styles';
-      file_unmanaged_delete_recursive($uri);
+      // Очищаем директории.
+      $directory = file_default_scheme() . '://import_pictures';
+      file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+      file_unmanaged_delete_recursive($directory);
+    	file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+
+      $directory = file_default_scheme() . '://styles';
+      file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS);
+      file_unmanaged_delete_recursive($directory);
+
       variable_set('site_commerce_import_row', 0);
+
       drupal_set_message(t('Import of a file <strong>@file</strong> is completed.', array('@file' => $results['uploaded_filename'])));
     }
     else {

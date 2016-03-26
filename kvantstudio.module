@@ -1490,7 +1490,8 @@ function kvantstudio_array_search($string, $array) {
  * Возвращает расширение файла.
  */
 function kvantstudio_get_extension($filename) {
-  return end(explode(".", $filename));
+  $explode = explode(".", $filename);
+  return end($explode);
 }
 
 /**

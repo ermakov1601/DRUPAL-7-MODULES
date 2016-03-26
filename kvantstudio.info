@@ -1,6 +1,6 @@
 name = KVANTSTUDIO
 description = "Library of functions."
-version = "1.36"
+version = "1.37"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/settings
