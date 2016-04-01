@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file
@@ -125,10 +124,10 @@ function site_photogallery_menu() {
   $languages = $languages[1];
 
   foreach ($languages as $language) {
-    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $language->language);
+    $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $language->language);
     $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
     $items[$site_photogallery_link] = array(
-      'title' => variable_get('site_photogallery_catalog_title', 'Photo albums'),
+      'title' => variable_get('site_photogallery_title', 'Photo albums'),
       'page callback' => 'site_photogallery_categories',
       'access arguments' => array('view site photogallery content'),
       'type' => MENU_NORMAL_ITEM,
@@ -208,111 +207,111 @@ function site_photogallery_taxonomy_term_load($terms) {
   }
 }
 
-/**
-* Implementation of hook_taxonomy_term_insert().
-*/
-function site_photogallery_taxonomy_term_insert($term) {
-  global $language;
-  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
-  if ($term->vid == $vocabulary->vid) {
-    // Определяем язык термина.
-    $term->language = isset($term->language) ? $term->language : $language->language;
+///**
+//* Implementation of hook_taxonomy_term_insert().
+//*/
+//function site_photogallery_taxonomy_term_insert($term) {
+//  global $language;
+//  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+//  if ($term->vid == $vocabulary->vid) {
+//    // Определяем язык термина.
+//    $term->language = isset($term->language) ? $term->language : $language->language;
+//
+//    $alias = '';
+//    $parents = taxonomy_get_parents_all($term->tid);
+//    while ($parents) {
+//      $current = array_shift($parents);
+//      if ($alias) {
+//        $alias = $current->name . '/' . $alias;
+//      }
+//      else {
+//        $alias = $current->name;
+//      }
+//    }
+//
+//    $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $term->language);
+//    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+//
+//    $alias = kvantstudio_url_alias_correct($alias);
+//    if ($site_photogallery_link <> $alias) {
+//      $alias = $site_photogallery_link . '/' . $alias;
+//    }
+//    $alias = kvantstudio_url_alias_correct($alias);
+//
+//    // Проверяем существует ли путь.
+//    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+//    if ($count) {
+//    $result = db_update('url_alias')
+//      ->fields(array(
+//        'alias' => $alias,
+//        'language' => $term->language,
+//      ))
+//      ->condition('source', 'taxonomy/term/' . $term->tid)
+//      ->execute();
+//    }
+//    else {
+//      // Если путь не создан.
+//      $path = array();
+//      $path['source'] = 'taxonomy/term/' . $term->tid;
+//      $path['alias'] = $alias;
+//      $path['language'] = $term->language;
+//      path_save($path);
+//    }
+//  }
+//}
 
-    $alias = '';
-    $parents = taxonomy_get_parents_all($term->tid);
-    while ($parents) {
-      $current = array_shift($parents);
-      if ($alias) {
-        $alias = $current->name . '/' . $alias;
-      }
-      else {
-        $alias = $current->name;
-      }
-    }
-
-    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $term->language);
-    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
-
-    $alias = kvantstudio_url_alias_correct($alias);
-    if ($site_photogallery_link <> $alias) {
-      $alias = $site_photogallery_link . '/' . $alias;
-    }
-    $alias = kvantstudio_url_alias_correct($alias);
-
-    // Проверяем существует ли путь.
-    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
-    if ($count) {
-    $result = db_update('url_alias')
-      ->fields(array(
-        'alias' => $alias,
-        'language' => $term->language,
-      ))
-      ->condition('source', 'taxonomy/term/' . $term->tid)
-      ->execute();
-    }
-    else {
-      // Если путь не создан.
-      $path = array();
-      $path['source'] = 'taxonomy/term/' . $term->tid;
-      $path['alias'] = $alias;
-      $path['language'] = $term->language;
-      path_save($path);
-    }
-  }
-}
-
-/**
-* Implementation of hook_taxonomy_term_update($term).
-*/
-function site_photogallery_taxonomy_term_update($term) {
-  global $language;
-  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
-  if ($term->vid == $vocabulary->vid) {
-    // Определяем язык термина.
-    $term->language = isset($term->language) ? $term->language : $language->language;
-
-    $alias = '';
-    $parents = taxonomy_get_parents_all($term->tid);
-    while ($parents) {
-      $current = array_shift($parents);
-      if ($alias) {
-        $alias = $current->name . '/' . $alias;
-      }
-      else {
-        $alias = $current->name;
-      }
-    }
-
-    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $term->language);
-    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
-
-    $alias = kvantstudio_url_alias_correct($alias);
-    if ($site_photogallery_link <> $alias) {
-      $alias = $site_photogallery_link . '/' . $alias;
-    }
-    $alias = kvantstudio_url_alias_correct($alias);
-
-    // Проверяем существует ли путь.
-    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
-    if ($count) {
-    $result = db_update('url_alias')
-      ->fields(array(
-        'alias' => $alias,
-        'language' => $term->language,
-      ))
-      ->condition('source', 'taxonomy/term/' . $term->tid)
-      ->execute();
-    }
-    else {
-      // Если путь не создан.
-      $path = array();
-      $path['source'] = 'taxonomy/term/' . $term->tid;
-      $path['alias'] = $alias;
-      $path['language'] = $term->language;
-      path_save($path);
-    }
-  }
-}
+///**
+//* Implementation of hook_taxonomy_term_update($term).
+//*/
+//function site_photogallery_taxonomy_term_update($term) {
+//  global $language;
+//  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
+//  if ($term->vid == $vocabulary->vid) {
+//    // Определяем язык термина.
+//    $term->language = isset($term->language) ? $term->language : $language->language;
+//
+//    $alias = '';
+//    $parents = taxonomy_get_parents_all($term->tid);
+//    while ($parents) {
+//      $current = array_shift($parents);
+//      if ($alias) {
+//        $alias = $current->name . '/' . $alias;
+//      }
+//      else {
+//        $alias = $current->name;
+//      }
+//    }
+//
+//    $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $term->language);
+//    $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
+//
+//    $alias = kvantstudio_url_alias_correct($alias);
+//    if ($site_photogallery_link <> $alias) {
+//      $alias = $site_photogallery_link . '/' . $alias;
+//    }
+//    $alias = kvantstudio_url_alias_correct($alias);
+//
+//    // Проверяем существует ли путь.
+//    $count = db_query('SELECT n.pid FROM {url_alias} n WHERE n.source = :source', array(':source' => 'taxonomy/term/' . $term->tid))->fetchField();
+//    if ($count) {
+//    $result = db_update('url_alias')
+//      ->fields(array(
+//        'alias' => $alias,
+//        'language' => $term->language,
+//      ))
+//      ->condition('source', 'taxonomy/term/' . $term->tid)
+//      ->execute();
+//    }
+//    else {
+//      // Если путь не создан.
+//      $path = array();
+//      $path['source'] = 'taxonomy/term/' . $term->tid;
+//      $path['alias'] = $alias;
+//      $path['language'] = $term->language;
+//      path_save($path);
+//    }
+//  }
+//}
 
 /**
 * Implementation of hook_taxonomy_term_delete.
@@ -346,13 +345,13 @@ function site_photogallery_node_view($node, $view_mode, $langcode) {
     // Количество терминов.
     $term_data = site_photogallery_taxonomy_tree('site_photogallery_vocabulary');
 
-    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $langcode);
+    $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $langcode);
     $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
 
     // Формируем breadcrumb ссылки.
     $breadcrumb = array();
     $breadcrumb[] = l(t('Home'), '<front>');
-    $breadcrumb[] = l(t(variable_get('site_photogallery_catalog_title', 'Photo albums')), $site_photogallery_link);
+    $breadcrumb[] = l(t(variable_get('site_photogallery_title', 'Photo albums')), $site_photogallery_link);
     if ($term_data) {
       while (count($parents) - 1) {
         $current = array_shift($parents);
@@ -529,7 +528,7 @@ function site_photogallery_node_presave($node) {
       }
     }
     $title = kvantstudio_title_correct($node->title);
-    $site_photogallery_link = locale(variable_get('site_photogallery_catalog_title', 'Photo albums'), NULL, $language);
+    $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $language);
     $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
     $taxonomy_alias = kvantstudio_url_alias_correct($taxonomy_alias);
     if ($site_photogallery_link <> $taxonomy_alias) {
@@ -645,4 +644,70 @@ function site_photogallery_block_last_news_content($delta) {
         return $output;
       }
   }
+}
+
+/**
+ * Создаёт путь для токена [site-photogallery-term-path].
+ * Токен не зависимый от языка (не нейтральный!).
+ */
+function site_photogallery_term_path($term) {
+  global $language;
+
+  module_load_include('inc', 'pathauto');
+
+  // Определяем язык термина.
+  $term->language = isset($term->language) ? $term->language : $language->language;
+
+  // Путь по умолчанию для одного языка.
+  $path = pathauto_cleanstring(variable_get('site_photogallery_title', t('Photo albums')));
+
+  // Если активирован модуль поддержки перевода переменных (для мультиязычных сайтов).
+  if (module_exists("i18n_variable")) {
+    // Путь на текущем языке сайта.
+    $i18n_path = i18n_variable_get('site_photogallery_title', $term->language);
+    if ($i18n_path) {
+      $path = pathauto_cleanstring($i18n_path);
+    }
+  }
+
+  // Родители текущего термина.
+  $parents = array_reverse(taxonomy_get_parents_all($term->tid));
+
+  // Если существуют родители, формируем строку пути из названия терминов родителей.
+  if (count($parents)) {
+    while (count($parents) - 1) {
+      $current = array_shift($parents);
+      $path .= "/" . pathauto_cleanstring($current->name);
+    }
+  }
+
+  // Прикрепляем к пути текущий термин.
+  $path .= '/' . pathauto_cleanstring($term->name);
+
+  return $path;
+}
+
+/**
+ * Создаёт путь для токена [site-photogallery-node-path].
+ * Токен не зависимый от языка (не нейтральный!).
+ */
+function site_photogallery_node_path($node) {
+  module_load_include('inc', 'pathauto');
+
+  // Категория.
+  $field_items = field_get_items('node', $node, 'field_site_photogallery_taxonomy');
+  if ($field_items) {
+    $field_first_item = reset($field_items);
+    $tid = $field_first_item['tid'];
+  }
+
+  // Создаем новый алиас.
+  // Определяем существует ли такой путь в системе.
+  // Предотвращаем создание одинаковых путей в одной категории.
+  $source = 'taxonomy/term/' . $tid;
+  $path = path_load(array('source' => $source));
+
+  $node_path = $path['alias'] . '/' . pathauto_cleanstring($node->title);
+
+  return $node_path;
 }

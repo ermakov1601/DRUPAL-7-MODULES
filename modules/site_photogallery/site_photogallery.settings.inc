@@ -65,11 +65,10 @@ function site_photogallery_settings_form($form, &$form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['site_photogallery_systems_pages']['site_photogallery_catalog_title'] = array(
+  $form['site_photogallery_systems_pages']['site_photogallery_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Heading of page of the catalogue of photo albums'),
-    '#description' => t("Do not modify this value on your final site! The value must be in Latin, the word through the dash with a small letter. When the value of the don't forget to refresh the cache of the site."),
-    '#default_value' => variable_get('site_photogallery_catalog_title', 'Photo albums'),
+    '#default_value' => variable_get('site_photogallery_title', t('Photo albums')),
     '#required' => TRUE,
   );
 

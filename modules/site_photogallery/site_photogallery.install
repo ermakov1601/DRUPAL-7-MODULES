@@ -1,5 +1,4 @@
 <?php
-// $Id:
 
 /**
  * @file
@@ -53,6 +52,23 @@ function site_photogallery_install() {
   user_role_grant_permissions(1, $permissions);
   $permissions = array('view site photogallery content');
   user_role_grant_permissions(2, $permissions);
+
+  // Первоначальная настройка параметров по умолчанию.
+  _site_photogallery_default_settings();
+}
+
+/**
+ * Функция: первоначальная настройка параметров по умолчанию.
+ */
+function _site_photogallery_default_settings() {
+  // Инициализируем функцию перевода строк.
+  $t = get_t();
+
+  variable_initialize();
+
+  variable_set('site_photogallery_title', $t('Photo albums'));
+  variable_set('pathauto_node_site_photogallery_pattern', '[node:site-photogallery-node-path]');
+  variable_set('pathauto_taxonomy_term_site_photogallery_vocabulary_pattern', '[term:site-photogallery-term-path]');
 }
 
 /**
@@ -474,4 +490,22 @@ function site_photogallery_update_7005() {
   }
 
   return 'Role permissions updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_photogallery_update_7006() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_photogallery'));
+  }
+
+  variable_del('site_photogallery_catalog_title');
+
+  // Первоначальная настройка параметров по умолчанию.
+  _site_photogallery_default_settings();
+
+  //Перестраиваем меню.
+  menu_rebuild();
 }

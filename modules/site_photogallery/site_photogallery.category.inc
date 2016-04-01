@@ -162,7 +162,7 @@ function site_photogallery_category($tid, $page_view = TRUE) {
     // Формируем breadcrumb ссылки.
     $breadcrumb = array();
     $breadcrumb[] = l(t('Home'), '<front>');
-    $breadcrumb[] = l(t(variable_get('site_photogallery_catalog_title', 'Photo albums')), variable_get('site_photogallery_catalog_link', 'fotoalbomy'));
+    $breadcrumb[] = l(t(variable_get('site_photogallery_title', 'Photo albums')), variable_get('site_photogallery_catalog_link', 'fotoalbomy'));
     while (count($parents) - 1) {
       $current = array_shift($parents);
       $alias = db_query("SELECT n.alias FROM {url_alias} n WHERE n.source=:source", array(':source' => 'taxonomy/term/' . $current->tid))->fetchField();
@@ -336,7 +336,8 @@ function theme_site_photogallery_images($variables) {
         'width' => $row['width'],
         'height' => $row['height'],
         'attributes' => array(),
-        'class' => array('site-photogallery-colorbox'),
+        'attributes_link' => array('data-litebox-group' => 'site-commerce-litebox-images'),
+        'class' => array('litebox'),
         'link' => TRUE,
         'gid' => $row['fid'],
       );

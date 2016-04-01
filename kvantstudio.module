@@ -238,6 +238,7 @@ function theme_kvantstudio_image($variables) {
     }
     if ($variables['gid']) {
       $attributes += array('rel' => $variables['gid']);
+      $attributes += $variables['attributes_link'];
     }
     else {
       $attributes += array('rel' => 'nofollow');
