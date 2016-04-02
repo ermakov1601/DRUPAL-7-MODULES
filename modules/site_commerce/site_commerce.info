@@ -1,6 +1,6 @@
 name = Site commerce
 description = "Online store"
-version = "2.91"
+version = "2.92"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/site-commerce

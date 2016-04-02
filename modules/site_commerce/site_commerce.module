@@ -1719,7 +1719,7 @@ function template_preprocess_site_commerce_subcategories(&$variables) {
 
     foreach ($tree as $term) {
       // Количество позиций у текущей категории.
-      $term->count = site_commerce_count_positions($term->tid, $allow_view_statuses, SITE_COMMERCE_PUBLISHED, FALSE, TRUE);
+      $term->count = site_commerce_count_positions($term->tid, $allow_view_statuses, SITE_COMMERCE_PUBLISHED, TRUE, TRUE);
 
       // Если разрешено отображать категории без позиций или количество позиций > 0.
       if (variable_get('site_commerce_allow_null_category', TRUE) || $term->count) {
@@ -6805,7 +6805,7 @@ function site_commerce_term_page($term) {
   $type = 'taxonomy_term';
   drupal_alter(array('taxonomy_term_view', 'entity_view'), $build, $type);
 
-  // Вывод описания категории.
+  // Вывод краткого описания категории.
   if ($term->description) {
     $output .= $term->description;
   }
@@ -6833,8 +6833,14 @@ function site_commerce_term_page($term) {
 
   // Перечень позиций каталога для отображения.
   $variables = site_commerce_get_pids_by_term($term->tid);
-
   $output .= theme('site_commerce_term', array('pids' => $variables['pids'], 'total' => $variables['total']));
+
+  // Вывод полного описания категории.
+  $full_description = kvantstudio_field_value($type, $term, 'field_site_commerce_description', NULL, 'value');
+  $full_description = reset($full_description);
+  if ($full_description) {
+    $output .= $full_description;
+  }
 
   return $output;
 }

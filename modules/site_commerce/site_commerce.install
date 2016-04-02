@@ -701,6 +701,13 @@ function _site_commerce_installed_taxonomy_fields() {
       'settings' => array(),
       'translatable' => FALSE,
     ),
+    'site_commerce_taxonomy_description' => array(
+      'field_name' => 'field_site_commerce_description',
+      'type' => 'text_with_summary',
+      'cardinality' => 1,
+      'settings' => array(),
+      'translatable' => TRUE,
+    ),
   );
   return $fields;
 }
@@ -771,6 +778,22 @@ function _site_commerce_installed_taxonomy_instances() {
         ),
       ),
       'default_value' => array(0 => array('value' => 0)),
+    ),
+    'site_commerce_description' => array(
+      'field_name' => 'field_site_commerce_description',
+      'label' => $t('Full description'),
+      'widget' => array('type' => 'text_textarea_with_summary'),
+      'settings' => array('display_summary' => FALSE),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'text_default',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'text_summary_or_trimmed',
+        ),
+      ),
     ),
   );
   return $instances;
@@ -3306,4 +3329,40 @@ function site_commerce_update_7060() {
   }
 
   return 'Language updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7061() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Создание полей для словарей таксономии.
+  foreach (_site_commerce_installed_taxonomy_fields() as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if (!$field_info) {
+      field_create_field($field);
+    }
+  }
+
+  // Создание экземпляров полей для словаря site_commerce_categories.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_categories';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля. Запрещаем создание поля стоимость.
+    if ($instance['field_name'] <> 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  return 'Language and db structure updated.';
 }
