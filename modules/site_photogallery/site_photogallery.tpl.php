@@ -17,7 +17,7 @@
   ?>
 
   <div class="content clearfix" <?php print $content_attributes; ?>>
-    <?php if ($body[0]['summary']): ?>
+    <?php if (isset($body[0]['summary'])): ?>
     <!-- Краткое описание фотоальбома. -->
     <div class="site-photogallery-summary-content">
       <?php print render($body[0]['summary']); ?>
@@ -31,7 +31,7 @@
     </div>
     <?php endif; ?>
 
-    <?php if ($body[0]['value']): ?>
+    <?php if (isset($body[0]['value'])): ?>
     <!-- Полное описание фотоальбома. -->
     <div class="site-photogallery-value-content">
       <?php print render($body[0]['value']); ?>
@@ -74,5 +74,4 @@
     unset($content['comments']);
     print render($content['comments']);
   ?>
-
 </div>

@@ -330,7 +330,7 @@ function site_photogallery_taxonomy_term_delete($term) {
  */
 function site_photogallery_node_view($node, $view_mode, $langcode) {
   if ($node->type == 'site_photogallery' && $view_mode == 'full') {
-    // Создаем обьекты термина.
+    // Категория фотоальбома.
     $field_items = field_get_items('node', $node, 'field_site_photogallery_taxonomy');
     if ($field_items) {
       $field_first_item = reset($field_items);
@@ -343,7 +343,7 @@ function site_photogallery_node_view($node, $view_mode, $langcode) {
     }
 
     // Количество терминов.
-    $term_data = site_photogallery_taxonomy_tree('site_photogallery_vocabulary');
+    //$term_data = site_photogallery_taxonomy_tree('site_photogallery_vocabulary');
 
     $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $langcode);
     $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
@@ -352,13 +352,13 @@ function site_photogallery_node_view($node, $view_mode, $langcode) {
     $breadcrumb = array();
     $breadcrumb[] = l(t('Home'), '<front>');
     $breadcrumb[] = l(t(variable_get('site_photogallery_title', 'Photo albums')), $site_photogallery_link);
-    if ($term_data) {
+    if (!variable_get('site_photogallery_none_categories', FALSE)) {
       while (count($parents) - 1) {
         $current = array_shift($parents);
         $alias = db_query("SELECT n.alias FROM {url_alias} n WHERE n.source=:source", array(':source' => 'taxonomy/term/' . $current->tid))->fetchField();
         $breadcrumb[] = l(t($current->name), $alias);
       }
-      $breadcrumb[] = l(t('@value', array('@value' => $term->name)), $term->alias);
+      $breadcrumb[] = l($term->name, $term->alias);
     }
     drupal_set_breadcrumb($breadcrumb);
 

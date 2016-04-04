@@ -1,0 +1,20 @@
+.site-commerce-photo-albums {
+  margin-bottom: 20px;
+  clear: both;
+}
+
+.site-commerce-photo-albums__link {
+  font-size: 1.5em;
+  padding: 10px;
+  background: #eee;
+  margin: 0 10px 10px 0;
+  color: white;
+  display: inline-block;
+  float: left;
+}
+
+@media screen and (max-width: 780px) {
+  .site-commerce-photo-albums__link {
+    width: 100%;
+  }
+}

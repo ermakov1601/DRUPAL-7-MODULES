@@ -5,7 +5,7 @@ core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/site-commerce-auto
 
-dependencies[] = site_commerce
+dependencies[] = site_commerce (>=3.0)
 
 files[] = site_commerce_auto.install
 files[] = site_commerce_auto.module

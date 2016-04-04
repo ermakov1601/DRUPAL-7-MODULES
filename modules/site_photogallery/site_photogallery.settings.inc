@@ -94,7 +94,7 @@ function site_photogallery_category_settings($tid = 0) {
  * Форма выбора категорий.
  */
 function site_photogallery_category_select_form($form, &$form_state, $tid) {
-  $vocabulary = taxonomy_vocabulary_load(variable_get('site_photogallery_vocabulary'));
+  $vocabulary = taxonomy_vocabulary_machine_name_load('site_photogallery_vocabulary');
 
   // Массив с доступными категориями.
   $query = db_select('taxonomy_term_data', 'n');
@@ -123,7 +123,7 @@ function site_photogallery_category_select_form($form, &$form_state, $tid) {
   // The 'actions' wrapper used here isn't strictly necessary for tabledrag,
   // but is included as a Form API recommended practice.
   $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array( '#type' => 'submit', '#value' => t('Send'));
+  $form['actions']['submit'] = array( '#type' => 'submit', '#value' => t('Load'));
 
   return $form;
 }
@@ -141,7 +141,6 @@ function site_photogallery_category_select_form_submit($form, &$form_state) {
  *   (int) $tid - идентификатор категории.
  */
 function site_photogallery_category_settings_form($form, &$form_state, $tid) {
-
   $form = array();
 
   $form[$tid]['#tree'] = TRUE;
@@ -270,14 +269,15 @@ function theme_site_photogallery_category_settings_form($variables) {
  */
 function site_photogallery_category_settings_form_submit($form, &$form_state) {
   $tid = $form['#attributes']['tid'];
-  foreach ($form_state['values'][$tid] as $key) {
-    $record = array(
-      'entity_type' => 'node',
-      'entity_id' => $key['nid'],
-      'field_site_photogallery_weight_value' => $key['weight'],
-    );
-    // Store information.
-    drupal_write_record('field_data_field_site_photogallery_weight', $record, array('entity_type', 'entity_id'));
+  if (isset($form_state['values'][$tid])) {
+    foreach ($form_state['values'][$tid] as $key) {
+      $record = array(
+        'entity_type' => 'node',
+        'entity_id' => $key['nid'],
+        'field_site_photogallery_weight_value' => $key['weight'],
+      );
+      drupal_write_record('field_data_field_site_photogallery_weight', $record, array('entity_type', 'entity_id'));
+    }
+    drupal_set_message(t('Configuration saved.'));
   }
-  drupal_set_message(t('Configuration saved.'));
 }

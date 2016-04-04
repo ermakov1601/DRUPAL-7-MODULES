@@ -1,12 +1,13 @@
 name = Site commerce
 description = "Online store"
-version = "2.92"
+version = "3.0"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/site-commerce
-project status url = http://kvantstudio.ru/node/34
+project status url = http://filinkov.ru/node/34
 
 dependencies[] = kvantstudio (>=1.6)
+dependencies[] = site_photogallery (>=3.0)
 
 files[] = site_commerce.module
 files[] = site_commerce.install
@@ -60,3 +61,4 @@ stylesheets[all][] = css/site_commerce_selected_parametr_item.css
 stylesheets[all][] = css/site_commerce_other_positions.css
 stylesheets[all][] = css/site_commerce_select.css
 stylesheets[all][] = css/site_commerce_cart.css
+stylesheets[all][] = css/site_commerce_photo_albums.css

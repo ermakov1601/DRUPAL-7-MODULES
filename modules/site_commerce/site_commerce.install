@@ -373,6 +373,20 @@ function _site_commerce_installed_fields() {
       ),
       'translatable' => FALSE,
     ),
+    'site_commerce_photo_albums' => array(
+      'field_name'  => 'field_site_commerce_photo_albums',
+      'type'        => 'taxonomy_term_reference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'site_photogallery_vocabulary',
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'translatable' => FALSE,
+    ),
     'site_commerce_code' => array(
       'field_name'  => 'field_site_commerce_code',
       'type'        => 'text',
@@ -474,6 +488,14 @@ function _site_commerce_installed_instances() {
         'type' => 'options_select',
       ),
     ),
+    'site_commerce_photo_albums' => array(
+      'field_name' => 'field_site_commerce_photo_albums',
+      'label' => $t('The categories of photo albums'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_buttons',
+      ),
+    ),
     'site_commerce_contractor' => array(
       'field_name' => 'field_site_commerce_contractor',
       'label' => $t('Сontractor'),
@@ -508,7 +530,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_code' => array(
       'field_name' => 'field_site_commerce_code',
-      'label'       => $t('Part number'),
+      'label'       => $t('The part number'),
       'required' => FALSE,
       'widget'      => array(
         'type'    => 'text_textfield',
@@ -547,7 +569,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_cost_old' => array(
       'field_name' => 'field_site_commerce_cost_old',
-      'label' => $t('Old cost'),
+      'label' => $t('The old cost'),
       'required' => FALSE,
       'widget' => array(
         'type' => 'number',
@@ -572,7 +594,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_cost' => array(
       'field_name' => 'field_site_commerce_cost',
-      'label' => $t('Cost'),
+      'label' => $t('The cost'),
       'required' => TRUE,
       'widget' => array(
         'type' => 'number',
@@ -597,7 +619,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_quantity' => array(
       'field_name' => 'field_site_commerce_quantity',
-      'label' => $t('Quantity in stock'),
+      'label' => $t('The quantity in stock'),
       'required' => TRUE,
       'widget' => array(
         'type' => 'number',
@@ -615,7 +637,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_order_quantity' => array(
       'field_name' => 'field_site_commerce_min_quantity',
-      'label' => $t('Quantity for the order in package'),
+      'label' => $t('The quantity for the order in package'),
       'required' => TRUE,
       'widget' => array(
         'type' => 'number',
@@ -633,7 +655,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_measure' => array(
       'field_name' => 'field_site_commerce_measure',
-      'label' => $t('Unit of measure of quantity'),
+      'label' => $t('The unit of measure of quantity'),
       'required' => FALSE,
       'widget' => array(
         'type' => 'options_select',
@@ -641,7 +663,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_special_offer' => array(
       'field_name' => 'field_special_offer',
-      'label' => $t('Special offer'),
+      'label' => $t('The special offer'),
       'required' => FALSE,
       'widget' => array(
         'type' => 'options_select',
@@ -649,7 +671,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_image' => array(
       'field_name' => 'field_site_commerce_image',
-      'label' => $t('Image'),
+      'label' => $t('The images'),
       'required' => FALSE,
       'settings' => array(
         'file_directory' => 'pictures/site_commerce',
@@ -668,7 +690,7 @@ function _site_commerce_installed_instances() {
     ),
     'site_commerce_file' => array(
       'field_name' => 'field_site_commerce_file',
-      'label' => $t('File'),
+      'label' => $t('The files'),
       'required' => FALSE,
       'settings' => array(
         'file_directory' => 'documents/site_commerce',
@@ -793,6 +815,14 @@ function _site_commerce_installed_taxonomy_instances() {
           'label' => 'hidden',
           'type' => 'text_summary_or_trimmed',
         ),
+      ),
+    ),
+    'site_commerce_photo_albums' => array(
+      'field_name' => 'field_site_commerce_photo_albums',
+      'label' => $t('The categories of photo albums'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_buttons',
       ),
     ),
   );
@@ -3363,6 +3393,43 @@ function site_commerce_update_7061() {
       }
     }
   }
+
+  return 'Language and db structure updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_update_7062() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  // Включаем необходимые модули.
+  module_enable(array('site_photogallery'), TRUE);
+
+  // Создаём поля и сущности для базового типа товара.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_basic']);
+
+  // Создание экземпляров полей для словаря site_commerce_categories.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_categories';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля. Запрещаем создание поля стоимость.
+    if ($instance['field_name'] <> 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  cache_clear_all();
 
   return 'Language and db structure updated.';
 }

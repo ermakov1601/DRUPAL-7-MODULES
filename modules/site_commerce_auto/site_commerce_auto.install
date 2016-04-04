@@ -272,7 +272,7 @@ function _site_commerce_auto_installed_instances() {
   $instances = array(
     'site_commerce_auto_code' => array(
       'field_name' => 'field_site_commerce_code',
-      'label'       => $t('Part number'),
+      'label'       => $t('The part number'),
       'required' => FALSE,
       'widget'      => array(
         'type'    => 'text_textfield',
@@ -280,7 +280,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_taxonomy' => array(
       'field_name' => 'field_site_commerce_auto_terms',
-      'label' => $t('Category'),
+      'label' => $t('The category'),
       'required' => TRUE,
       'widget' => array(
         'type' => 'options_select',
@@ -289,7 +289,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_contractor' => array(
       'field_name' => 'field_site_commerce_contractor',
-      'label' => $t('Сontractor'),
+      'label' => $t('The contractor'),
       'required' => FALSE,
       'widget' => array(
         'type' => 'options_select',
@@ -297,7 +297,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_oem' => array(
       'field_name' => 'field_site_commerce_oem',
-      'label'      => $t('OEM number'),
+      'label'      => $t('The OEM number'),
       'required'   => FALSE,
       'widget'     => array(
         'type' => 'text_textfield',
@@ -305,7 +305,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_orig' => array(
       'field_name' => 'field_site_commerce_orig',
-      'label'      => $t('Catalogue number'),
+      'label'      => $t('The catalogue number'),
       'required'   => FALSE,
       'widget'     => array(
         'type' => 'text_textfield',
@@ -319,7 +319,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_trade_mark' => array(
       'field_name' => 'field_site_commerce_trade_mark',
-      'label'      => $t('Manufacturer product'),
+      'label'      => $t('The manufacturer product'),
       'required'   => FALSE,
       'widget'     => array(
         'type' => 'text_textfield',
@@ -333,7 +333,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_car' => array(
       'field_name' => 'field_site_commerce_car',
-      'label'      => $t('Car'),
+      'label'      => $t('The car'),
       'required'   => FALSE,
       'widget'     => array(
         'type' => 'text_textarea',
@@ -341,7 +341,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_recid' => array(
       'field_name' => 'field_site_commerce_recid',
-      'label'      => $t('Unique number of a product RecID'),
+      'label'      => $t('The unique number of a product RecID'),
       'required'   => FALSE,
       'widget'     => array(
         'type' => 'text_textfield',
@@ -349,7 +349,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_supid' => array(
       'field_name' => 'field_site_commerce_supid',
-      'label'      => $t('Unique number of a product SupID'),
+      'label'      => $t('The unique number of a product SupID'),
       'required'   => FALSE,
       'widget'     => array(
         'type' => 'text_textfield',
@@ -357,7 +357,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_cost' => array(
       'field_name' => 'field_site_commerce_cost',
-      'label' => $t('Cost'),
+      'label' => $t('The cost'),
       'required' => TRUE,
       'widget' => array(
         'type' => 'number',
@@ -382,7 +382,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_quantity' => array(
       'field_name' => 'field_site_commerce_quantity',
-      'label' => $t('Quantity in stock'),
+      'label' => $t('The quantity in stock'),
       'required' => TRUE,
       'widget' => array(
         'type' => 'number',
@@ -400,7 +400,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_measure' => array(
       'field_name' => 'field_site_commerce_measure',
-      'label' => $t('Unit of measure of quantity'),
+      'label' => $t('The unit of measure of quantity'),
       'required' => FALSE,
       'widget' => array(
         'type' => 'options_select',
@@ -408,7 +408,7 @@ function _site_commerce_auto_installed_instances() {
     ),
     'site_commerce_auto_image' => array(
       'field_name' => 'field_site_commerce_image',
-      'label' => $t('Image'),
+      'label' => $t('The images'),
       'required' => FALSE,
       'settings' => array(
         'file_directory' => 'pictures/site_commerce_auto',
@@ -423,6 +423,14 @@ function _site_commerce_auto_installed_instances() {
         'default' => array(
           'type' => 'image',
         ),
+      ),
+    ),
+    'site_commerce_photo_albums' => array(
+      'field_name' => 'field_site_commerce_photo_albums',
+      'label' => $t('The categories of photo albums'),
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_buttons',
       ),
     ),
   );
@@ -807,17 +815,6 @@ function site_commerce_auto_update_7013() {
   ->condition('field_name', 'field_site_commerce_recid')
   ->execute();
 
-//  // Изменение параметров поля.
-//  $field_info = field_info_field('field_site_commerce_car');
-//  $field_info['settings']['max_length'] = '';
-//  field_update_field($field_info);
-//  db_update('field_config')
-//  ->fields(array(
-//    'type' => 'text',
-//  ))
-//  ->condition('field_name', 'field_site_commerce_car')
-//  ->execute();
-
   // Purge all field infromation.
   field_purge_batch(1000);
 
@@ -918,6 +915,7 @@ function site_commerce_auto_update_7017() {
   if (module_exists('locale')) {
     locale_system_update(array('site_commerce_auto'));
   }
+
   variable_initialize();
 
   $default_term = variable_get('site_commerce_auto_default_term');
@@ -931,4 +929,30 @@ function site_commerce_auto_update_7017() {
   variable_set('site_commerce_catalog_link', 'tovary');
 
   cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_auto_update_7018() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_auto'));
+  }
+
+  // Создание сущностей для полей типа товара по умолчанию.
+  foreach (_site_commerce_auto_installed_instances() as $instance) {
+    $instance['entity_type'] = 'site_commerce';
+    $instance['bundle'] = 'site_commerce_auto';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля.
+    $field = field_info_field($instance['field_name']);
+    $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    if ($field && !$instance_info) {
+      field_create_instance($instance);
+    }
+  }
+
+  return 'Language and db structure updated.';
 }

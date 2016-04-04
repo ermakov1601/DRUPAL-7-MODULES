@@ -296,6 +296,10 @@ function site_commerce_theme($existing, $type, $theme, $path) {
       'variables' => array('tid' => NULL),
       'template' => 'templates/site-commerce-subcategories',
     ),
+    'site_commerce_photo_albums' => array(
+      'variables' => array('photo_albums' => NULL),
+      'template' => 'templates/site-commerce-photo-albums',
+    ),
     // Темизация карточки товара.
     'site_commerce' => array(
       'render element' => 'elements',
@@ -1266,6 +1270,20 @@ function template_preprocess_site_commerce_position_index(&$variables) {
       continue;
     }
     $variables['position_index'][$record->pid] = $position_index;
+  }
+}
+
+/**
+ * Process variables for site-commerce-photo-albums.tpl.php.
+ * @see site-commerce-photo-albums.tpl.php.
+ */
+function template_preprocess_site_commerce_photo_albums(&$variables) {
+  $photo_albums = $variables['photo_albums'];
+
+  $variables['data'] = '';
+  foreach ($photo_albums as $key => $term) {
+    $variables['data'][$term->tid]['name'] = $term->name;
+    $variables['data'][$term->tid]['alias'] = $term->alias;
   }
 }
 
@@ -6765,11 +6783,6 @@ function site_commerce_term_page($term) {
   // Статусы, для которых разрешено отображать позицию.
   $allow_view_statuses = variable_get('site_commerce_catalog_allow_statuses', site_commerce_position_status());
 
-//  $count_positions = site_commerce_count_positions($term->tid, $allow_view_statuses, SITE_COMMERCE_PUBLISHED, TRUE, TRUE);
-//  if (!$count_positions) {
-//    drupal_goto(variable_get('site_commerce_catalog_link', 'tovary'));
-//  }
-
   // Устанавливаем заголовок страницы.
   drupal_set_title($term->name);
 
@@ -6805,6 +6818,12 @@ function site_commerce_term_page($term) {
   $type = 'taxonomy_term';
   drupal_alter(array('taxonomy_term_view', 'entity_view'), $build, $type);
 
+  // Сниппет отображения категорий фотоальбомов, которые привязаны к категории.
+  $photo_albums = kvantstudio_field_value('taxonomy_term', $term, 'field_site_commerce_photo_albums', NULL, 'value');
+  if (count($photo_albums)) {
+    $output .= theme('site_commerce_photo_albums', array('photo_albums' => $photo_albums));
+  }
+
   // Вывод краткого описания категории.
   if ($term->description) {
     $output .= $term->description;
@@ -6836,7 +6855,7 @@ function site_commerce_term_page($term) {
   $output .= theme('site_commerce_term', array('pids' => $variables['pids'], 'total' => $variables['total']));
 
   // Вывод полного описания категории.
-  $full_description = kvantstudio_field_value($type, $term, 'field_site_commerce_description', NULL, 'value');
+  $full_description = kvantstudio_field_value('taxonomy_term', $term, 'field_site_commerce_description', NULL, 'value');
   $full_description = reset($full_description);
   if ($full_description) {
     $output .= $full_description;

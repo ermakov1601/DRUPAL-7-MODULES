@@ -85,17 +85,17 @@ function theme_site_photogallery_terms($variables) {
 
   // Название альбома.
   if ($count_images) {
-    $row_data .= '<div class="site-photogallery-album-name">' . l($term->name, 'taxonomy/term/' . $tid) . '</div>';
+    $row_title = '<div class="site-photogallery-album-name">' . l($term->name, 'taxonomy/term/' . $tid) . '</div>';
   }
   else {
-    $row_data .= '<div class="site-photogallery-album-name">' . $term->name;
-    $row_data .= '<span class="site-photogallery-album-annotation"> (' . t('Images are not loaded.') . ')</span>';
-    $row_data .= '</div>';
+    $row_title = '<div class="site-photogallery-album-name">' . $term->name;
+    $row_title .= '<span class="site-photogallery-album-annotation"> (' . t('Images are not loaded.') . ')</span>';
+    $row_title .= '</div>';
   }
 
   // Сообщение о том. что фотоальбом не отображается для посетителей.
   if (!$term->field_site_photogallery_status['und'][0]['value']) {
-    $row_data .= '<img align="absmiddle" src="/' . drupal_get_path('module', 'site_photogallery') . '/images/warning.png" alt="'.t('Warning').'" />&nbsp;<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
+    $row_title .= '<img align="absmiddle" src="/' . drupal_get_path('module', 'site_photogallery') . '/images/warning.png" alt="'.t('Warning').'" />&nbsp;<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
   }
 
   // Описание альбома.
@@ -105,7 +105,7 @@ function theme_site_photogallery_terms($variables) {
 
   // Ссылки управления.
   if ($admin_access) {
-    $row_data .= '<div class="site-photogallery-admin-links">
+    $row_title .= '<div class="site-photogallery-admin-links">
       ' . l(t('To edit a category'), 'taxonomy/term/' . $term->tid . '/edit') . '
     </div>';
   }
@@ -122,6 +122,7 @@ function theme_site_photogallery_terms($variables) {
       'width' => '',
       'height' => '',
       'attributes' => array(),
+      'attributes_link' => array('rel'=> 'nofollow'),
       'class' => array(),
       'link' => TRUE,
       'url' => 'taxonomy/term/' . $tid,
@@ -131,7 +132,7 @@ function theme_site_photogallery_terms($variables) {
   }
 
   // Формируем массив с данными.
-  $output = '';
+  $output = $row_title;
   $output .= '<div class="site-photogallery-item-wrapper">';
     if ($row_image) {
       $output .= '<div class="site-photogallery-item-image">' . $row_image . '</div>';
@@ -262,22 +263,22 @@ function theme_site_photogallery_node($variables) {
 
   // Название альбома.
   if ($count_images) {
-    $row_data .= '<div class="site-photogallery-album-name">' . l($node->title, 'node/' . $node->nid) . '</div>';
+    $row_title = '<div class="site-photogallery-album-name">' . l($node->title, 'node/' . $node->nid) . '</div>';
   }
   else {
-    $row_data .= '<div class="site-photogallery-album-name">' . $node->title;
-    $row_data .= '<span class="site-photogallery-album-annotation"> (' . t('In this photo album still there are no images.') . ')</span>';
-    $row_data .= '</div>';
+    $row_title  = '<div class="site-photogallery-album-name">' . $node->title;
+    $row_title .= '<span class="site-photogallery-album-annotation"> (' . t('In this photo album still there are no images.') . ')</span>';
+    $row_title .= '</div>';
   }
 
   // Сообщение о том. что фотоальбом не отображается для посетителей.
   if (!$node->field_site_photogallery_status['und'][0]['value']) {
-    $row_data .= '<img align="absmiddle" src="/' . drupal_get_path('module', 'site_photogallery') . '/images/warning.png" alt="'.t('Warning').'" />&nbsp;<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
+    $row_title .= '<img align="absmiddle" src="/' . drupal_get_path('module', 'site_photogallery') . '/images/warning.png" alt="'.t('Warning').'" />&nbsp;<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
   }
 
   // Ссылки управления.
   if ($admin_access) {
-    $row_data .= '<div class="site-photogallery-admin-links">
+    $row_title .= '<div class="site-photogallery-admin-links">
       ' . l(t('To edit a photo album'), 'node/' . $node->nid . '/edit') . '
      </div>';
   }
@@ -292,6 +293,7 @@ function theme_site_photogallery_node($variables) {
     'width' => $node->field_site_photogallery_image['und'][0]['width'],
     'height' => $node->field_site_photogallery_image['und'][0]['height'],
     'attributes' => array(),
+    'attributes_link' => array('rel'=> 'nofollow'),
     'class' => array(),
     'link' => TRUE,
     'url' => 'node/' . $node->nid,
@@ -300,10 +302,11 @@ function theme_site_photogallery_node($variables) {
   $row_image = theme('kvantstudio_image', $variables);
 
   // Формируем массив с данными.
-  $output = '
+  $output  = $row_title;
+  $output .= '
     <div class="site-photogallery-item-wrapper">
       <div class="site-photogallery-item-image">' . $row_image . '</div>
-      <div class="site-photogallery-item-data">' . $row_data . '</div>
+      <div class="site-photogallery-item-data">'  . $row_data . '</div>
     </div>
   ';
 
