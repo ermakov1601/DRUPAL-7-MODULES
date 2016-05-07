@@ -30,7 +30,7 @@
         <?php if(count($images['main'])): ?>
           <!-- Главное изображение товара. -->
           <div class="site-commerce__header-image-main">
-            <a class="site-commerce__link site-commerce__link_image litebox zoom" href="<?php print $images['main']['url']; ?>" rel="site-commerce-images" data-litebox-group="site-commerce-litebox-images">
+            <a class="site-commerce__link site-commerce__link_image litebox zoom" href="<?php print $images['main']['url']; ?>" rel="site-commerce-images" data-litebox-group="site-commerce-litebox-images" data-litebox-text="<?php print $images['main']['title']; ?>">
               <img class="site-commerce__image site-commerce__image_main" src="<?php print $images['main']['style_url']; ?>" alt="<?php print $images['main']['alt']; ?>" title="<?php print $images['main']['title']; ?>">
             </a>
           </div>
@@ -39,7 +39,7 @@
           <!-- Прочие изображения товара. -->
           <div class="site-commerce__header-images-other">
             <?php foreach ($images['other'] as $key => $image): ?>
-              <a class="site-commerce__link site-commerce__link_image litebox" href="<?php print $image['url']; ?>" rel="site-commerce-images" data-litebox-group="site-commerce-litebox-images">
+              <a class="site-commerce__link site-commerce__link_image litebox" href="<?php print $image['url']; ?>" rel="site-commerce-images" data-litebox-group="site-commerce-litebox-images" data-litebox-text="<?php print $image['title']; ?>">
                 <img class="site-commerce__image site-commerce__image_other" src="<?php print $image['style_url']; ?>" alt="<?php print $image['alt']; ?>" title="<?php print $image['title']; ?>">
               </a>
             <?php endforeach; ?>
