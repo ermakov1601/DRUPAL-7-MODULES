@@ -31,10 +31,10 @@
   <div class="site-commerce-global-note-cost"><?php print $global_note_cost; ?></div>
   <?php endif; ?>
 
-  <?php
-    // Выполняем если выводиться стоимость с учётом спецпредложений.
-    if (count($cost['special_offer'])):
-  ?>
+    <?php
+      // Выполняем если выводиться стоимость с учётом спецпредложений.
+      if (count($cost['special_offer'])):
+    ?>
 
     <?php // Если спецпредложение формируется с учётом скидки. ?>
     <?php if ($cost['special_offer']['discount']): ?>

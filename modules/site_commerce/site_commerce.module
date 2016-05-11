@@ -4724,6 +4724,47 @@ function template_preprocess_site_commerce(&$variables) {
     $variables['site_commerce_images'] = render($images);
   }
 
+  
+  // Переменная вывода прикрепленных файлов.
+  $variables['site_commerce_files'] = '';
+
+  $term = taxonomy_term_load($site_commerce->tid);
+  if (count($term->field_site_commerce_file)) {
+    foreach ($term->field_site_commerce_file['und'] as $file) {
+      // Описание файла.
+      if ($file['description']) {
+        $description = $file['description'];
+      }
+      else {
+        $description = $file['filename'];
+      }
+      // Иконка файла.
+      $file_object = file_load($file['fid']);
+      $file_icon_url = file_icon_url($file_object);
+      $file_icon = '<img class="file-icon" alt="" title="' . $file['filemime'] . '" src="' . $file_icon_url . '" />';
+      $filesize = format_size($file['filesize']);
+      $variables['site_commerce_files'] .= '<a class="site-commerce__header-file" type="' . $file['filemime'] . '" href="' . file_create_url($file['uri']) . '" target="_blank">' . $file_icon . " " . $description . ' <span class="site-commerce__header-filesize">(' . $filesize . ')</span>' . '</a>';
+    }
+  }
+
+  if (count($site_commerce->field_site_commerce_file)) {
+    foreach ($site_commerce->field_site_commerce_file['und'] as $file) {
+      // Описание файла.
+      if ($file['description']) {
+        $description = $file['description'];
+      }
+      else {
+        $description = $file['filename'];
+      }
+      // Иконка файла.
+      $file_object = file_load($file['fid']);
+      $file_icon_url = file_icon_url($file_object);
+      $file_icon = '<img class="file-icon" alt="" title="' . $file['filemime'] . '" src="' . $file_icon_url . '" />';
+      $filesize = format_size($file['filesize']);
+      $variables['site_commerce_files'] .= '<a class="site-commerce__header-file" type="' . $file['filemime'] . '" href="' . file_create_url($file['uri']) . '" target="_blank">' . $file_icon . " " . $description . ' <span class="site-commerce__header-filesize">(' . $filesize . ')</span>' . '</a>';
+    }
+  }
+
   // Краткое описание позиции.
   $variables['site_commerce_summary'] = '';
   if (isset($site_commerce->field_site_commerce_body[$site_commerce->language])) {

@@ -54,6 +54,13 @@
         <?php print $site_commerce_status; ?>
       <?php endif; ?>
 
+      <!-- Вывод файлов. -->
+      <?php if ($site_commerce_files): ?>
+        <div class="site-commerce__header-files clearfix">
+          <?php print $site_commerce_files; ?>
+        </div>
+      <?php endif; ?>
+
       <?php
         // Содержимое переменной $site_commerce_cost формируется шаблоном site-commerce-cost.tpl.php.
         if($site_commerce_cost):

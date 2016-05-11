@@ -152,6 +152,15 @@
   overflow: hidden;
 }
 
+.site-commerce__header-files {
+    text-align: left;
+}
+
+.site-commerce__header-file {
+  display: block;
+  margin-bottom: 10px;
+}
+
 @media screen and (min-width: 980px) {
   .site-commerce__header-images {
     float: left;
