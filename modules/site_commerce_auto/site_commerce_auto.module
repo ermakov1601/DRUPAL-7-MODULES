@@ -49,6 +49,20 @@ function site_commerce_auto_menu() {
 }
 
 /**
+ * Implements hook_forms().
+ */
+function site_commerce_auto_forms() {
+  $forms = array();
+  $forms['site_commerce_auto_search_form'] = array(
+    'callback' => 'site_commerce_search_form',
+  );
+  $forms['site_commerce_auto_header_search_form'] = array(
+    'callback' => 'site_commerce_search_form',
+  );
+  return $forms;
+}
+
+/**
  * Implements hook_site_commerce_title().
  */
 function site_commerce_auto_site_commerce_title($site_commerce) {

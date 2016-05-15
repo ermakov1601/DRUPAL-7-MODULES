@@ -1,6 +1,6 @@
 name = Site commerce auto
 description = "Online store of autospare parts."
-version = "3.19"
+version = "3.20"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/site-commerce-auto
