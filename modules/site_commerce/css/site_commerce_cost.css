@@ -9,6 +9,10 @@
   clear: both;
 }
 
+.site-commerce-global-note-cost {
+  font-size: 0.65em;
+}
+
 .site-commerce-cost_basic {
   color: #000000;
 }
