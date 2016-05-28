@@ -4723,7 +4723,6 @@ function template_preprocess_site_commerce(&$variables) {
     $images = field_view_field('site_commerce', $site_commerce, 'field_site_commerce_image', $display);
     $variables['site_commerce_images'] = render($images);
   }
-
   
   // Переменная вывода прикрепленных файлов.
   $variables['site_commerce_files'] = '';

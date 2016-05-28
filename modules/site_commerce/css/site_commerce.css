@@ -173,3 +173,39 @@
   }
 
 }
+
+.site-commerce-other-images-block {
+  padding-top: 5px;
+}
+
+.site-commerce-other-images-block img {
+  padding-right: 5px;
+  padding-bottom: 5px;
+  vertical-align: top;
+}
+
+.site-commerce-data-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.site-commerce-data-items li {
+  padding: 0;
+  margin: 0;
+}
+
+.site-commerce-data-item-label {
+  font-weight: 600;
+}
+
+.site-commerce-note-index-position {
+  font-size: 1.5em;
+  padding: 10px;
+  background-color: #33FFCC;
+  display: block;
+}
+
+.site-commerce-position-index-content {
+  margin-top: 20px;
+}

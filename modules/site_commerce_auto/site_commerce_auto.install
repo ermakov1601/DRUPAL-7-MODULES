@@ -433,6 +433,24 @@ function _site_commerce_auto_installed_instances() {
         'type' => 'options_buttons',
       ),
     ),
+    'site_commerce_file' => array(
+      'field_name' => 'field_site_commerce_file',
+      'label' => $t('The files'),
+      'required' => FALSE,
+      'settings' => array(
+        'file_directory' => 'documents/site_commerce',
+        'file_extensions' => variable_get('site_files_extensions', 'txt doc docx pdf xls xlsx odt rtf jpg gif png jpeg rar zip 7z bzip2 gzip tar wim xz'),
+        'max_filesize' => variable_get('site_files_size', '10') . ' M',
+        'description_field' => TRUE,
+      ),
+      'widget' => array('type' => 'file_generic'),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'file_default',
+        ),
+      ),
+    ),
   );
 
   return $instances;
@@ -953,6 +971,43 @@ function site_commerce_auto_update_7018() {
       field_create_instance($instance);
     }
   }
+
+  return 'Language and db structure updated.';
+}
+
+/**
+ * Language and db structure update.
+ */
+function site_commerce_auto_update_7019() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_auto'));
+  }
+
+  // Включаем необходимые модули.
+  module_enable(array('site_photogallery'), TRUE);
+
+  // Создаём поля и сущности для базового типа товара.
+  $types = site_commerce_type_get_types();
+  _site_commerce_type_installed_instances($types['site_commerce_auto']);
+
+  // Создание экземпляров полей для словаря site_commerce_auto_vocabulary.
+  foreach (_site_commerce_installed_taxonomy_instances() as $instance) {
+    $instance['entity_type'] = 'taxonomy_term';
+    $instance['bundle'] = 'site_commerce_auto_vocabulary';
+
+    // Если тип поля существует, а экземпляр отсутствует.
+    // Создаем экземпляр поля. Запрещаем создание поля стоимость.
+    if ($instance['field_name'] <> 'field_site_commerce_cost') {
+      $field = field_info_field($instance['field_name']);
+      $instance_info = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+      if ($field && !$instance_info) {
+        field_create_instance($instance);
+      }
+    }
+  }
+
+  cache_clear_all();
 
   return 'Language and db structure updated.';
 }
