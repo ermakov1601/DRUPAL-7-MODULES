@@ -16,13 +16,11 @@
 <noindex>
 <?php if($variables['position_index']): ?>
 <div class="site-commerce-position-index">
-  <div class="site-commerce-position-index__title">
-    <?php print t('This product is part of'); ?>
-  </div>
+  <h3><?php print t('This product is part of'); ?>:</h3>
 
   <?php foreach ($variables['position_index'] as $pid => $position): ?>
   <div class="site-commerce-position-index__item">
-    <a href="<?php print base_path(); ?><?php print $position->alias; ?>" rel="nofollow" class="site-commerce-position-index__link"><?php print $position->title; ?></a>
+    <a href="<?php print base_path(); ?><?php print $position->alias; ?>" target="_blank" rel="nofollow" class="site-commerce-position-index__link"><?php print $position->title; ?></a>
   </div>
   <?php endforeach; ?>
 </div>

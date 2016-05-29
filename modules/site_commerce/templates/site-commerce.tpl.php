@@ -96,14 +96,6 @@
   <?php endif; ?>
 
   <div class="site-commerce__content clearfix">
-    <?php
-      // Содержимое переменной $site_commerce_position_index формируется шаблоном site-commerce-position-index.tpl.php.
-      if($site_commerce_position_index):
-    ?>
-    <!-- Блок для вывода позиций, в которые данный товар входит. -->
-    <?php print $site_commerce_position_index; ?>
-    <?php endif; ?>
-
     <?php if($site_commerce_summary): ?>
     <!-- Краткое описание товара. -->
     <div class="site-commerce-content__description">
@@ -139,6 +131,14 @@
     <?php else: ?>
       <?php print $site_commerce_body; ?>
     <?php endif; ?>
+  <?php endif; ?>
+
+  <?php
+    // Содержимое переменной $site_commerce_position_index формируется шаблоном site-commerce-position-index.tpl.php.
+    if($site_commerce_position_index):
+  ?>
+  <!-- Блок для вывода позиций, в которые данный товар входит. -->
+  <?php print $site_commerce_position_index; ?>
   <?php endif; ?>
 
   <?php if($site_commerce_position_index_content): ?>

@@ -65,7 +65,7 @@ function site_commerce_singular_plural() {
  */
 function site_commerce_position_status() {
   $status = array(
-    0  => t('None'), // Нет, статус не указан.
+    0  => t('- None selected -'), // Нет, статус не указан.
     5  => t('There is no stock'), // Отсутствует на складе.
     10 => t('Available'), // В наличии.
     20 => t('Delivery is expected'), // Ожидается поступление.
@@ -114,7 +114,7 @@ function site_commerce_types_sale() {
 function site_commerce_types_special_offers() {
    $terms = array();
    $vocabulary = taxonomy_vocabulary_machine_name_load('site_commerce_special_offers_vocabulary');
-   $terms = kvantstudio_select_terms($vocabulary->vid, TRUE, TRUE, "None");
+   $terms = kvantstudio_select_terms($vocabulary->vid, TRUE, TRUE, t("- None selected -"));
    return $terms;
 }
 
