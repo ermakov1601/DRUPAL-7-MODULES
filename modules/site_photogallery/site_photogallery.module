@@ -126,15 +126,26 @@ function site_photogallery_menu() {
   foreach ($languages as $language) {
     $site_photogallery_link = locale(variable_get('site_photogallery_title', 'Photo albums'), NULL, $language->language);
     $site_photogallery_link = kvantstudio_url_alias_correct($site_photogallery_link);
-    $items[$site_photogallery_link] = array(
-      'title' => variable_get('site_photogallery_title', 'Photo albums'),
-      'page callback' => 'site_photogallery_categories',
-      'access arguments' => array('view site photogallery content'),
-      'type' => MENU_NORMAL_ITEM,
-      'menu_name' => 'main-menu',
-      'file' => 'site_photogallery.category.inc',
-    );
+
+    // Определяем синоним для корневого каталога.
+    $path = array();
+    $pid = db_query("SELECT n.pid FROM {url_alias} n WHERE n.source = :source", array(':source' => 'site-photogallery-catalog'))->fetchField();
+    if ($pid) {
+      $path['pid'] = $pid;
+    }
+    $path['alias'] = $site_photogallery_link;
+    $path['source'] = 'site-photogallery-catalog';
+    path_save($path);
   }
+
+  $items['site-photogallery-catalog'] = array(
+    'title' => variable_get('site_photogallery_title', 'Photo albums'),
+    'page callback' => 'site_photogallery_categories',
+    'access arguments' => array('view site photogallery content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu',
+    'file' => 'site_photogallery.category.inc',
+  );
 
   return $items;
 }

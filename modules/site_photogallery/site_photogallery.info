@@ -1,6 +1,6 @@
 name = Site photogallery
 description = "Creation of photo albums."
-version = "3.0"
+version = "3.1"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/site-photogallery

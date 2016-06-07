@@ -591,10 +591,21 @@ function site_commerce_menu() {
     'access arguments' => array(1),
   );
 
+  // Алиас для корневого каталога.
   $site_commerce_catalog_path = pathauto_cleanstring(variable_get('site_commerce_catalog_link', pathauto_cleanstring(t('Online store'))));
 
+  // Определяем синоним для корневого каталога товаров.
+  $path = array();
+  $pid = db_query("SELECT n.pid FROM {url_alias} n WHERE n.source = :source", array(':source' => 'site-commerce-catalog'))->fetchField();
+  if ($pid) {
+    $path['pid'] = $pid;
+  }
+  $path['alias'] = $site_commerce_catalog_path;
+  $path['source'] = 'site-commerce-catalog';
+  path_save($path);
+
   // Меню доступа к каталогу.
-  $items[$site_commerce_catalog_path] = array(
+  $items['site-commerce-catalog'] = array(
     'title callback' => 'site_commerce_catalog_title_callback',
     'page callback' => 'site_commerce_catalog',
     'access callback' => 'site_commerce_view_access',

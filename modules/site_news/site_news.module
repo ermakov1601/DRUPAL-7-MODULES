@@ -99,18 +99,28 @@ function site_news_menu() {
   foreach ($languages as $key => $language) {
     // Название ссылки в зависимости от языка.
     $title = site_news_title_callback($key);
-    $path = pathauto_cleanstring($title);
+    $site_news_link = pathauto_cleanstring($title);
 
-    $items[$path] = array(
-      // Заголовок только на английском.
-      'title' => site_news_title_callback('en'),
-      'page callback' => 'site_news_press_center',
-      'access arguments' => array('view site news content'),
-      'type' => MENU_NORMAL_ITEM,
-      'menu_name' => 'main-menu',
-      'file' => 'site_news.category.inc',
-    );
+    // Определяем синоним для корневого каталога.
+    $path = array();
+    $pid = db_query("SELECT n.pid FROM {url_alias} n WHERE n.source = :source", array(':source' => 'site-news-catalog'))->fetchField();
+    if ($pid) {
+      $path['pid'] = $pid;
+    }
+    $path['alias'] = $site_news_link;
+    $path['source'] = 'site-news-catalog';
+    path_save($path);
   }
+
+  $items['site-news-catalog'] = array(
+    // Заголовок только на английском.
+    'title' => site_news_title_callback('en'),
+    'page callback' => 'site_news_press_center',
+    'access arguments' => array('view site news content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu',
+    'file' => 'site_news.category.inc',
+  );
 
   return $items;
 }
