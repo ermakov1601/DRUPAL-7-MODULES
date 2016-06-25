@@ -223,6 +223,11 @@ background: url(../images/phone.png) no-repeat;
   background: #FF0000;
 }
 
+/* Оформление стилей сортировки. */
+.site-commerce-sort-item img {
+  display: inline;
+}
+
 /* Переназначение стилей JQUERY. */
 .ui-tabs .ui-tabs-panel {
   padding: 0em;
