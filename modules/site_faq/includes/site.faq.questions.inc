@@ -67,7 +67,7 @@ function site_faq_questions() {
         <td width="50" align="center">'.$i.'</td>
         <td>
           <div class="text_question">'.$question.'</div>
-          '. drupal_render($form) .'
+          '. $output = drupal_render($form) .'
         </td>
         <td width="300" valign="top">
           '.$contact_data.'
