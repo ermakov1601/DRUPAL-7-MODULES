@@ -31,8 +31,6 @@ function site_faq_questions() {
   $breadcrumb[] = t('New questions');
   drupal_set_breadcrumb($breadcrumb);
 
-  $output = '';
-
   // Вывод перечня новых вопросов.
   $result = db_query("SELECT * FROM {site_faq_questions} n WHERE n.status = :status", array(':status' => 0));
 
@@ -53,24 +51,27 @@ function site_faq_questions() {
     $contact_data = '';
 
     if (isset($data['full_name'])) {
-      $contact_data .= '<div><b>ФИО:</b> '.$data['full_name'].'</div>';
+      $contact_data .= '<div><b>ФИО:</b> ' . $data['full_name'] . '</div>';
     }
     if (isset($data['phone'])) {
-      $contact_data .= '<div><b>Телефон:</b> '.$data['phone'].'</div>';
+      $contact_data .= '<div><b>Телефон:</b> ' . $data['phone'] . '</div>';
     }
     if (isset($data['hostname'])) {
-      $contact_data .= '<div><b>IP адрес:</b> '.$data['hostname'].'</div>';
+      $contact_data .= '<div><b>IP адрес:</b> ' . $data['hostname'] . '</div>';
     }
+
     $form = drupal_get_form('site_faq_answer_form', $qid);
+    $form = drupal_render($form);
+
     $rows_table .= '
       <tr id="question-' . $qid . '"  class="' . $class_tr . '">
-        <td width="50" align="center">'.$i.'</td>
+        <td width="50" align="center">' . $i . '</td>
         <td>
-          <div class="text_question">'.$question.'</div>
-          '. $output = drupal_render($form) .'
+          <div class="text_question">' . $question . '</div>
+          ' . $form . '
         </td>
         <td width="300" valign="top">
-          '.$contact_data.'
+          ' . $contact_data . '
         </td>
       </tr>
 
@@ -86,14 +87,14 @@ function site_faq_questions() {
 
   }
 
-  $output .= '
+  $output = '
     <table width="100%" border="0" cellpadding="5">
       <tr>
         <td>№</td>
         <td>' . t('Question') . '</td>
         <td>Контактные данные отправителя</td>
       </tr>
-      '.$rows_table.'
+      ' . $rows_table . '
     </table>
   ';
 
