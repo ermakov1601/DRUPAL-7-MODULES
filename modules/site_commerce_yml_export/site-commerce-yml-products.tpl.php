@@ -2,19 +2,22 @@
 <!DOCTYPE yml_catalog SYSTEM "shops.dtd">
 <yml_catalog date="<?php echo date('Y-m-d h:i'); ?>">
   <shop>
-    <name><?php echo variable_get('site_name', 'Drupal'); ?></name>
-    <company><?php echo variable_get('site_name', 'Drupal'); ?></company>
+    <name><?php echo variable_get('site_commerce_yandex_market_name', 'ABC'); ?></name>
+    <company><?php echo variable_get('site_commerce_yandex_market_company', 'ABC inc.'); ?></company>
     <url><?php echo $GLOBALS['base_url']; ?>/</url>
-    <platform>CMS Drupal SiteCommerce</platform>
-    <version><?php echo $version; ?></version>
-    <agency>kvantstudio.ru</agency>
-    <email>info@kvantstudio.ru</email>
+    <platform>Drupal</platform>
+    <version>7</version>
+    <agency><?php echo variable_get('site_commerce_yandex_market_agency', 'Студия Павла Филинкова'); ?></agency>
+    <email><?php echo variable_get('site_commerce_yandex_market_agency_email', variable_get('kvantstudio_admin_mail')); ?></email>
     <currencies>
-      <currency id="<?php echo variable_get('site_commerce_yml_export_currency_code', 'RUR'); ?>" rate="1"/>
+      <currency id="<?php echo variable_get('site_commerce_yandex_market_сurrency', 'RUR'); ?>" rate="1"/>
     </currencies>
     <categories>
       <?php foreach ($categories as $term): ?>
+      <?php $status = array(5, 10, 20, 30); ?>
+      <?php if (site_commerce_count_positions($term->tid, $status)): ?>
       <category id="<?php echo $term->tid ?>"<?php if($term->parent): ?> parentId="<?php echo $term->parent ?>"<?php endif; ?>><?php echo site_commerce_yml_export_safe($term->name)?></category>
+      <?php endif; ?>
       <?php endforeach; ?>
     </categories>
     <offers>
@@ -29,18 +32,23 @@
           $country = taxonomy_term_load($position->field_site_commerce_country);
         }
       ?>
-      <?php if ($position->field_site_commerce_cost): ?>
+      <?php if ($position->field_site_commerce_cost_min || $position->field_site_commerce_cost): ?>
       <offer id="<?php echo $position->pid; ?>" available="false">
       <url><?php echo url('site-commerce/' . $position->pid, array('absolute' => TRUE)); ?></url>
+      <?php if ($position->field_site_commerce_cost_min): ?>
+      <price><?php echo site_commerce_cost_format($position->field_site_commerce_cost_min); ?></price>
+      <?php endif; ?>
+      <?php if (!$position->field_site_commerce_cost_min && $position->field_site_commerce_cost): ?>
       <price><?php echo site_commerce_cost_format($position->field_site_commerce_cost); ?></price>
-      <currencyId><?php echo variable_get('site_commerce_yml_export_currency_code', 'RUR'); ?></currencyId>
+      <?php endif; ?>
+      <currencyId><?php echo variable_get('site_commerce_yandex_market_сurrency', 'RUR'); ?></currencyId>
       <categoryId><?php echo $position->tid; ?></categoryId>
       <?php if (!empty($position->image['url'])): ?><picture><?php echo $position->image['url']; ?></picture><?php endif; ?>
       <store>false</store>
       <delivery>true</delivery>
       <name><?php echo site_commerce_yml_export_safe(check_plain($position->title)) ?></name>
       <description><?php echo site_commerce_yml_export_safe($position_summary) ?></description>
-      <sales_notes><?php if ($position->field_site_commerce_cost_min): ?>Минимальная сумма заказа <?php echo site_commerce_cost_format($position->field_site_commerce_cost_min); ?> <?php echo variable_get('site_commerce_default_currency'); ?><?php endif; ?></sales_notes>
+      <sales_notes><?php if ($position->field_site_commerce_cost_min): ?>Окончательная стоимость зависит от объёма заказа.<?php endif; ?></sales_notes>
       <?php if ($country): ?>
       <country_of_origin><?php print site_commerce_yml_export_safe(check_plain($country->name)); ?></country_of_origin>
       <?php endif; ?>

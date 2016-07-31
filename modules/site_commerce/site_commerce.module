@@ -133,6 +133,20 @@ function site_commerce_position_сurrency() {
 }
 
 /**
+ * Функция: перечень единиц измерения валюты для Яндекс Маркет.
+ */
+function site_commerce_yandex_market_сurrency() {
+  $status = array(
+    'RUR' => t('Ruble'),
+    'USD' => t('United States dollar'),
+    'EUR' => t('Euro'),
+    'UAH' => t('Hryvnia'),
+    'KZT' => t('Kazakhstan tenge'),
+  );
+  return $status;
+}
+
+/**
  * Implements hook_entity_info().
  */
 function site_commerce_entity_info() {
@@ -753,15 +767,6 @@ function site_commerce_menu() {
     'access callback' => 'site_commerce_view_access',
     'file' => 'includes/site_commerce.select.inc',
   );
-
-//  // Меню интеграции Яндекс Маркет.
-//  // @TODO Функция находится в разработке.
-//  $items['site-commerce-yandex-market'] = array(
-//    'page callback' => 'site_commerce_yandex_market',
-//    'access arguments' => array('administer site commerce products'),
-//    'type' => MENU_CALLBACK,
-//    'file' => 'site_commerce.yandex.market.inc',
-//  );
 
 //  // Меню формы регистрации пользователей.
 //  // @TODO Функция находится в разработке.

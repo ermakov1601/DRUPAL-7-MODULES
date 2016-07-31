@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Language update.
+ */
+function site_commerce_yml_export_update_7000() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce_yml_export'));
+  }
+
+  cache_clear_all();
+
+  return 'Language updated.';
+}

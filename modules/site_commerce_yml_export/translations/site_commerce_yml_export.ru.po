@@ -57,3 +57,21 @@ msgstr "YML экспорт товаров для SiteCommerce (Яндекс.Ма
 #: site_commerce_yml_export.info:0
 msgid "Kvantstudio"
 msgstr "Kvantstudio"
+
+msgid "Settings of Yandex Market"
+msgstr "Настройки Yandex Market"
+
+msgid "Short store name, must contain fewer than 20 characters."
+msgstr "Короткое название магазина, должно содержать не более 20 символов."
+
+msgid "The full name of the company that owns the store."
+msgstr "Полное наименование компании, владеющей магазином."
+
+msgid "URL of the main page of the store."
+msgstr "URL главной страницы магазина."
+
+msgid "The name of the Agency that provides technical support for the store."
+msgstr "Наименование агентства, которое оказывает техническую поддержку магазину."
+
+msgid "Contact address of the CMS developers or the Agency providing technical support."
+msgstr "Контактный адрес разработчиков CMS или агентства, осуществляющего техподдержку."

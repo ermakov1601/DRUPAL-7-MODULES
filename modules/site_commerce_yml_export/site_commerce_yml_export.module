@@ -5,8 +5,8 @@
  * Главный файл модуля site_commerce_yml_export.
  *
  * Файл содержит основные функции, которые реализуют функционал создания YML файла для Yandex.market.
- * Используется совместно с модулем интернет-магазина SiteCommerce - это разработка студии KVANTSTUDIO.RU.
- * По всем вопросам обращайтесь по адресу info@kvantstudio.ru.
+ * Используется совместно с модулем интернет-магазина SiteCommerce.
+ * По всем вопросам обращайтесь по адресу info@filinkov.ru.
 */
 
 /**
@@ -23,7 +23,7 @@ function site_commerce_yml_export_menu() {
   );
 
   $items['admin/config/kvantstudio/site-commerce-yml-export'] = array(
-    'title' => 'Settings of YML export for Yandex.market',
+    'title' => 'Settings of Yandex Market',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('site_commerce_yml_export_admin_settings'),
     'access callback' => 'user_access',
@@ -38,15 +38,7 @@ function site_commerce_yml_export_menu() {
  */
 function site_commerce_yml_export_admin_settings() {
   $form = array();
-  
-  $form['site_commerce_yml_export_types'] = array(
-    '#required' => TRUE,
-    '#type' => 'checkboxes',
-    '#options' => site_commerce_type_get_names(),
-    '#default_value' => variable_get('site_commerce_yml_export_types', array('site_commerce_basic')),
-    '#title' => t('Select product types for export'),
-  );
-  
+
   $url = url('site-commerce-yml-products.xml', array('absolute' => TRUE));
   $form['generated_url'] = array(
     '#type' => 'item',  
@@ -54,11 +46,51 @@ function site_commerce_yml_export_admin_settings() {
     '#markup' => $url . ' (' . l(t("View"), $url) . ')',
     '#description' => t("Use this url in Yandex.Market"),
   );
+
+  $form['site_commerce_yml_export_types'] = array(
+    '#required' => TRUE,
+    '#type' => 'checkboxes',
+    '#options' => site_commerce_type_get_names(),
+    '#default_value' => variable_get('site_commerce_yml_export_types', array('site_commerce_basic')),
+    '#title' => t('Select product types for export'),
+  );
+
+  $form['site_commerce_yandex_market_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Short store name, must contain fewer than 20 characters.'),
+    '#default_value' => variable_get('site_commerce_yandex_market_name', 'ABC'),
+    '#required' => FALSE,
+  );
+  $form['site_commerce_yandex_market_company'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The full name of the company that owns the store.'),
+    '#default_value' => variable_get('site_commerce_yandex_market_company', 'ABC inc.'),
+    '#required' => FALSE,
+  );
+  $form['site_commerce_yandex_market_agency'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The name of the Agency that provides technical support for the store.'),
+    '#default_value' => variable_get('site_commerce_yandex_market_agency', 'Студия Павла Филинкова'),
+    '#required' => FALSE,
+  );
+  $form['site_commerce_yandex_market_agency_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Contact address of the CMS developers or the Agency providing technical support.'),
+    '#default_value' => variable_get('site_commerce_yandex_market_agency_email', variable_get('kvantstudio_admin_mail')),
+    '#required' => FALSE,
+  );
+  $form['site_commerce_yandex_market_сurrency'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Default currency'),
+    '#default_value' => variable_get('site_commerce_yandex_market_сurrency', 'RUR'),
+    '#options'       => site_commerce_yandex_market_сurrency(),
+  );
   
   $form['#submit'][] = 'site_commerce_yml_export_admin_settings_submit';
 
   return system_settings_form($form);
 }
+
 function site_commerce_yml_export_admin_settings_submit($form, $form_state) {}
 
 /**
@@ -79,7 +111,8 @@ function site_commerce_yml_export_get_xml() {
   }
 
   // Перечень всех товаров.
-  $pids = db_query("SELECT pid FROM {site_commerce} WHERE type IN (:site_commerce_types) AND disabled=:disabled", array(':site_commerce_types' => $site_commerce_types, ':disabled' => 0))->fetchCol();
+  $status = array(5, 10, 20, 30);
+  $pids = db_query("SELECT pid FROM {site_commerce} WHERE type IN (:site_commerce_types) AND disabled=:disabled AND status IN (:status)", array(':site_commerce_types' => $site_commerce_types, ':disabled' => 0, ':status' => $status))->fetchCol();
 
   // Перечень категорий товаров.
   $categories = db_query("SELECT d.tid, d.name, h.* FROM {taxonomy_term_data} d LEFT JOIN {taxonomy_term_hierarchy} h USING(tid) WHERE d.vid IN (:vids)", array(':vids' => $vids))->fetchAllAssoc('tid');
