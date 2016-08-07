@@ -403,7 +403,7 @@ function template_preprocess_site_news(&$variables) {
       'height' => $variables['field_site_news_image'][0]['height'],
       'attributes' => array('class' => 'site-news-image'),
     );
-    $variables['main_image'] = theme_image_style($variables_image);
+    $variables['main_image'] .= '<a class="colorbox litebox" rel="site-news-images" data-litebox-group="site-news-litebox-images" title="' . $variables['field_site_news_image'][0]['title'] . '" href="' . file_create_url($variables['field_site_news_image'][0]['uri']) . '">' . theme_image_style($variables_image) . '</a>';
   }
 
   // Переменная вывода последующих изображений.
@@ -424,7 +424,7 @@ function template_preprocess_site_news(&$variables) {
           'height' => $field_site_news_image['height'],
           'attributes' => array('class' => 'site-news-image'),
         );
-        $variables['other_image'] .= '<a class="colorbox" title="' . $title . '" href="' . file_create_url($uri) . '">' . theme_image_style($variables_image) . '</a>';
+        $variables['other_image'] .= '<a class="colorbox litebox" rel="site-news-images" data-litebox-group="site-news-litebox-images" title="' . $title . '" href="' . file_create_url($uri) . '">' . theme_image_style($variables_image) . '</a>';
       }
       $count ++;
     }
