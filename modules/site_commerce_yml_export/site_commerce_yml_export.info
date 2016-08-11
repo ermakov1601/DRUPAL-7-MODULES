@@ -1,6 +1,6 @@
 name = Site commerce YML export
 description = "YML export for Site commerce products (Yandex.Market)"
-version = "1.2"
+version = "1.3"
 core = 7.x
 package = Kvantstudio
 
