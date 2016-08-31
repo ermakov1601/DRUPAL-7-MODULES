@@ -1,5 +1,4 @@
 <?php
-// $Id:
 
 /**
  * Return rendered taxonomy tree
@@ -75,7 +74,7 @@ function theme_site_photogallery_terms($variables) {
 
   $row_data = '';
 
-  // Количесво изображений в альбоме.
+  // Количество изображений в альбоме.
   $count_images = 0;
   $nids = db_query("SELECT n.nid FROM {taxonomy_index} n WHERE n.tid = :tid", array(':tid' => $tid));
   foreach ($nids as $row) {
@@ -95,7 +94,7 @@ function theme_site_photogallery_terms($variables) {
 
   // Сообщение о том. что фотоальбом не отображается для посетителей.
   if (!$term->field_site_photogallery_status['und'][0]['value']) {
-    $row_title .= '<img align="absmiddle" src="/' . drupal_get_path('module', 'site_photogallery') . '/images/warning.png" alt="'.t('Warning').'" />&nbsp;<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
+    $row_title .= '<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
   }
 
   // Описание альбома.
@@ -180,13 +179,20 @@ function site_photogallery_category($tid, $page_view = TRUE) {
     }
   }
 
-  // Определяем есть ли в текущей категории позиции.
-  $count_site_commerce = db_query("SELECT COUNT(n.nid) FROM {taxonomy_index} n WHERE n.tid = :tid", array(':tid' => $tid))->fetchField();
-  if ($count_site_commerce > 0) {
+  // Определяем есть ли в текущей категории фотоальбомы.
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'));
+  $query->condition('n.status', 1);
+  $query->innerJoin('taxonomy_index', 't', 'n.nid = t.nid');
+  $query->condition('t.tid', $tid);
+  $result = $query->execute()->rowCount();
+
+  if ($result > 0) {
     $array_tid = array($tid);
   }
   else {
     // Определяем имеются ли дочерние элементы у текущего каталога.
+    // TODO Существует недароботка. Код ниже не учитывает статус нод, которые должны проверятся на активность как выше.
     $count_children = db_query("SELECT COUNT(*) FROM {taxonomy_term_hierarchy} n WHERE n.parent = :parent", array(':parent' => $tid))->fetchField();
     if ($count_children) {
       $result = kvantstudio_taxonomy_get_children_all($tid);
@@ -209,9 +215,23 @@ function site_photogallery_category($tid, $page_view = TRUE) {
     $query->condition('t.tid', $array_tid, 'IN');
     $query->innerJoin('field_data_field_site_photogallery_weight', 'w', 'n.nid = w.entity_id');
     $query->orderBy('w.field_site_photogallery_weight_value', 'ASC');
+
+    if (!user_access('administer site photogallery')) {
+      $query->innerJoin('field_revision_field_site_photogallery_status', 's', 'n.nid = s.entity_id');
+      $query->condition('s.field_site_photogallery_status_value', 1);
+    }
+
     // Для нумерации страниц.
     $query = $query->extend('PagerDefault')->limit(20);
     $result = $query->execute();
+
+    // Если в категории всего один фотоальбом делаем на него автоматический редирект.
+    if ($result->rowCount() == 1) {
+      foreach ($result as $row) {
+        $node = node_load($row->nid);
+        drupal_goto('node/' . $row->nid);
+      }
+    }
 
     $output .= '<div class="site-photogallery-albums-wrapper">';
     $output .= '<ul class="site-photogallery-albums">';
@@ -273,7 +293,7 @@ function theme_site_photogallery_node($variables) {
 
   // Сообщение о том. что фотоальбом не отображается для посетителей.
   if (!$node->field_site_photogallery_status['und'][0]['value']) {
-    $row_title .= '<img align="absmiddle" src="/' . drupal_get_path('module', 'site_photogallery') . '/images/warning.png" alt="'.t('Warning').'" />&nbsp;<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
+    $row_title .= '<span class="album-annotation">' . t('It is not displayed on a site.') . '</span>';
   }
 
   // Ссылки управления.
@@ -357,64 +377,3 @@ function theme_site_photogallery_images($variables) {
 
   return $output;
 }
-
-///**
-// * Темизация вывода фотоальбома.
-// */
-//function theme_site_photogallery_images($variables) {
-//  // Получаем переменные.
-//  $node = $variables['node'];
-//
-//  $output = '';
-//
-//  // Определяем параметры вывода изображений.
-//  // Количество изображений в одном ряду.
-//  $count_img = variable_get('site_photogallery_image_in_row', '4');
-//  // Переменная начала нового ряда. По умолчанию 0.
-//  $сount_row = 0;
-//  // Общее количество изображений в альбоме. Перемнная счетчик.
-//  $paste_img = count($node->field_site_photogallery_image['und']);
-//
-//  foreach ($node->field_site_photogallery_image['und'] as $row) {
-//
-//    // Выводим тег начала нового ряда если переменная $сount_row = 0.
-//    if ($сount_row == 0) {
-//      $output .= '<ul>';
-//    }
-//
-//    $output .= '<li>';
-//
-//    $variables = array(
-//      'style_name' => variable_get('site_photogallery_image_imagecache_preset', 'thumbnail'),
-//      'style_name_popup' => variable_get('site_photogallery_colorbox_imagecache_preset', 'large'),
-//      'image_path' => $row['uri'],
-//      'alt' => $row['alt'],
-//      'title' => $row['title'],
-//      'width' => $row['width'],
-//      'height' => $row['height'],
-//      'attributes' => array(),
-//      'class' => array('colorbox'),
-//      'link' => TRUE,
-//      'gid' => $row['fid'],
-//    );
-//    $output .= theme('kvantstudio_image', $variables);
-//
-//    $output .= '</li>';
-//
-//    // Увеличиваем счетчик рядов и уменьшаем счетчик вставленных изображений.
-//    $сount_row ++;
-//    $paste_img = $paste_img - 1;
-//    // Делаем проверку если $сount_row = $count_img то закрываем ряд и сбрасываем счетчик $сount_row.
-//    if ($сount_row == $count_img AND $paste_img > 0) {
-//      $output .= '</ul>';
-//      $сount_row = 0;
-//    }
-//    // Если изображений не хватает, чтобы полностью заполнить ряд, то закрываем его принудительно.
-//    if ($сount_row < $count_img AND $paste_img == 0) {
-//      $output .= '</ul>';
-//    }
-//
-//  }
-//
-//  return $output;
-//}

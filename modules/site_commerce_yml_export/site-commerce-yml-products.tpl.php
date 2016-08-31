@@ -5,8 +5,8 @@
     <name><?php echo variable_get('site_commerce_yandex_market_name', 'ABC'); ?></name>
     <company><?php echo variable_get('site_commerce_yandex_market_company', 'ABC inc.'); ?></company>
     <url><?php echo $GLOBALS['base_url']; ?>/</url>
-    <platform>Drupal</platform>
-    <version>7</version>
+    <platform>SiteCommerce на базе Drupal 7</platform>
+    <version><?php print $version; ?></version>
     <agency><?php echo variable_get('site_commerce_yandex_market_agency', 'Студия Павла Филинкова'); ?></agency>
     <email><?php echo variable_get('site_commerce_yandex_market_agency_email', variable_get('kvantstudio_admin_mail')); ?></email>
     <currencies>
