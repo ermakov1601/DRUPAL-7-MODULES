@@ -4780,6 +4780,9 @@ function template_preprocess_site_commerce(&$variables) {
     }
   }
 
+  // Параметр отображения кнопок краткого и полного содержимого.
+  $variables['site_commerce_reed_more'] = variable_get('site_commerce_set_reed_more', FALSE);
+
   // Краткое описание позиции.
   $variables['site_commerce_summary'] = '';
   if (isset($site_commerce->field_site_commerce_body[$site_commerce->language])) {

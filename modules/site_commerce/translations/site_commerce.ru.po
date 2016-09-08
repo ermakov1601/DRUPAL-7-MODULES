@@ -2025,3 +2025,6 @@ msgstr "Ссылка этого поля на оригинал товара"
 #: views/site_commerce.views.inc:201
 msgid "Enable to override this field's links."
 msgstr "Включите для переопределения ссылок этого поля."
+
+msgid "Allow button to display the detailed view on the item card."
+msgstr "Разрешить отображать кнопку подробного просмотра в карточке товара."

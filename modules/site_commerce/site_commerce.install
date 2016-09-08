@@ -3481,3 +3481,15 @@ function site_commerce_update_7063() {
 
   return 'Language and db structure updated.';
 }
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7064() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  return 'Language updated.';
+}

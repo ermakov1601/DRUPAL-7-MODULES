@@ -34,6 +34,11 @@ function site_commerce_settings_form($form, &$form_state) {
     '#type'          => 'checkbox',
     '#default_value' => variable_get('site_commerce_default_image_formatter', TRUE),
   );
+  $form['site_commerce_basic']['site_commerce_set_reed_more'] = array(
+    '#title'         => t('Allow button to display the detailed view on the item card.'),
+    '#type'          => 'checkbox',
+    '#default_value' => variable_get('site_commerce_set_reed_more', FALSE),
+  );
 
   //----------------------------------------------------------------------------
   // Настройки стилей фотоизображений.

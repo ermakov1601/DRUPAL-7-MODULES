@@ -100,7 +100,7 @@
     <!-- Краткое описание товара. -->
     <div class="site-commerce-content__description">
       <h2 class="site-commerce-content__description-title"><?php print t('Description'); ?></h2>
-      <?php if($site_commerce_summary && $site_commerce_body): ?>
+      <?php if($site_commerce_summary && $site_commerce_body && $site_commerce_reed_more): ?>
       <div class="site-commerce-content__switcher">
         <span class="site-commerce-content__switcher-item"><a class="site-commerce-content__switcher-link site-commerce-content__switcher-link_briefly site-commerce-content__switcher-link_active" href="javascript:void(0);">Краткое</a></span><span class="site-commerce-content__switcher-item"><a class="site-commerce-content__switcher-link site-commerce-content__switcher-link_detail" href="javascript:void(0);">Полное</a></span>
       </div>
@@ -123,7 +123,7 @@
 
   <?php if($site_commerce_body): ?>
     <!-- Подробное описание товара -->
-    <?php if($site_commerce_summary): ?>
+    <?php if($site_commerce_summary && $site_commerce_reed_more): ?>
       <div class="site-commerce-content__body-title">
         <a class="site-commerce-content__switcher-link_detail" href="javascript:void(0);"><span class="link-js"><?php print t('Show full description'); ?></span></a>
       </div>
