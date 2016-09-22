@@ -15,7 +15,7 @@ function site_commerce_image_default_styles() {
     'effects' => array(
       array(
         'name' => 'image_scale',
-        'data' => array('width' => 300, 'height' => 200, 'upscale' => 0),
+        'data' => array('width' => 600, 'height' => 500, 'upscale' => 0),
         'weight' => 0,
       ),
       array(
@@ -24,7 +24,7 @@ function site_commerce_image_default_styles() {
            'RGB' => array('HEX' => '#FFFFFF'),
            'under' => 1,
            'upscale' => 0,
-           'exact' => array('width' => 300, 'height' => 200, 'xpos' => 'center', 'ypos' => 'center'),
+           'exact' => array('width' => 600, 'height' => 500, 'xpos' => 'center', 'ypos' => 'center'),
            'relative' => array('leftdiff' => 0, 'rightdiff' => 0, 'bottomdiff' => 0),
         ),
         'weight' => 0,

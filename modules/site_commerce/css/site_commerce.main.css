@@ -17,6 +17,23 @@ img {
   border: 0;
 }
 
+.site-commerce-actions__button {
+  padding: 10px !important;
+  font-weight: bold !important;
+  font-size: 1.4em;
+  width: 250px;
+}
+
+.site-commerce-actions__form .form-item {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.site-commerce-actions__form .form-actions {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
 .site-commerce-buy-1-click:before {
 background: url(../images/phone.png) no-repeat;
   content: "";

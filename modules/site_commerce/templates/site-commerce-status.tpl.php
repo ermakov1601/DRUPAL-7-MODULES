@@ -13,6 +13,6 @@
  * @ingroup themeable
  */
 ?>
-<div class="site-commerce-status site-commerce-status_<?php print $status; ?> site-commerce-status_<?php print $type_call; ?>">
-  <div class="site-commerce-status__label"><?php print $position_status[$status]; ?></div>
+<div class="site-commerce-status site-commerce-status_<?php print $status; ?> site-commerce-status_<?php print $type_call; ?> clearfix">
+  <span class="site-commerce-status__label site-commerce-status__label_<?php print $status; ?>"><?php print $position_status[$status]; ?></span>
 </div>

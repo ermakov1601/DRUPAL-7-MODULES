@@ -27,10 +27,6 @@
  */
 ?>
 <div class="site-commerce-cost <?php print $class; ?>">
-  <?php if ($global_note_cost): ?>
-  <div class="site-commerce-global-note-cost"><?php print $global_note_cost; ?></div>
-  <?php endif; ?>
-
     <?php
       // Выполняем если выводиться стоимость с учётом спецпредложений.
       if (count($cost['special_offer'])):

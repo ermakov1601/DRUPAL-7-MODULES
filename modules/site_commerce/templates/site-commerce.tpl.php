@@ -49,11 +49,6 @@
     </div>
 
     <div class="site-commerce__header-actions">
-      <?php if($site_commerce_status): ?>
-        <!-- Статус позиции. -->
-        <?php print $site_commerce_status; ?>
-      <?php endif; ?>
-
       <!-- Вывод файлов. -->
       <?php if ($site_commerce_files): ?>
         <div class="site-commerce__header-files clearfix">
@@ -61,19 +56,21 @@
         </div>
       <?php endif; ?>
 
-      <?php
-        // Содержимое переменной $site_commerce_cost формируется шаблоном site-commerce-cost.tpl.php.
-        if($site_commerce_cost):
-      ?>
-        <!-- Стоимость товара. -->
-        <?php print $site_commerce_cost; ?>
+      <?php if($site_commerce_data): ?>
+      <!-- Характеристики товара. -->
+      <?php // Содержимое переменной $site_commerce_data формируется шаблоном site-commerce-data.tpl.php. ?>
+      <?php print $site_commerce_data; ?>
       <?php endif; ?>
 
-      <?php if($site_commerce_cost_none_exist): ?>
-        <!-- Примечание, которое выводиться если базовая стоимость равна нулю. -->
-        <div class="site-commerce-content__note site-commerce-content__note_cost-none-exist clearfix">
-          <?php print $site_commerce_cost_none_exist; ?>
-        </div>
+      <?php if($site_commerce_status): ?>
+        <!-- Статус позиции. -->
+        <?php print $site_commerce_status; ?>
+      <?php endif; ?>
+
+      <?php if($site_commerce_cost): ?>
+        <!-- Стоимость товара. -->
+        <?php // Содержимое переменной $site_commerce_cost формируется шаблоном site-commerce-cost.tpl.php. ?>
+        <?php print $site_commerce_cost; ?>
       <?php endif; ?>
 
       <?php if($site_commerce_cost_minimal_exist): ?>
@@ -87,6 +84,18 @@
         <!-- Добавить в корзину, купить в 1 клик. -->
         <?php print $site_commerce_cart; ?>
       <?php endif; ?>
+
+      <?php if ($global_note_cost): ?>
+        <!-- Глобальное примечание о стоимости товара (выводиться для всех товаров). -->
+        <div class="site-commerce-global-note-cost"><?php print $global_note_cost; ?></div>
+      <?php endif; ?>
+
+      <?php if($site_commerce_cost_none_exist): ?>
+        <!-- Примечание, которое выводиться если базовая стоимость равна нулю. -->
+        <div class="site-commerce-content__note site-commerce-content__note_cost-none-exist clearfix">
+          <?php print $site_commerce_cost_none_exist; ?>
+        </div>
+      <?php endif; ?>      
     </div>
   </div>
 
@@ -95,8 +104,8 @@
     <?php print $site_commerce_admin_actions_form; ?>
   <?php endif; ?>
 
+  <?php if($site_commerce_summary): ?>
   <div class="site-commerce__content clearfix">
-    <?php if($site_commerce_summary): ?>
     <!-- Краткое описание товара. -->
     <div class="site-commerce-content__description">
       <h2 class="site-commerce-content__description-title"><?php print t('Description'); ?></h2>
@@ -106,20 +115,11 @@
       </div>
       <?php endif; ?>
     </div>
-
     <div class="site-commerce-content__summary-text">
       <?php print $site_commerce_summary; ?>
     </div>
-    <?php endif; ?>
-
-    <?php
-      // Содержимое переменной $site_commerce_data формируется шаблоном site-commerce-data.tpl.php.
-      if($site_commerce_data):
-    ?>
-    <!-- Характеристики товара. -->
-    <?php print $site_commerce_data; ?>
-    <?php endif; ?>
   </div>
+  <?php endif; ?>
 
   <?php if($site_commerce_body): ?>
     <!-- Подробное описание товара -->

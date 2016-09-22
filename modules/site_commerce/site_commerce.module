@@ -1378,9 +1378,6 @@ function template_preprocess_site_commerce_cost(&$variables) {
   // Назначаем глобальный класс с учётом модификатора вызова функции.
   $variables['class'] = 'site-commerce-cost_' . $variables['type_call'];
 
-  // Если определен параметр примечания к стоимости.
-  $variables['global_note_cost'] = variable_get('site_commerce_note_global_cost', '');
-
   // Устанавливаем валюту, которая выбрана по умолчанию на сайте.
   $variables['currency'] = variable_get('site_commerce_default_currency');
 
@@ -2460,14 +2457,14 @@ function site_commerce_actions_form($form, &$form_state, $pid, $quantity_access 
       '#attributes' => array('class' => array($class, variable_get('site_commerce_cart_button_submit_css', 'btn btn-default'), 'use-ajax-submit')),
     );
   }
-  else {
-    if ($is_card) {
-      $message = t('To buy') . ' ' . $position->title;
-      $form['message'] = array(
-        '#markup' => $message,
-      );
-    }
-  }
+//  else {
+//    if ($is_card) {
+//      $message = t('To buy') . ' ' . $position->title;
+//      $form['message'] = array(
+//        '#markup' => $message,
+//      );
+//    }
+//  }
 
   // Если позиция не находится в корзине.
   if (!$cid) {
@@ -4668,6 +4665,9 @@ function template_preprocess_site_commerce(&$variables) {
 
   // Заголовок позиции.
   $variables['title'] = check_plain($site_commerce->title);
+
+  // Если определен параметр примечания к стоимости.
+  $variables['global_note_cost'] = variable_get('site_commerce_note_global_cost', '');
 
   // Блок с изображениями позиции.
   $variables['images']['main'] = array();
