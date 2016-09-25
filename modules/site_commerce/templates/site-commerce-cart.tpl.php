@@ -38,7 +38,7 @@
         <span id="site-commerce-cart__item-cost-<?php print $cid; ?>" class="site-commerce-cart__item-cost"><?php print $cart['cost_all']; ?></span> <?php print $cart['position']->currency; ?>
         <?php print t('per') ?>
         <!--<a class="site-commerce-cart__link site-commerce-cart__link_minus" сid="<?php print $cid; ?>" id="minus-<?php print $cid; ?>" href="javascript:void(0);"><img src="/<?php print $directory; ?>/images/minus.png" alt=""></a>-->
-        <input type="number" class="site-commerce-cart__item-quantity" id="quantity-<?php print $cid; ?>" сid="<?php print $cid; ?>" min="1" max="1000" value="<?php print $cart['quantity']; ?>" step="1" cart_value="<?php print $cart['quantity']; ?>">
+        <input type="number" class="site-commerce-cart__item-quantity" id="quantity-<?php print $cid; ?>" сid="<?php print $cid; ?>" min="<?php print $cart['min_quantity']; ?>" max="1000" value="<?php print $cart['quantity']; ?>" step="1" cart_value="<?php print $cart['quantity']; ?>">
         <!--<a class="site-commerce-cart__link site-commerce-cart__link_plus" сid="<?php print $cid; ?>" id="plus-<?php print $cid; ?>" href="javascript:void(0);"><img src="/<?php print $directory; ?>/images/plus.png" alt=""></a>-->
         <?php print t('piece') ?>
         <a class="site-commerce-cart__link site-commerce-cart__link_delete" сid="<?php print $cid; ?>" id="delete-<?php print $cid; ?>" href="javascript:void(0);">

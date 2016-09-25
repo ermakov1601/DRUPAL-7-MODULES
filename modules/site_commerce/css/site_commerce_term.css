@@ -10,6 +10,39 @@
   word-wrap: break-word;
 }
 
+.site-commerce-term-compact {
+  padding: 15px;
+  border-radius: 3px;
+  border: 1px solid #e9e9e7;
+  border-bottom: 1px solid #bdbdbd;
+  box-shadow: 0 1px 0px #eee;
+  background:#fff;
+  margin: 0 0 20px 0;
+  word-wrap: break-word;
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+
+@media screen and (min-width: 768px) {
+  .site-commerce-term-compact {
+    width: 48%;
+    margin-right: 10px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .site-commerce-term-compact {
+    width: 32%;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .site-commerce-term-compact {
+    width: 24%;
+  }
+}
+
 .site-commerce-term__title {
   margin-bottom: 1em;
 }

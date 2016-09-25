@@ -28,14 +28,22 @@ $jQuery(document).ready(function() {
       }
     }
 
-    // Функции обновления количества в корзине при клике на кнопки +/-.
+    // Функции обновления количества в корзине.
     $("input[type='number']").change(function() {
       var сid = $(this).attr("сid");
       var quantity = parseInt($("#quantity-" + сid).val());
+      var cart_value = parseInt($("#quantity-" + сid).attr("cart_value"));
+      var cart_min_value = parseInt($("#quantity-" + сid).attr("min"));
+
       if (quantity <= 0) {
-        var cart_value = parseInt($("#quantity-" + сid).attr("cart_value"));
         $("#quantity-" + сid).val(cart_value);
       }
+
+      if (quantity < cart_min_value) {
+        $("#quantity-" + сid).val(cart_min_value);
+        quantity = cart_min_value;
+      }
+
       if (quantity > 0) {
         // Выполняет запрос ajax.
         var ajax = new Drupal.ajax(false, false, {url : basePath + 'cart/update/'+ сid + '/' + quantity + '/1/nojs'});

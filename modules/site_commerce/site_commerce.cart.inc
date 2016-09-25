@@ -80,6 +80,7 @@ function template_preprocess_site_commerce_cart(&$variables) {
 
     // Количество.
     $variables['cart'][$row->status][$row->cid]['quantity'] = $row->quantity;
+    $variables['cart'][$row->status][$row->cid]['min_quantity'] = $position->field_site_commerce_min_quantity;
 
     // Стоимость товара в корзине.
     $cost = round($row->cost, 2);

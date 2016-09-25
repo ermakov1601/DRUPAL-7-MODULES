@@ -33,24 +33,24 @@
 #  templates/site-commerce-cost-minimal-value.tpl.php: n/a
 #  templates/site-commerce-cost.tpl.php: n/a
 #  templates/site-commerce-other-positions.tpl.php: n/a
+#  templates/site-commerce-photo-albums.tpl.php: n/a
 #  templates/site-commerce-position-index-data-items.tpl.php: n/a
 #  templates/site-commerce-position-index.tpl.php: n/a
 #  templates/site-commerce-search-form.tpl.php: n/a
 #  templates/site-commerce-select.tpl.php: n/a
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2016-04-03 22:03+0500\n"
-"PO-Revision-Date: 2016-04-03 22:04+0500\n"
+"POT-Creation-Date: 2016-09-25 17:01+0500\n"
+"PO-Revision-Date: 2016-09-25 17:01+0500\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Russian <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
-"Language: ru\n"
-"X-Generator: Poedit 1.8.7\n"
 
 #: site_commerce.admin.inc:18
 msgid "Show only positions where"
@@ -128,7 +128,7 @@ msgstr "Опубликовать все позиции"
 msgid "Delete the selected positions"
 msgstr "Удалить выбранные позиции"
 
-#: site_commerce.admin.inc:192;429;456 site_commerce.module:462
+#: site_commerce.admin.inc:192;429;456 site_commerce.module:484
 msgid "To remove all positions"
 msgstr "Удалить все позиции"
 
@@ -140,11 +140,11 @@ msgstr "Действие"
 msgid "Update"
 msgstr "Обновить"
 
-#: (duplicate) site_commerce.admin.inc:214 site_commerce.install:747
+#: (duplicate) site_commerce.admin.inc:214 site_commerce.install:747 
 msgid "Image"
 msgstr "Изображение"
 
-#: site_commerce.admin.inc:215 site_commerce.tokens.inc:23 site_commerce.module:7003 views/site_commerce.views.inc:103
+#: site_commerce.admin.inc:215 site_commerce.tokens.inc:23 site_commerce.module:7185 views/site_commerce.views.inc:103
 msgid "Title"
 msgstr "Заголовок"
 
@@ -176,11 +176,11 @@ msgstr "Нейтральный по отношению к языку"
 msgid "Undefined language (@langcode)"
 msgstr "Неопределённый язык (@langcode)"
 
-#: site_commerce.admin.inc:296 site_commerce.types.inc:48 site_commerce.module:3077
+#: site_commerce.admin.inc:296 site_commerce.types.inc:48 site_commerce.module:3195
 msgid "edit"
 msgstr "изменить"
 
-#: site_commerce.admin.inc:303 site_commerce.types.inc:59 site_commerce.module:3077
+#: site_commerce.admin.inc:303 site_commerce.types.inc:59 site_commerce.module:3195
 msgid "delete"
 msgstr "удалить"
 
@@ -190,7 +190,9 @@ msgstr "Нет доступного материала."
 
 #: site_commerce.admin.inc:368
 msgid "Select one or more positions to perform the update on."
-msgstr "Выберите одну или несколько позиций для выполнения операции обновления."
+msgstr ""
+"Выберите одну или несколько позиций "
+"для выполнения операции обновления."
 
 #: site_commerce.admin.inc:414
 msgid "All positions are published."
@@ -202,9 +204,12 @@ msgstr "Обновление было выполнено."
 
 #: site_commerce.admin.inc:431
 msgid "Are you sure you want to delete all the positions? Recovery will be impossible."
-msgstr "Вы действительно хотите удалить все позиции? Восстановление будет невозможно."
+msgstr ""
+"Вы действительно хотите удалить все "
+"позиции? Восстановление будет "
+"невозможно."
 
-#: site_commerce.admin.inc:432 site_commerce.pages.inc:186;261 site_commerce.settings.inc:407;874 site_commerce.types.inc:272 site_commerce.module:2225;6432;444;562 templates/site-commerce-cart.tpl.php:45
+#: site_commerce.admin.inc:432 site_commerce.pages.inc:186;261 site_commerce.settings.inc:418;897 site_commerce.types.inc:272 site_commerce.module:2336;6600;466;584 templates/site-commerce-cart.tpl.php:45
 msgid "Delete"
 msgstr "Удалить"
 
@@ -222,21 +227,27 @@ msgstr "Все позиции были удалены."
 
 #: site_commerce.admin.inc:499
 msgid "To remove a completed with errors."
-msgstr "Удаление позиций завершено с ошибками."
+msgstr ""
+"Удаление позиций завершено с "
+"ошибками."
 
-#: site_commerce.cart.inc:22 site_commerce.users.inc:23 site_commerce.module:5428;6784;6858
+#: site_commerce.cart.inc:22 site_commerce.users.inc:23 site_commerce.module:5592;6947;7034
 msgid "Home"
 msgstr "Главная"
 
-#: site_commerce.cart.inc:171;175
+#: site_commerce.cart.inc:172;176
 msgid "Cost in view of delivery will be certain by our manager after registration of the order. We shall contact you for confirming cost of the order."
-msgstr "Стоимость с учётом доставки будет определена нашим менеджером после оформления заказа. Мы свяжемся с Вами для подтверждения стоимости заказа."
+msgstr ""
+"Стоимость с учётом доставки будет "
+"определена нашим менеджером после "
+"оформления заказа. Мы свяжемся с Вами "
+"для подтверждения стоимости заказа."
 
-#: site_commerce.cart.inc:205 site_commerce.module:794;2733 includes/site_commerce.select.inc:18;79;128;206;279
+#: site_commerce.cart.inc:206 site_commerce.module:818;2851 includes/site_commerce.select.inc:18;79;128;206;279
 msgid "Turn javascript in you browser."
 msgstr "Включите javascript в вашем браузере."
 
-#: site_commerce.cart.inc:275 templates/site-commerce-cart.tpl.php:62
+#: site_commerce.cart.inc:276 templates/site-commerce-cart.tpl.php:62
 msgid "We give you the discount @discount%"
 msgstr "Мы дарим Вам скидку @discount%"
 
@@ -250,7 +261,9 @@ msgstr "Выберите CSV файл для импорта"
 
 #: site_commerce.import.csv.inc:28 site_commerce.import.images.inc:40 site_commerce.import.taxonomy.tags.csv.inc:32 site_commerce.import.xls.inc:32
 msgid "The <strong>maximum upload file size is !max_size</strong>."
-msgstr "<strong>Максимальный размер загружаемого файла !max_size</strong>."
+msgstr ""
+"<strong>Максимальный размер загружаемого "
+"файла !max_size</strong>."
 
 #: site_commerce.import.csv.inc:33 site_commerce.import.images.inc:51 site_commerce.import.taxonomy.tags.csv.inc:37 site_commerce.import.xls.inc:44
 msgid "To execute import"
@@ -258,15 +271,21 @@ msgstr "Выполнить импорт"
 
 #: site_commerce.import.csv.inc:66 site_commerce.import.images.inc:84 site_commerce.import.taxonomy.tags.csv.inc:70 site_commerce.import.xls.inc:90
 msgid "Unable to copy upload file to !dest."
-msgstr "Невозможно скопировать загруженный файл в !dest."
+msgstr ""
+"Невозможно скопировать загруженный "
+"файл в !dest."
 
 #: site_commerce.import.csv.inc:82 site_commerce.import.images.inc:113 site_commerce.import.taxonomy.tags.csv.inc:86 site_commerce.import.xls.inc:106
 msgid "Unable to read uploaded file !filepath."
-msgstr "Невозможно прочитать загруженный файл !filepath."
+msgstr ""
+"Невозможно прочитать загруженный "
+"файл !filepath."
 
 #: site_commerce.import.csv.inc:93 site_commerce.import.taxonomy.tags.csv.inc:97 site_commerce.import.xls.inc:117
 msgid "Import of positions is carried out, wait..."
-msgstr "Выполняется импорт позиций, подождите..."
+msgstr ""
+"Выполняется импорт позиций, "
+"подождите..."
 
 #: site_commerce.import.csv.inc:95 site_commerce.import.images.inc:126 site_commerce.import.taxonomy.tags.csv.inc:99 site_commerce.import.xls.inc:119
 msgid "Preparation of data"
@@ -290,13 +309,17 @@ msgstr "Импорт файла <strong>@file</strong> завершен."
 
 #: site_commerce.import.csv.inc:162 site_commerce.import.images.inc:360 site_commerce.import.xls.inc:459
 msgid "File not loaded. Please select a file for uploading."
-msgstr "Файл не загружен. Пожалуйста, выберите файл для загрузки."
+msgstr ""
+"Файл не загружен. Пожалуйста, выберите "
+"файл для загрузки."
 
 #: site_commerce.import.csv.inc:166 site_commerce.import.images.inc:364 site_commerce.import.taxonomy.tags.csv.inc:169 site_commerce.import.xls.inc:463
 msgid "Import file <strong>@file</strong> completed with errors."
-msgstr "Импорт файла <strong>@file</strong> завершен с ошибками."
+msgstr ""
+"Импорт файла <strong>@file</strong> завершен с "
+"ошибками."
 
-#: site_commerce.import.images.inc:17 site_commerce.module:508
+#: site_commerce.import.images.inc:17 site_commerce.module:530
 msgid "Import images"
 msgstr "Импорт изображений"
 
@@ -314,15 +337,21 @@ msgstr "Выберите файл для импорта"
 
 #: site_commerce.import.images.inc:44
 msgid "Delete current image"
-msgstr "Разрешить удаление текущих изображений"
+msgstr ""
+"Разрешить удаление текущих "
+"изображений"
 
 #: site_commerce.import.images.inc:124
 msgid "Import of images is carried out, wait..."
-msgstr "Выполняется импорт изображений, подождите..."
+msgstr ""
+"Выполняется импорт изображений, "
+"подождите..."
 
 #: site_commerce.import.images.inc:195
 msgid "The images has been added for position: <b>%title</b>."
-msgstr "Изображения добавлены для позиции: <b>%title</b>."
+msgstr ""
+"Изображения добавлены для позиции: "
+"<b>%title</b>."
 
 #: site_commerce.import.images.inc:198;199;200
 msgid "The key <b>%title</b> not found."
@@ -346,55 +375,69 @@ msgstr "Продолжить импорт со строки @line"
 
 #: site_commerce.pages.inc:49
 msgid "You have not created any product types yet. Go to the <a href=\"@create-content\">product type creation page</a> to add a new product type."
-msgstr "У Вас не создано ни одного типа товаров. Перейдите на <a href=\"@create-content\">страницу создания типа товаров</a>, чтобы добавить новый тип товаров."
+msgstr ""
+"У Вас не создано ни одного типа "
+"товаров. Перейдите на <a "
+"href=\"@create-content\">страницу создания типа "
+"товаров</a>, чтобы добавить новый тип "
+"товаров."
 
 #: site_commerce.pages.inc:61
 msgid "Create @name"
 msgstr "Создание материала @name"
 
-#: site_commerce.pages.inc:103 site_commerce.types.inc:37;86 site_commerce.module:217
+#: site_commerce.pages.inc:103 site_commerce.types.inc:37;86 site_commerce.module:231
 msgid "Name"
 msgstr "Название"
 
-#: site_commerce.pages.inc:108 site_commerce.module:222;2814
+#: site_commerce.pages.inc:108 site_commerce.module:236;2932
 msgid "Status position in stock"
 msgstr "Статус позиции на складе"
 
-#: site_commerce.pages.inc:114 site_commerce.module:227;2829
+#: site_commerce.pages.inc:114 site_commerce.module:241;2947
 msgid "Type of sale"
 msgstr "Тип продажи"
 
-#: site_commerce.pages.inc:120 site_commerce.module:232;2845
+#: site_commerce.pages.inc:120 site_commerce.module:246;2963
 msgid "Package of goods"
 msgstr "Комплект товаров"
 
-#: site_commerce.pages.inc:134 site_commerce.module:247;3014
+#: site_commerce.pages.inc:134 site_commerce.module:261;3132
 msgid "Display the value of the set of goods"
 msgstr "Отображать стоимость набора товаров"
 
 #: site_commerce.pages.inc:136
 msgid "The cost of the goods will be calculated as the sum of the value of goods, of which it is composed. The item must be of type sale - consists of a set of goods."
-msgstr "Стоимость товара будет вычисляться как сумма стоимости товаров, из которых он состоит. Товар должен иметь тип продажи «Состоит из набора товаров»."
+msgstr ""
+"Стоимость товара будет вычисляться "
+"как сумма стоимости товаров, из "
+"которых он состоит. Товар должен иметь "
+"тип продажи «Состоит из набора "
+"товаров»."
 
-#: site_commerce.pages.inc:148 site_commerce.module:237;3036;3205 views/site_commerce.views.inc:138
+#: site_commerce.pages.inc:148 site_commerce.module:251;3154;3323 views/site_commerce.views.inc:138
 msgid "Novelty"
 msgstr "Новинка"
 
-#: site_commerce.pages.inc:153 site_commerce.module:242;3050
+#: site_commerce.pages.inc:153 site_commerce.module:256;3168
 msgid "Do not display on the site"
 msgstr "Не отображать на сайте"
 
-#: site_commerce.pages.inc:158 site_commerce.module:252
+#: site_commerce.pages.inc:158 site_commerce.module:266
 msgid "Condition of product"
 msgstr "Состояние товара"
 
-#: site_commerce.pages.inc:178 site_commerce.settings.inc:358
+#: site_commerce.pages.inc:178 site_commerce.settings.inc:369
 msgid "Save"
 msgstr "Сохранить"
 
 #: site_commerce.pages.inc:203
 msgid "In a category @name it is forbidden to add positions. The reason: the chosen category has affiliated subcategories. Specify one of them."
-msgstr "В категорию @name запрещено добавлять позиции. Причина: выбранная категория имеет дочерние подкатегории. Укажите одну из них."
+msgstr ""
+"В категорию @name запрещено добавлять "
+"позиции. Причина: выбранная категория "
+"имеет дочерние подкатегории. Укажите "
+"одну из них."
 
 #: site_commerce.pages.inc:258
 msgid "Are you sure you want to delete %title?"
@@ -420,7 +463,7 @@ msgstr "@type: удален материал %title."
 msgid "The available products"
 msgstr "Доступные товары"
 
-#: site_commerce.position.index.inc:59 site_commerce.module:2251
+#: site_commerce.position.index.inc:59 site_commerce.module:2362
 msgid "The added products"
 msgstr "Добавленные товары"
 
@@ -428,11 +471,11 @@ msgstr "Добавленные товары"
 msgid "Enter your keywords"
 msgstr "Введите ключевые слова для поиска"
 
-#: (duplicate) site_commerce.position.index.inc:94 site_commerce.install:485
+#: (duplicate) site_commerce.position.index.inc:94 site_commerce.install:485 
 msgid "The category"
 msgstr "Категория"
 
-#: site_commerce.position.index.inc:107 site_commerce.module:5669;5681;615
+#: site_commerce.position.index.inc:107 site_commerce.module:5833;5845;648
 msgid "Search"
 msgstr "Поиск"
 
@@ -446,551 +489,801 @@ msgstr "Валюта по умолчанию"
 
 #: site_commerce.settings.inc:28
 msgid "To shape links on a position of the products in view of the name of a category"
-msgstr "Формировать ссылки на позиции товара с учётом названия категории"
+msgstr ""
+"Формировать ссылки на позиции товара "
+"с учётом названия категории"
 
 #: site_commerce.settings.inc:33
 msgid "Allow to use the standard image output format in the card goods"
-msgstr "Разрешить использовать стандартный формат вывода изображений в карточке товара"
+msgstr ""
+"Разрешить использовать стандартный "
+"формат вывода изображений в карточке "
+"товара"
 
-#: site_commerce.settings.inc:43
+#: site_commerce.settings.inc:38
+msgid "Allow button to display the detailed view on the item card."
+msgstr ""
+"Разрешить отображать кнопку "
+"подробного просмотра в карточке "
+"товара."
+
+#: site_commerce.settings.inc:48
 msgid "Settings of image styles"
 msgstr "Настройки стилей изображении"
 
-#: site_commerce.settings.inc:49
+#: site_commerce.settings.inc:54
 msgid "Style of the image at display of a category"
-msgstr "Стиль изображения при отображении категории"
+msgstr ""
+"Стиль изображения при отображении "
+"категории"
 
-#: (duplicate) site_commerce.settings.inc:52;59;66;73;80;95;102;109;116;123;130;137;152;159;166;173 site_commerce.module:439;550 site_commerce.install:3101;268
+#: (duplicate) site_commerce.settings.inc:57;64;71;78;85;100;107;114;121;128;135;142;157;164;171;178 site_commerce.module:461;572 site_commerce.install:3127;268 
 msgid "Edit"
 msgstr "Правка"
 
-#: site_commerce.settings.inc:56
+#: site_commerce.settings.inc:61
 msgid "Style of the image at display of a category in block"
-msgstr "Стиль изображения при отображении категории в блоке"
+msgstr ""
+"Стиль изображения при отображении "
+"категории в блоке"
 
-#: site_commerce.settings.inc:63
+#: site_commerce.settings.inc:68
 msgid "Style of the image at display of a subcategory"
-msgstr "Стиль изображения при отображении подкатегории"
+msgstr ""
+"Стиль изображения при отображении "
+"подкатегории"
 
-#: site_commerce.settings.inc:70
+#: site_commerce.settings.inc:75
 msgid "Style of the image at display of select form"
-msgstr "Стиль изображения при отображении формы выбора"
+msgstr ""
+"Стиль изображения при отображении "
+"формы выбора"
 
-#: site_commerce.settings.inc:77
+#: site_commerce.settings.inc:82
 msgid "Style of the image at display of select form in card"
-msgstr "Стиль изображения при отображении формы выбора в карточке товара"
+msgstr ""
+"Стиль изображения при отображении "
+"формы выбора в карточке товара"
 
-#: site_commerce.settings.inc:86
+#: site_commerce.settings.inc:91
 msgid "Styles of the image of positions"
 msgstr "Стили изображения позиций"
 
-#: site_commerce.settings.inc:92;149
+#: site_commerce.settings.inc:97;154
 msgid "Style of the main image at display of a position"
-msgstr "Стиль главного изображения при отображении позиции"
+msgstr ""
+"Стиль главного изображения при "
+"отображении позиции"
 
-#: site_commerce.settings.inc:99
+#: site_commerce.settings.inc:104
 msgid "Style of the image at display of a position"
-msgstr "Стиль изображения при отображении позиции"
+msgstr ""
+"Стиль изображения при отображении "
+"позиции"
 
-#: site_commerce.settings.inc:106;156
+#: site_commerce.settings.inc:111;161
 msgid "Style of the image at display of a position in the catalogue"
-msgstr "Стиль изображения при отображении позиции в каталоге"
+msgstr ""
+"Стиль изображения при отображении "
+"позиции в каталоге"
 
-#: site_commerce.settings.inc:113;163
+#: site_commerce.settings.inc:118;168
 msgid "Style of the image at display similar positions"
-msgstr "Стиль изображения при отображении похожих позиции"
+msgstr ""
+"Стиль изображения при отображении "
+"похожих позиции"
 
-#: site_commerce.settings.inc:120;170
+#: site_commerce.settings.inc:125;175
 msgid "Style of the image at display connected positions"
-msgstr "Стиль изображения при отображении связанных позиции"
+msgstr ""
+"Стиль изображения при отображении "
+"связанных позиции"
 
-#: site_commerce.settings.inc:127
+#: site_commerce.settings.inc:132
 msgid "Style of the image at display of a position to all screen"
-msgstr "Стиль изображения при отображении позиции на весь экран"
+msgstr ""
+"Стиль изображения при отображении "
+"позиции на весь экран"
 
-#: site_commerce.settings.inc:134
+#: site_commerce.settings.inc:139
 msgid "Style of the image at display of a position in the block"
-msgstr "Стиль изображения при отображении позиции в блоке"
+msgstr ""
+"Стиль изображения при отображении "
+"позиции в блоке"
 
-#: site_commerce.settings.inc:143
+#: site_commerce.settings.inc:148
 msgid "Styles of the image of positions of novelties"
 msgstr "Стили изображения позиций новинок"
 
-#: site_commerce.settings.inc:181
+#: site_commerce.settings.inc:186
 msgid "Set up of the catalogue"
 msgstr "Настройки каталога"
 
-#: site_commerce.settings.inc:186
+#: site_commerce.settings.inc:192
+msgid "Display mode products by category"
+msgstr ""
+"Режим отображения товаров по "
+"категории"
+
+#: site_commerce.settings.inc:194
+msgid "products in one line"
+msgstr ""
+
+#: site_commerce.settings.inc:194
+msgid "mode into the net"
+msgstr "режим отображения в сетку"
+
+#: site_commerce.settings.inc:197
 msgid "Allow to display images of categories of the catalogue"
-msgstr "Разрешить отображать изображения категорий каталога"
+msgstr ""
+"Разрешить отображать изображения "
+"категорий каталога"
 
-#: site_commerce.settings.inc:191
+#: site_commerce.settings.inc:202
 msgid "Allow to display images of categories of the catalogue in block"
-msgstr "Разрешить отображать изображения категорий каталога в блоке"
+msgstr ""
+"Разрешить отображать изображения "
+"категорий каталога в блоке"
 
-#: site_commerce.settings.inc:196
+#: site_commerce.settings.inc:207
 msgid "Allow to display images of subcategories of the catalogue"
-msgstr "Разрешить отображать изображения подкатегорий каталога"
+msgstr ""
+"Разрешить отображать изображения "
+"подкатегорий каталога"
 
-#: site_commerce.settings.inc:201
+#: site_commerce.settings.inc:212
 msgid "To display date and time of last updating of the catalogue of the goods"
-msgstr "Отображать дату и время последнего обновления каталога товаров"
+msgstr ""
+"Отображать дату и время последнего "
+"обновления каталога товаров"
 
-#: site_commerce.settings.inc:206
+#: site_commerce.settings.inc:217
 msgid "To allow to display the form of sorting of positions"
-msgstr "Разрешить отображать форму сортировки позиций"
+msgstr ""
+"Разрешить отображать форму "
+"сортировки позиций"
 
-#: site_commerce.settings.inc:211
+#: site_commerce.settings.inc:222
 msgid "Allow to display the number of positions next to the name category"
-msgstr "Разрешить отображать количество позиций рядом с названием категории"
+msgstr ""
+"Разрешить отображать количество "
+"позиций рядом с названием категории"
 
-#: site_commerce.settings.inc:216
+#: site_commerce.settings.inc:227
 msgid "Allow to display the number of positions next to the name subcategory"
-msgstr "Разрешить отображать количество позиций рядом с названием подкатегории"
+msgstr ""
+"Разрешить отображать количество "
+"позиций рядом с названием "
+"подкатегории"
 
-#: site_commerce.settings.inc:221
+#: site_commerce.settings.inc:232
 msgid "Allow to display categories in which there are no positions"
-msgstr "Разрешить отображать категории у которых нет позиций"
+msgstr ""
+"Разрешить отображать категории у "
+"которых нет позиций"
 
-#: site_commerce.settings.inc:226
+#: site_commerce.settings.inc:237
 msgid "Allow display subcategories in the main catalog page"
-msgstr "Разрешить отображать подкатегории на главной странице каталога"
+msgstr ""
+"Разрешить отображать подкатегории на "
+"главной странице каталога"
 
-#: site_commerce.settings.inc:231
+#: site_commerce.settings.inc:242
 msgid "Allow display subcategories on the main catalog page in the overlay layer"
-msgstr "Разрешить отображать подкатегории на главной странице каталога в наложеном слое"
+msgstr ""
+"Разрешить отображать подкатегории на "
+"главной странице каталога в наложеном "
+"слое"
 
-#: site_commerce.settings.inc:236
+#: site_commerce.settings.inc:247
 msgid "Allow display stating navigation"
-msgstr "Разрешить отображать постраничную навигацию"
+msgstr ""
+"Разрешить отображать постраничную "
+"навигацию"
 
-#: site_commerce.settings.inc:241
+#: site_commerce.settings.inc:252
 msgid "Allow to display the status of the position when viewing the catalogue"
-msgstr "Разрешить отображать статус позиции при просмотре каталога"
-
-#: site_commerce.settings.inc:246
-msgid "Allow sorting categories of the catalogue on weight"
-msgstr "Разрешить сортировку категорий каталога по весу"
-
-#: site_commerce.settings.inc:251
-msgid "To allow to display similar positions in view of principle Upsell"
-msgstr "Разрешить отображать похожие позиции с учётом принципа Upsell"
-
-#: site_commerce.settings.inc:254
-msgid "It is recommended to resolve sorting, only if the basic cost of all positions is filled. Otherwise other positions will not be displayed. This function allows to motivate the buyer to buy higher-end model."
-msgstr "Рекомендуется разрешать сортировку, только если заполнена основная стоимость всех позиций. Иначе прочие позиции не будут отображаться. Эта функция позволяет мотивировать покупателя купить более дорогую модель."
+msgstr ""
+"Разрешить отображать статус позиции "
+"при просмотре каталога"
 
 #: site_commerce.settings.inc:257
-msgid "Allow to display positions of subcategories"
-msgstr "Разрешить отображать позиции подкатегорий"
+msgid "Allow sorting categories of the catalogue on weight"
+msgstr ""
+"Разрешить сортировку категорий "
+"каталога по весу"
 
 #: site_commerce.settings.inc:262
-msgid "Allow always display all subcategories root partition current subcategories"
-msgstr "Разрешить всегда отображать все подкатегории корневого раздела текущей подкатегории"
+msgid "To allow to display similar positions in view of principle Upsell"
+msgstr ""
+"Разрешить отображать похожие позиции "
+"с учётом принципа Upsell"
 
 #: site_commerce.settings.inc:265
-msgid "It is recommended to include, if you want that at viewing a category of the catalogue other categories from a root category into which enters current were displayed all."
-msgstr "Рекомендуется включить, если Вы хотите чтобы при просмотре категории каталога отображались все другие категории из корневой категории, в которую входит текущая."
+msgid "It is recommended to resolve sorting, only if the basic cost of all positions is filled. Otherwise other positions will not be displayed. This function allows to motivate the buyer to buy higher-end model."
+msgstr ""
+"Рекомендуется разрешать сортировку, "
+"только если заполнена основная "
+"стоимость всех позиций. Иначе прочие "
+"позиции не будут отображаться. Эта "
+"функция позволяет мотивировать "
+"покупателя купить более дорогую "
+"модель."
 
 #: site_commerce.settings.inc:268
-msgid "To allow to delete positions of the catalogue at removal of a category"
-msgstr "Разрешить удалять позиции каталога при удалении категории"
+msgid "Allow to display positions of subcategories"
+msgstr ""
+"Разрешить отображать позиции "
+"подкатегорий"
 
 #: site_commerce.settings.inc:273
+msgid "Allow always display all subcategories root partition current subcategories"
+msgstr ""
+"Разрешить всегда отображать все "
+"подкатегории корневого раздела "
+"текущей подкатегории"
+
+#: site_commerce.settings.inc:276
+msgid "It is recommended to include, if you want that at viewing a category of the catalogue other categories from a root category into which enters current were displayed all."
+msgstr ""
+"Рекомендуется включить, если Вы "
+"хотите чтобы при просмотре категории "
+"каталога отображались все другие "
+"категории из корневой категории, в "
+"которую входит текущая."
+
+#: site_commerce.settings.inc:279
+msgid "To allow to delete positions of the catalogue at removal of a category"
+msgstr ""
+"Разрешить удалять позиции каталога "
+"при удалении категории"
+
+#: site_commerce.settings.inc:284
 msgid "To resolve cache cards of the goods at a browsing the catalog"
-msgstr "Разрешить кэшировать карточки товара при просмотре каталога"
+msgstr ""
+"Разрешить кэшировать карточки товара "
+"при просмотре каталога"
 
-#: site_commerce.settings.inc:278
+#: site_commerce.settings.inc:289
 msgid "Allow display a brief contents product card when you are viewing a catalogue"
-msgstr "Разрешить отображать краткое содержимое карточки товара при просмотре каталога"
+msgstr ""
+"Разрешить отображать краткое "
+"содержимое карточки товара при "
+"просмотре каталога"
 
-#: site_commerce.settings.inc:285
+#: site_commerce.settings.inc:296
 msgid "Statuses at which it is authorized to view a position in a catalog"
-msgstr "Статусы, при которых разрешено отображение позиции в каталоге"
+msgstr ""
+"Статусы, при которых разрешено "
+"отображение позиции в каталоге"
 
-#: site_commerce.settings.inc:291
+#: site_commerce.settings.inc:302
 msgid "The number of other positions in card view"
-msgstr "Количество прочих позиций при просмотре карточки товара"
+msgstr ""
+"Количество прочих позиций при "
+"просмотре карточки товара"
 
-#: site_commerce.settings.inc:297
+#: site_commerce.settings.inc:308
 msgid "The number of positions in block novelties"
 msgstr "Количество позиций в блоке новинки"
 
-#: site_commerce.settings.inc:303
+#: site_commerce.settings.inc:314
 msgid "The number of items on one page"
 msgstr "Количество позиций на одной странице"
 
-#: site_commerce.settings.inc:309 site_commerce.variable.inc:25
+#: site_commerce.settings.inc:320 site_commerce.variable.inc:25
 msgid "Heading of page of the catalogue"
 msgstr "Заголовок страницы каталога"
 
-#: site_commerce.settings.inc:315
+#: site_commerce.settings.inc:326
 msgid "The name of the link of page of the catalogue"
 msgstr "Название ссылки страницы каталога"
 
-#: site_commerce.settings.inc:318
+#: site_commerce.settings.inc:329
 msgid "The name of the link of page of the catalogue in English. Do not change the name on a ready site!"
-msgstr "Название ссылки страницы каталога на английском языке. Не изменяйте название на работающем сайте!"
+msgstr ""
+"Название ссылки страницы каталога на "
+"английском языке. Не изменяйте "
+"название на работающем сайте!"
 
-#: site_commerce.settings.inc:328
+#: site_commerce.settings.inc:339
 msgid "Configure the parametrs"
 msgstr "Настройка параметров"
 
-#: site_commerce.settings.inc:336
+#: site_commerce.settings.inc:347
 msgid "Create a parameter"
 msgstr "Создать параметр"
 
-#: site_commerce.settings.inc:342
+#: site_commerce.settings.inc:353
 msgid "Select vocabulary"
 msgstr "Выбрать словарь"
 
-#: site_commerce.settings.inc:347
+#: site_commerce.settings.inc:358
 msgid "Rename the parameter"
 msgstr "Переименовать параметр"
 
-#: site_commerce.settings.inc:348
+#: site_commerce.settings.inc:359
 msgid "If you do not fill out this field, The setting will be created, and his name will be the same as the selected dictionary."
-msgstr "Если не заполнять это поле, параметр будет создан и его имя будет таким же как у выбранного словаря."
+msgstr ""
+"Если не заполнять это поле, параметр "
+"будет создан и его имя будет таким же "
+"как у выбранного словаря."
 
-#: site_commerce.settings.inc:362
+#: site_commerce.settings.inc:373
 msgid "Calculate the value of the parameters as arithmetic mean"
-msgstr "Вычислять стоимость выбранных параметров как среднее арифметическое значение"
+msgstr ""
+"Вычислять стоимость выбранных "
+"параметров как среднее "
+"арифметическое значение"
 
-#: site_commerce.settings.inc:365
+#: site_commerce.settings.inc:376
 msgid "The cost of options is calculated and added to the cost of the goods. If the box is not ticked, the value of the parameters will be calculated as the sum of all selected parameters."
-msgstr "Стоимость параметров вычисляется и прибавляется к стоимости товара. Если галочка не установлена, стоимость параметров будет вычисляться как сумма всех выбранных параметров."
+msgstr ""
+"Стоимость параметров вычисляется и "
+"прибавляется к стоимости товара. Если "
+"галочка не установлена, стоимость "
+"параметров будет вычисляться как "
+"сумма всех выбранных параметров."
 
-#: site_commerce.settings.inc:378
+#: site_commerce.settings.inc:389
 msgid "Configure the @name"
 msgstr "Настройка @name"
 
-#: site_commerce.settings.inc:384
+#: site_commerce.settings.inc:395
 msgid "Parameter name"
 msgstr "Название параметра"
 
-#: site_commerce.settings.inc:389
+#: site_commerce.settings.inc:400
 msgid "Allow display select button"
 msgstr "Разрешить отображать кнопку выбора"
 
-#: site_commerce.settings.inc:394
+#: site_commerce.settings.inc:405
 msgid "Allow to consider cost in calculating the arithmetic mean"
-msgstr "Разрешить учитывать стоимость в среднеарифметическом расчёте"
+msgstr ""
+"Разрешить учитывать стоимость в "
+"среднеарифметическом расчёте"
 
-#: site_commerce.settings.inc:401
+#: site_commerce.settings.inc:412
 msgid "Categories for which are authorized to display the parameter"
-msgstr "Категории для которых разрешено отображать параметр"
+msgstr ""
+"Категории для которых разрешено "
+"отображать параметр"
 
-#: site_commerce.settings.inc:412;882
+#: site_commerce.settings.inc:423;905
 msgid "Save parametr"
 msgstr "Сохранить параметр"
 
-#: (duplicate) site_commerce.settings.inc:424 site_commerce.install:3101;268
+#: (duplicate) site_commerce.settings.inc:435 site_commerce.install:3127;268 
 msgid "Setup search"
 msgstr "Настройки поиска"
 
-#: site_commerce.settings.inc:429
-msgid "To allow to display the form of search under the catalogue"
-msgstr "Разрешить отображать форму поиска по каталогу"
-
-#: site_commerce.settings.inc:432
-msgid "If the goods are not available in the catalog, search form will not be displayed."
-msgstr "Если товары в каталоге отсутствуют, форма поиска не будет отображаться."
-
-#: site_commerce.settings.inc:435
-msgid "To allow the update index search catalog items by using cron"
-msgstr "Разрешить обновление поискового индекса позиций каталога используя крон"
-
 #: site_commerce.settings.inc:440
-msgid "To resolve autocompletion of input in the form of search"
-msgstr "Разрешить автозавершение ввода в форме поиска"
+msgid "To allow to display the form of search under the catalogue"
+msgstr ""
+"Разрешить отображать форму поиска по "
+"каталогу"
 
-#: site_commerce.settings.inc:445
-msgid "Allow to save search queries"
-msgstr "Разрешить сохранять поисковые запросы"
+#: site_commerce.settings.inc:443
+msgid "If the goods are not available in the catalog, search form will not be displayed."
+msgstr ""
+"Если товары в каталоге отсутствуют, "
+"форма поиска не будет отображаться."
 
-#: site_commerce.settings.inc:448
-msgid "Inclusion of this parameter can slow down speed of search if the parameter autocompletion of input is included."
-msgstr "Включение этого параметра может замедлить скорость поиска если включен параметр автозавершение ввода."
+#: site_commerce.settings.inc:446
+msgid "To allow the update index search catalog items by using cron"
+msgstr ""
+"Разрешить обновление поискового "
+"индекса позиций каталога используя "
+"крон"
 
 #: site_commerce.settings.inc:451
+msgid "To resolve autocompletion of input in the form of search"
+msgstr ""
+"Разрешить автозавершение ввода в "
+"форме поиска"
+
+#: site_commerce.settings.inc:456
+msgid "Allow to save search queries"
+msgstr ""
+"Разрешить сохранять поисковые "
+"запросы"
+
+#: site_commerce.settings.inc:459
+msgid "Inclusion of this parameter can slow down speed of search if the parameter autocompletion of input is included."
+msgstr ""
+"Включение этого параметра может "
+"замедлить скорость поиска если "
+"включен параметр автозавершение "
+"ввода."
+
+#: site_commerce.settings.inc:462
 msgid "To allow to use search in connection with words"
-msgstr "Разрешить использовать поиск по части слов"
+msgstr ""
+"Разрешить использовать поиск по части "
+"слов"
 
-#: site_commerce.settings.inc:454
+#: site_commerce.settings.inc:465
 msgid "If noted, the standard search form Drupаl will search for the part of each the entered words."
-msgstr "Если отмечено, стандартная форма поиска Drupal будет осуществлять поиск по части каждого введенного слова."
+msgstr ""
+"Если отмечено, стандартная форма "
+"поиска Drupal будет осуществлять поиск "
+"по части каждого введенного слова."
 
-#: site_commerce.settings.inc:458
+#: site_commerce.settings.inc:469
 msgid "Quantity of positions for which the search index for one start a cron will be updated"
-msgstr "Количество позиций, у которых будет обновлен поисковый индекс за один запуск крона"
+msgstr ""
+"Количество позиций, у которых будет "
+"обновлен поисковый индекс за один "
+"запуск крона"
 
-#: site_commerce.settings.inc:464
+#: site_commerce.settings.inc:475
 msgid "The number of items on one search page"
-msgstr "Количество позиций на одной странице поиска"
+msgstr ""
+"Количество позиций на одной странице "
+"поиска"
 
-#: (duplicate) site_commerce.settings.inc:470 site_commerce.variable.inc:130 site_commerce.install:3113;271
+#: (duplicate) site_commerce.settings.inc:481 site_commerce.variable.inc:130 site_commerce.install:3139;271 
 msgid "Title of the form of search"
 msgstr "Заголовок формы поиска"
 
-#: site_commerce.settings.inc:472
+#: site_commerce.settings.inc:483
 msgid "Leave this field blank if you want to name formed automatically based on the number of goods. For example, «Search within N products»."
-msgstr "Не заполняйте это поле, если хотите чтобы название формировалось автоматически с учетом количества товаров. Например, «Поиск среди N товаров»."
+msgstr ""
+"Не заполняйте это поле, если хотите "
+"чтобы название формировалось "
+"автоматически с учетом количества "
+"товаров. Например, «Поиск среди N "
+"товаров»."
 
-#: (duplicate) site_commerce.settings.inc:477 site_commerce.variable.inc:137 site_commerce.install:3109;270
+#: (duplicate) site_commerce.settings.inc:488 site_commerce.variable.inc:137 site_commerce.install:3135;270 
 msgid "The emerging help at prompting the mouse on a floor of input of the search form"
-msgstr "Всплывающая подсказка при наведении мыши на поле ввода поисковой формы"
+msgstr ""
+"Всплывающая подсказка при наведении "
+"мыши на поле ввода поисковой формы"
 
-#: (duplicate) site_commerce.settings.inc:483 site_commerce.variable.inc:144 site_commerce.install:3105;269
+#: (duplicate) site_commerce.settings.inc:494 site_commerce.variable.inc:144 site_commerce.install:3131;269 
 msgid "The help above a field of input of the search form"
-msgstr "Подсказка над полем ввода поисковой формы"
+msgstr ""
+"Подсказка над полем ввода поисковой "
+"формы"
 
-#: (duplicate) site_commerce.settings.inc:490 site_commerce.variable.inc:151 site_commerce.install:3101;268
+#: (duplicate) site_commerce.settings.inc:501 site_commerce.variable.inc:151 site_commerce.install:3127;268 
 msgid "The help under a field of input of the search form"
-msgstr "Подсказка под полем ввода поисковой формы"
+msgstr ""
+"Подсказка под полем ввода поисковой "
+"формы"
 
-#: site_commerce.settings.inc:502
+#: site_commerce.settings.inc:513
 msgid "Configure the shopping cart"
 msgstr "Настройки корзины"
 
-#: site_commerce.settings.inc:507
+#: site_commerce.settings.inc:518
 msgid "To allow display of a cart"
 msgstr "Разрешить отображение корзины"
 
-#: site_commerce.settings.inc:510
+#: site_commerce.settings.inc:521
 msgid "Allows you to add items to your cart, display unit with a basket."
-msgstr "Позволяет добавлять товары в корзину, отображать блок с корзиной."
+msgstr ""
+"Позволяет добавлять товары в корзину, "
+"отображать блок с корзиной."
 
-#: site_commerce.settings.inc:513
+#: site_commerce.settings.inc:524
 msgid "To allow to display the button of addition in a cart"
-msgstr "Разрешить отображать кнопку добавления в корзину"
+msgstr ""
+"Разрешить отображать кнопку "
+"добавления в корзину"
 
-#: site_commerce.settings.inc:518
+#: site_commerce.settings.inc:529
 msgid "To allow to display the button of addition in a cart in the catalog"
-msgstr "Разрешить отображение кнопки добавления в корзину в каталоге"
+msgstr ""
+"Разрешить отображение кнопки "
+"добавления в корзину в каталоге"
 
-#: site_commerce.settings.inc:523
+#: site_commerce.settings.inc:534
 msgid "To allow to display the button of addition in a cart in the block"
-msgstr "Разрешить отображать кнопку добавления в корзину в блоке"
+msgstr ""
+"Разрешить отображать кнопку "
+"добавления в корзину в блоке"
 
-#: site_commerce.settings.inc:528
+#: site_commerce.settings.inc:539
 msgid "To allow to specify quantity at addition of a position in the shopping cart"
-msgstr "Разрешить указывать количество при добавлении позиции в корзину"
+msgstr ""
+"Разрешить указывать количество при "
+"добавлении позиции в корзину"
 
-#: site_commerce.settings.inc:533
+#: site_commerce.settings.inc:544
 msgid "To allow to display a total cost of the order in the block with a cart"
-msgstr "Разрешить отображать общую стоимость заказа в блоке с корзиной"
+msgstr ""
+"Разрешить отображать общую стоимость "
+"заказа в блоке с корзиной"
 
-#: site_commerce.settings.inc:538
+#: site_commerce.settings.inc:549
 msgid "To allow the update cost in the shopping cart before ordering"
-msgstr "Разрешить обновление стоимости в корзине до оформления заказа"
+msgstr ""
+"Разрешить обновление стоимости в "
+"корзине до оформления заказа"
 
-#: site_commerce.settings.inc:541
+#: site_commerce.settings.inc:552
 msgid "If checked, the value of position in the shopping cart will automatically change, when the price changes in the price list."
-msgstr "Если отмечено, стоимость позиции в корзине будет автоматически изменятся, когда изменяется цена в прайс-листе."
+msgstr ""
+"Если отмечено, стоимость позиции в "
+"корзине будет автоматически "
+"изменятся, когда изменяется цена в "
+"прайс-листе."
 
-#: site_commerce.settings.inc:545 site_commerce.variable.inc:32
+#: site_commerce.settings.inc:556 site_commerce.variable.inc:32
 msgid "Heading of page of the shopping cart"
 msgstr "Заголовок страницы корзины"
 
-#: site_commerce.settings.inc:551 site_commerce.variable.inc:39
+#: site_commerce.settings.inc:562 site_commerce.variable.inc:39
 msgid "Heading of button add to cart"
 msgstr "Заголовок кнопки добавления в корзину"
 
-#: site_commerce.settings.inc:557 site_commerce.variable.inc:46
+#: site_commerce.settings.inc:568 site_commerce.variable.inc:46
 msgid "Text of empty cart"
-msgstr "Текст, который отображается в блоке, когда корзина пустая"
+msgstr ""
+"Текст, который отображается в блоке, "
+"когда корзина пустая"
 
-#: site_commerce.settings.inc:564
+#: site_commerce.settings.inc:575
 msgid "Statuses at which it is authorized to add a position in a cart"
-msgstr "Статусы, при которых разрешается добавлять позицию в корзину"
-
-#: site_commerce.settings.inc:570
-msgid "CSS classes, which will be added to the button in the cart"
-msgstr "CSS классы, которые будут добавлены к кнопке перейти в корзину"
+msgstr ""
+"Статусы, при которых разрешается "
+"добавлять позицию в корзину"
 
 #: site_commerce.settings.inc:581
+msgid "CSS classes, which will be added to the button in the cart"
+msgstr ""
+"CSS классы, которые будут добавлены к "
+"кнопке перейти в корзину"
+
+#: site_commerce.settings.inc:592
 msgid "Configuring the order registration"
 msgstr "Настройки оформления заказа"
 
-#: site_commerce.settings.inc:586
+#: site_commerce.settings.inc:597
 msgid "To resolve registration of orders if cost of a position it is equal to zero"
-msgstr "Разрешить оформление заказов если стоимость позиции равна нулю"
+msgstr ""
+"Разрешить оформление заказов если "
+"стоимость позиции равна нулю"
 
-#: site_commerce.settings.inc:591
+#: site_commerce.settings.inc:602
 msgid "To hide a sequential order number"
 msgstr "Скрывать порядковый номер заказа"
 
-#: site_commerce.settings.inc:594
+#: site_commerce.settings.inc:605
 msgid "If noted, the as a order numbers in the notifications will be displayed a specially the generated code , instead of an actual number."
-msgstr "Если отмечено, то в качестве номера заказа в уведомлениях будут отображаться специально сгенерированный код, вместо фактического порядкового номера."
+msgstr ""
+"Если отмечено, то в качестве номера "
+"заказа в уведомлениях будут "
+"отображаться специально "
+"сгенерированный код, вместо "
+"фактического порядкового номера."
 
-#: site_commerce.settings.inc:597
+#: site_commerce.settings.inc:608
 msgid "To resolve check of telephone number on a mask of input: 8 (code) number."
-msgstr "Разрешить проверку номера телефона по маске ввода: 8 (код) номер."
+msgstr ""
+"Разрешить проверку номера телефона по "
+"маске ввода: 8 (код) номер."
 
-#: site_commerce.settings.inc:603
+#: site_commerce.settings.inc:614
 msgid "To resolve protection against a spam in the form of registration of the order by means of module CAPTCHA"
-msgstr "Разрешить защиту от спама в форме оформления заказа средствами модуля CAPTCHA"
+msgstr ""
+"Разрешить защиту от спама в форме "
+"оформления заказа средствами модуля "
+"CAPTCHA"
 
-#: site_commerce.settings.inc:610
+#: site_commerce.settings.inc:621
 msgid "The minimal sum of the order at which it can be issued"
-msgstr "Минимальная сумма заказа, при которой его можно оформить"
+msgstr ""
+"Минимальная сумма заказа, при которой "
+"его можно оформить"
 
-#: site_commerce.settings.inc:616
+#: site_commerce.settings.inc:627
 msgid "Discounts at registration of the order"
 msgstr "Скидки при оформлении заказа"
 
-#: site_commerce.settings.inc:618
+#: site_commerce.settings.inc:629
 msgid "The discount which operates at registration of the order if a total amount exceeds or is equal to the certain number. A format of a writing COST-DISCOUNT (for example, the discount of 18 % at registration of the order from 3000 will become 3000-18). It is possible to specify some ranges of the discount. Each range is necessary for dividing a blank (for example, 3000-18 10000-20)."
-msgstr "Скидка, которая действует при оформлении заказа если итоговая сумма превышает или равна определенному числу. Формат написания СТОИМОСТЬ-СКИДКА (например, скидка 18% при оформлении заказа от 3000 примет вид 3000-18). Можно указать несколько диапазонов скидки. Каждый диапазон необходимо разделять пробелом (например, 3000-18 10000-20)."
+msgstr ""
+"Скидка, которая действует при "
+"оформлении заказа если итоговая сумма "
+"превышает или равна определенному "
+"числу. Формат написания "
+"СТОИМОСТЬ-СКИДКА (например, скидка 18% "
+"при оформлении заказа от 3000 примет вид "
+"3000-18). Можно указать несколько "
+"диапазонов скидки. Каждый диапазон "
+"необходимо разделять пробелом "
+"(например, 3000-18 10000-20)."
 
-#: site_commerce.settings.inc:624
+#: site_commerce.settings.inc:635
 msgid "Available fields of the form of registration of the order"
-msgstr "Доступные поля формы оформления заказа"
+msgstr ""
+"Доступные поля формы оформления "
+"заказа"
 
-#: site_commerce.settings.inc:627;649
+#: site_commerce.settings.inc:638;660
 msgid "Full name"
 msgstr "ФИО"
 
-#: site_commerce.settings.inc:628;650
+#: site_commerce.settings.inc:639;661
 msgid "Last name"
 msgstr "Фамилия"
 
-#: site_commerce.settings.inc:629;651
+#: site_commerce.settings.inc:640;662
 msgid "First name"
 msgstr "Имя"
 
-#: site_commerce.settings.inc:630;652
+#: site_commerce.settings.inc:641;663
 msgid "Patronymic"
 msgstr "Отчество"
 
-#: site_commerce.settings.inc:631;653 site_commerce.users.inc:46
+#: site_commerce.settings.inc:642;664 site_commerce.users.inc:46
 msgid "Organization"
 msgstr "Организация"
 
-#: site_commerce.settings.inc:632;654
+#: site_commerce.settings.inc:643;665
 msgid "Position in the organization"
 msgstr "Должность в организации"
 
-#: site_commerce.settings.inc:633;655
+#: site_commerce.settings.inc:644;666
 msgid "Postcode"
 msgstr "Почтовый индекс"
 
-#: site_commerce.settings.inc:634;656
+#: site_commerce.settings.inc:645;667
 msgid "City"
 msgstr "Город"
 
-#: site_commerce.settings.inc:635;657
+#: site_commerce.settings.inc:646;668
 msgid "The address of delivery"
 msgstr "Адрес доставки"
 
-#: site_commerce.settings.inc:636;658 site_commerce.module:847;930;959
+#: site_commerce.settings.inc:647;669 site_commerce.module:871;954;983
 msgid "Contact phone"
 msgstr "Контактный телефон"
 
-#: site_commerce.settings.inc:637;659
+#: site_commerce.settings.inc:648;670
 msgid "E-mail"
 msgstr "E-mail"
 
-#: site_commerce.settings.inc:638;660
+#: site_commerce.settings.inc:649;671
 msgid "Date"
 msgstr "Дата"
 
-#: site_commerce.settings.inc:639;661
+#: site_commerce.settings.inc:650;672
 msgid "Time"
 msgstr "Время"
 
-#: site_commerce.settings.inc:640;662
+#: site_commerce.settings.inc:651;673
 msgid "The comment to the order"
 msgstr "Комментарий к заказу"
 
-#: site_commerce.settings.inc:646
+#: site_commerce.settings.inc:657
 msgid "Mandatory for filling a field of the form of registration of the order"
-msgstr "Обязательные для заполнения поля формы оформления заказа"
+msgstr ""
+"Обязательные для заполнения поля "
+"формы оформления заказа"
 
-#: site_commerce.settings.inc:671
+#: site_commerce.settings.inc:682
 msgid "Available ways of delivery of the products"
 msgstr "Возможные способы доставки товаров"
 
-#: site_commerce.settings.inc:677
+#: site_commerce.settings.inc:688
 msgid "Conditions of payment and delivery"
 msgstr "Условия оплаты и доставки"
 
-#: site_commerce.settings.inc:689
+#: site_commerce.settings.inc:700
 msgid "Set up of function of purchase in one click"
 msgstr "Настройки функции покупки в один клик"
 
-#: site_commerce.settings.inc:694
+#: site_commerce.settings.inc:705
 msgid "To resolve purchase in one click"
 msgstr "Разрешить покупку в один клик"
 
-#: site_commerce.settings.inc:700 site_commerce.variable.inc:53
+#: site_commerce.settings.inc:711 site_commerce.variable.inc:53
 msgid "Title of button of purchase in one click"
 msgstr "Название кнопки купить в один клик"
 
-#: site_commerce.settings.inc:711
+#: site_commerce.settings.inc:722
 msgid "Set up of special offers"
 msgstr "Настройки спецпредложений"
 
-#: site_commerce.settings.inc:717
+#: site_commerce.settings.inc:728
 msgid "Heading of page of special offers"
 msgstr "Заголовок страницы спецпредложения"
 
-#: site_commerce.settings.inc:728
+#: site_commerce.settings.inc:739
+msgid "Settings of Yandex Market"
+msgstr "Настройки Yandex Market"
+
+#: site_commerce.settings.inc:751
 msgid "Configuring the notes"
 msgstr "Настройки примечаний"
 
-#: site_commerce.settings.inc:734 site_commerce.variable.inc:60
+#: site_commerce.settings.inc:757 site_commerce.variable.inc:60
 msgid "The note which is finished in a floor cost to all goods (for example, cost is specified from the VAT)"
-msgstr "Примечание, которое дописывается в поле стоимость ко всем товарам (например, стоимость указана с НДС)"
+msgstr ""
+"Примечание, которое дописывается в "
+"поле стоимость ко всем товарам "
+"(например, стоимость указана с НДС)"
 
-#: site_commerce.settings.inc:740 site_commerce.variable.inc:67
+#: site_commerce.settings.inc:763 site_commerce.variable.inc:67
 msgid "The text which is displayed at a browsing the catalog above categories of the goods"
-msgstr "Текст, который отображается при просмотре каталога над категориями товаров"
+msgstr ""
+"Текст, который отображается при "
+"просмотре каталога над категориями "
+"товаров"
 
-#: site_commerce.settings.inc:747 site_commerce.variable.inc:74
+#: site_commerce.settings.inc:770 site_commerce.variable.inc:74
 msgid "The text which is displayed at a browsing the catalog under categories of the goods"
-msgstr "Текст, который отображается при просмотре каталога под категориями товаров"
+msgstr ""
+"Текст, который отображается при "
+"просмотре каталога под категориями "
+"товаров"
 
-#: site_commerce.settings.inc:754 site_commerce.variable.inc:81
+#: site_commerce.settings.inc:777 site_commerce.variable.inc:81
 msgid "The text which is displayed at viewing the shopping cart"
-msgstr "Текст, который отображается при просмотре корзины"
+msgstr ""
+"Текст, который отображается при "
+"просмотре корзины"
 
-#: site_commerce.settings.inc:761 site_commerce.variable.inc:88
+#: site_commerce.settings.inc:784 site_commerce.variable.inc:88
 msgid "The text which is displayed at viewing the shopping cart if it is forbidden registrations of orders"
-msgstr "Текст, который отображается при просмотре корзины, если запрещено оформления заказов"
+msgstr ""
+"Текст, который отображается при "
+"просмотре корзины, если запрещено "
+"оформления заказов"
 
-#: site_commerce.settings.inc:768 site_commerce.variable.inc:95
+#: site_commerce.settings.inc:791 site_commerce.variable.inc:95
 msgid "The text which is displayed in e-mail the message of the customer after registration of the order"
-msgstr "Текст, который отображается в e-mail сообщении заказчика после оформления заказа"
+msgstr ""
+"Текст, который отображается в e-mail "
+"сообщении заказчика после оформления "
+"заказа"
 
-#: site_commerce.settings.inc:775 site_commerce.variable.inc:102
+#: site_commerce.settings.inc:798 site_commerce.variable.inc:102
 msgid "The text of the note which is displayed near to the name of a position if the minimal cost is specified"
-msgstr "Текст примечания, который отображается рядом с наименованием позиции если указана минимальная стоимость"
+msgstr ""
+"Текст примечания, который "
+"отображается рядом с наименованием "
+"позиции если указана минимальная "
+"стоимость"
 
-#: site_commerce.settings.inc:782 site_commerce.variable.inc:109
+#: site_commerce.settings.inc:805 site_commerce.variable.inc:109
 msgid "The text of the note which is displayed near to the name of a position if cost is not specified"
-msgstr "Текст примечания, который отображается рядом с наименованием позиции если не указана стоимость"
+msgstr ""
+"Текст примечания, который "
+"отображается рядом с наименованием "
+"позиции если не указана стоимость"
 
-#: site_commerce.settings.inc:789 site_commerce.variable.inc:116
+#: site_commerce.settings.inc:812 site_commerce.variable.inc:116
 msgid "The text of the note which is displayed near to the name of a position if quantity is not specified"
-msgstr "Текст примечания, который отображается рядом с наименованием позиции если не указано количество"
+msgstr ""
+"Текст примечания, который "
+"отображается рядом с наименованием "
+"позиции если не указано количество"
 
-#: site_commerce.settings.inc:796 site_commerce.variable.inc:123
+#: site_commerce.settings.inc:819 site_commerce.variable.inc:123
 msgid "The text of heading which is displayed above the block of the associated positions in a card of the goods"
-msgstr "Текст заголовка, который отображается над блоком связанных позиций в карточке товара"
+msgstr ""
+"Текст заголовка, который отображается "
+"над блоком связанных позиций в "
+"карточке товара"
 
-#: site_commerce.settings.inc:818
+#: site_commerce.settings.inc:841
 msgid "Access denied"
 msgstr "Доступ запрещен"
 
-#: site_commerce.tokens.inc:16 site_commerce.module:7255
+#: site_commerce.tokens.inc:16 site_commerce.module:7437
 msgid "Products"
 msgstr "Товары"
 
 #: site_commerce.tokens.inc:17
 msgid "Tokens related to individual products."
-msgstr "Токены для каждого индивидуального товара."
+msgstr ""
+"Токены для каждого индивидуального "
+"товара."
 
 #: site_commerce.tokens.inc:24
 msgid "Title of product."
@@ -1026,17 +1319,25 @@ msgstr "управление отображением"
 
 #: site_commerce.types.inc:69
 msgid "No content types available. <a href=\"@link\">Add content type</a>."
-msgstr "Нет доступных типов материалов. <a href=\"@link\">Добавить тип материалов</a>."
+msgstr ""
+"Нет доступных типов материалов. <a "
+"href=\"@link\">Добавить тип материалов</a>."
 
 #: site_commerce.types.inc:89
 msgid "The human-readable name of this product type."
-msgstr "Человеко-понятное название этого типа товара."
+msgstr ""
+"Человеко-понятное название этого типа "
+"товара."
 
 #: site_commerce.types.inc:103
 msgid "A unique machine-readable name for this product type. It must only contain lowercase letters, numbers, and underscores."
-msgstr "Уникальное машинное имя этого типа товара. Может содержать только маленькие буквы и нижнее подчеркивание."
+msgstr ""
+"Уникальное машинное имя этого типа "
+"товара. Может содержать только "
+"маленькие буквы и нижнее "
+"подчеркивание."
 
-#: site_commerce.types.inc:108 templates/site-commerce.tpl.php:103
+#: site_commerce.types.inc:108 templates/site-commerce.tpl.php:111
 msgid "Description"
 msgstr "Описание"
 
@@ -1050,21 +1351,24 @@ msgstr "Путь"
 
 #: site_commerce.types.inc:119
 msgid "The name (path-alias) of which are shaped алиасы links of the catalogue. For example, www.site.ru/catalog/path-alias/position/1."
-msgstr "Название (path-alias), из которого формируются алиасы ссылок каталога. Например, www.site.ru/catalog/path-alias/position/1."
+msgstr ""
+"Название (path-alias), из которого "
+"формируются алиасы ссылок каталога. "
+"Например, www.site.ru/catalog/path-alias/position/1."
 
-#: (duplicate) site_commerce.types.inc:127 site_commerce.install:2573;509 ;892
+#: (duplicate) site_commerce.types.inc:127 site_commerce.install:2599;509 ;918 
 msgid "The country of the manufacturer"
 msgstr "Страна производитель"
 
-#: (duplicate) site_commerce.types.inc:134 site_commerce.install:2568;873 ;875
+#: (duplicate) site_commerce.types.inc:134 site_commerce.install:2594;899 ;901 
 msgid "Manufacturers and brands"
 msgstr "Производители и торговые марки"
 
-#: (duplicate) site_commerce.types.inc:141 site_commerce.install:2002;2004;2563;854 ;856
+#: (duplicate) site_commerce.types.inc:141 site_commerce.install:2028;2030;2589;880 ;882 
 msgid "Сontractors"
 msgstr "Поставщики"
 
-#: (duplicate) site_commerce.types.inc:148 site_commerce.install:2558;2743;836
+#: (duplicate) site_commerce.types.inc:148 site_commerce.install:2584;2769;862 
 msgid "Categories the online store"
 msgstr "Категории интернет-магазина"
 
@@ -1074,7 +1378,10 @@ msgstr "Включить отображение на сайте"
 
 #: site_commerce.types.inc:161
 msgid "To resolve removal existing URL alias categories of the catalogue at their updating"
-msgstr "Разрешить удаление существующих URL алиасов категорий каталога при их обновлении"
+msgstr ""
+"Разрешить удаление существующих URL "
+"алиасов категорий каталога при их "
+"обновлении"
 
 #: site_commerce.types.inc:179
 msgid "Save product type"
@@ -1098,7 +1405,9 @@ msgstr "представление"
 
 #: site_commerce.types.inc:262
 msgid "Are you sure you want to delete the content type %type?"
-msgstr "Вы действительно хотите удалить тип материала %type?"
+msgstr ""
+"Вы действительно хотите удалить тип "
+"материала %type?"
 
 #: site_commerce.types.inc:283
 msgid "The content type %name has been deleted."
@@ -1115,9 +1424,24 @@ msgstr "Удален тип материала %name."
 #: site_commerce.types.inc:267
 msgid "%type is used by 1 piece of content on your site. If you remove this content type, you will not be able to edit the %type content and it may not display correctly."
 msgid_plural "%type is used by @count pieces of content on your site. If you remove %type, you will not be able to edit the %type content and it may not display correctly."
-msgstr[0] "На сайте имеется @count материал типа %type. Если вы удалите это тип материалов, вы не сможете редактировать материалы типа %type, и они могут некорректно отображаться."
-msgstr[1] "На сайте имеется @count материала типа %type. Если вы удалите это тип материалов, вы не сможете редактировать материалы типа %type, и они могут некорректно отображаться."
-msgstr[2] "На сайте имеется @count материалов типа %type. Если вы удалите это тип материалов, вы не сможете редактировать материалы типа %type, и они могут некорректно отображаться."
+msgstr[0] ""
+"На сайте имеется @count материал типа %type. "
+"Если вы удалите это тип материалов, вы "
+"не сможете редактировать материалы "
+"типа %type, и они могут некорректно "
+"отображаться."
+msgstr[1] ""
+"На сайте имеется @count материала типа "
+"%type. Если вы удалите это тип "
+"материалов, вы не сможете "
+"редактировать материалы типа %type, и "
+"они могут некорректно отображаться."
+msgstr[2] ""
+"На сайте имеется @count материалов типа "
+"%type. Если вы удалите это тип "
+"материалов, вы не сможете "
+"редактировать материалы типа %type, и "
+"они могут некорректно отображаться."
 
 #: site_commerce.update.url.alias.inc:13
 msgid "Update url alias for all positions"
@@ -1125,7 +1449,10 @@ msgstr "Обновить url алиасы всех позиций"
 
 #: site_commerce.update.url.alias.inc:15
 msgid "Are you sure you want to update all url alias the positions? Recovery will be impossible."
-msgstr "Вы уверены, что хотите обновить url алиасы всех позиций? Это действие нельзя отменить."
+msgstr ""
+"Вы уверены, что хотите обновить url "
+"алиасы всех позиций? Это действие "
+"нельзя отменить."
 
 #: site_commerce.update.url.alias.inc:43
 msgid "Processing"
@@ -1145,11 +1472,15 @@ msgstr "Произошла ошибка."
 
 #: site_commerce.update.url.alias.inc:77
 msgid "All url aliases available positions have been successfully updated."
-msgstr "Все url алиасы позиций успешно обновлены."
+msgstr ""
+"Все url алиасы позиций успешно "
+"обновлены."
 
 #: site_commerce.update.url.alias.inc:80
 msgid "The update url alias positions is completed with errors."
-msgstr "Обновление url алиасов позиций завершено с ошибками."
+msgstr ""
+"Обновление url алиасов позиций "
+"завершено с ошибками."
 
 #: site_commerce.users.inc:52
 msgid "Username"
@@ -1163,7 +1494,7 @@ msgstr "E-mail адрес"
 msgid "Create"
 msgstr "Создать"
 
-#: (duplicate) site_commerce.variable.inc:13 site_commerce.module:590;778;452 site_commerce.install:274 ;275 site_commerce.info:0
+#: (duplicate) site_commerce.variable.inc:13 site_commerce.module:613;802;474 site_commerce.install:274 ;275  site_commerce.info:0
 msgid "Online store"
 msgstr "Интернет-магазин"
 
@@ -1185,15 +1516,19 @@ msgstr "По запросу «@request» найден 1 результат"
 
 #: site_commerce.module:59
 msgid "On request «@request» found @count results"
-msgstr "По запросу «@request» найдено @count результата"
+msgstr ""
+"По запросу «@request» найдено @count "
+"результата"
 
 #: site_commerce.module:60
 msgid "On request «@request» found @count[2] results"
-msgstr "По запросу «@request» найдено @count[2] результатов"
+msgstr ""
+"По запросу «@request» найдено @count[2] "
+"результатов"
 
-#: site_commerce.module:68
-msgid "None"
-msgstr "Нет"
+#: site_commerce.module:68;117
+msgid "- None selected -"
+msgstr "- Ничего не выбрано -"
 
 #: site_commerce.module:69
 msgid "There is no stock"
@@ -1229,11 +1564,15 @@ msgstr "Б/У товар. Состояние хорошее."
 
 #: site_commerce.module:86
 msgid "B/A product. The condition with minor defects."
-msgstr "Б/У товар. Состояние хорошее с небольшими дефектами."
+msgstr ""
+"Б/У товар. Состояние хорошее с "
+"небольшими дефектами."
 
 #: site_commerce.module:87
 msgid "B/A product. The condition is poor. Repair is needed."
-msgstr "Б/У товар. Состояние плохое. Требуется ремонт."
+msgstr ""
+"Б/У товар. Состояние плохое. Требуется "
+"ремонт."
 
 #: site_commerce.module:102
 msgid "Piece sale"
@@ -1241,11 +1580,15 @@ msgstr "Поштучная продажа"
 
 #: site_commerce.module:103
 msgid "Piece sale in structure of other goods"
-msgstr "Поштучная продажа в составе другого товара"
+msgstr ""
+"Поштучная продажа в составе другого "
+"товара"
 
 #: site_commerce.module:104
 msgid "Piece sale in structure of other goods to not display in the catalogue"
-msgstr "Поштучная продажа в составе другого товара, не отображать в каталоге"
+msgstr ""
+"Поштучная продажа в составе другого "
+"товара, не отображать в каталоге"
 
 #: site_commerce.module:105
 msgid "Consists of a set of goods"
@@ -1253,628 +1596,699 @@ msgstr "Состоит из набора товаров"
 
 #: site_commerce.module:106
 msgid "Consists of a set of goods, is not allowed to add to cart"
-msgstr "Состоит из набора товаров, запрещено добавлять в корзину"
+msgstr ""
+"Состоит из набора товаров, запрещено "
+"добавлять в корзину"
 
-#: site_commerce.module:126
+#: site_commerce.module:126;140
 msgid "Ruble"
 msgstr "Рубль"
 
-#: site_commerce.module:127
+#: site_commerce.module:127;143
 msgid "Hryvnia"
 msgstr "Гривна"
 
-#: site_commerce.module:128
+#: site_commerce.module:128;144
 msgid "Kazakhstan tenge"
 msgstr "Казахстанский тенге"
 
-#: site_commerce.module:129
+#: site_commerce.module:129;141
 msgid "United States dollar"
 msgstr "Доллар США"
 
-#: site_commerce.module:130
+#: site_commerce.module:130;142
 msgid "Euro"
 msgstr "Евро"
 
-#: (duplicate) site_commerce.module:140 site_commerce.install:3252;57 views/site_commerce.views.inc:18
+#: (duplicate) site_commerce.module:154 site_commerce.install:3278;57  views/site_commerce.views.inc:18
 msgid "Product"
 msgstr "Товар"
 
-#: site_commerce.module:154
+#: site_commerce.module:168
 msgid "Full content"
 msgstr "Содержимое полностью"
 
-#: site_commerce.module:158
+#: site_commerce.module:172
 msgid "Teaser"
 msgstr "Анонс"
 
-#: site_commerce.module:218;5945
+#: site_commerce.module:232;6109
 msgid "Text"
 msgstr "Текст"
 
-#: site_commerce.module:223;228;233;253
+#: site_commerce.module:237;242;247;267
 msgid "List (text)"
 msgstr "Список (текст)"
 
-#: site_commerce.module:238;243;248
+#: site_commerce.module:252;257;262
 msgid "Boolean"
 msgstr "Логический"
 
-#: (duplicate) site_commerce.module:785;5240 site_commerce.install:265
+#: (duplicate) site_commerce.module:809;5404 site_commerce.install:265 
 msgid "Cart"
 msgstr "Корзина"
 
-#: site_commerce.module:824
+#: site_commerce.module:848
 msgid "Leave a phone number"
 msgstr "Оставьте номер телефона"
 
-#: site_commerce.module:837
+#: site_commerce.module:861
 msgid "Our manager will call to you at the given number, will specify all details and will issue the order for purchase."
-msgstr "Наш менеджер позвонит вам по этому номеру, уточнит все детали и оформит заказ на покупку."
+msgstr ""
+"Наш менеджер позвонит вам по этому "
+"номеру, уточнит все детали и оформит "
+"заказ на покупку."
 
-#: site_commerce.module:869
+#: site_commerce.module:893
 msgid "Send"
 msgstr "Отправить"
 
-#: site_commerce.module:909
+#: site_commerce.module:933
 msgid "Thanks! Your application is registered, we shall call back to you."
-msgstr "Спасибо! Ваша заявка зарегистрирована, мы Вам перезвоним."
+msgstr ""
+"Спасибо! Ваша заявка "
+"зарегистрирована, мы Вам перезвоним."
 
-#: site_commerce.module:930
+#: site_commerce.module:954
 msgid "Specify <strong>@param</strong>."
 msgstr "Введите <strong>@param</strong>."
 
-#: site_commerce.module:986
+#: site_commerce.module:1010
 msgid "On a site there was a mistake. Try to repeat operation once again. If the mistake will repeat, we necessarily shall correct it in the near future."
-msgstr "На сайте произошла ошибка. Попробуйте повторить операцию снова. Если ошибка будет повторятся, мы обязательно ее исправим в ближайшее время."
+msgstr ""
+"На сайте произошла ошибка. Попробуйте "
+"повторить операцию снова. Если ошибка "
+"будет повторятся, мы обязательно ее "
+"исправим в ближайшее время."
 
-#: site_commerce.module:1049
+#: site_commerce.module:1073
 msgid "Number of the order"
 msgstr "Номер заказа"
 
-#: site_commerce.module:1050
+#: site_commerce.module:1074
 msgid "The information for payment and deliveries of the order"
-msgstr "Информация для оплаты и доставки заказа"
+msgstr ""
+"Информация для оплаты и доставки "
+"заказа"
 
-#: site_commerce.module:1052
+#: site_commerce.module:1076
 msgid "Phone"
 msgstr "Телефон"
 
-#: site_commerce.module:1053
+#: site_commerce.module:1077
 msgid "A link to the page of the order"
 msgstr "Ссылка на страницу заказа"
 
-#: site_commerce.module:1054
+#: site_commerce.module:1078
 msgid "Password"
 msgstr "Пароль"
 
-#: site_commerce.module:1058
+#: site_commerce.module:1082
 msgid "Order information"
 msgstr "Информация о заказе"
 
-#: site_commerce.module:1070
+#: site_commerce.module:1094
 msgid "the new order has acted - @number"
 msgstr "поступил новый заказ - @number"
 
-#: site_commerce.module:1878;1908
+#: site_commerce.module:1989;2019
 msgid "The name"
 msgstr "Название"
 
-#: (duplicate) site_commerce.module:1891;1909;2193;3001;7006 site_commerce.install:781 includes/site_commerce.select.inc:177
+#: (duplicate) site_commerce.module:2002;2020;2304;3119;7188 site_commerce.install:781  includes/site_commerce.select.inc:177
 msgid "Cost"
 msgstr "Стоимость"
 
-#: site_commerce.module:1903
+#: site_commerce.module:2014
 msgid "To sort <span class='site-commerce-sort-title-name'>@name</span> on:"
-msgstr "Сортировать <span class='site-commerce-sort-title-name'>@name</span> по:"
+msgstr ""
+"Сортировать <span "
+"class='site-commerce-sort-title-name'>@name</span> по:"
 
-#: site_commerce.module:1906;6863;642
+#: site_commerce.module:2017;7039;675
 msgid "Novelties"
 msgstr "Новинки"
 
-#: site_commerce.module:2212
+#: site_commerce.module:2323
 msgid "Add"
 msgstr "Добавить"
 
-#: site_commerce.module:2417;2712
+#: site_commerce.module:2534;2830
 msgid "In a cart"
 msgstr "В корзине"
 
-#: site_commerce.module:2431
-msgid "To buy"
-msgstr "Купить"
-
-#: site_commerce.module:2446 templates/site-commerce-block-cart.tpl.php:36
+#: site_commerce.module:2564 templates/site-commerce-block-cart.tpl.php:36
 msgid "Quantity"
 msgstr "Кол-во"
 
-#: site_commerce.module:2534 includes/site_commerce.select.inc:48
+#: site_commerce.module:2652 includes/site_commerce.select.inc:48
 msgid "Select"
 msgstr "Выбрать"
 
-#: site_commerce.module:2570
+#: site_commerce.module:2688
 msgid "Product options"
 msgstr "Параметры товара"
 
-#: site_commerce.module:2583 includes/site_commerce.select.inc:187
+#: site_commerce.module:2701 includes/site_commerce.select.inc:187
 msgid "Final cost"
 msgstr "Итоговая стоимость"
 
-#: site_commerce.module:2590
+#: site_commerce.module:2708
 msgid "Temporarily to order it is impossible"
 msgstr "Временно заказать нельзя"
 
-#: site_commerce.module:2771
+#: site_commerce.module:2889
 msgid "Special offer"
 msgstr "Спецпредложение"
 
-#: site_commerce.module:2791
+#: site_commerce.module:2909
 msgid "View in block «Special offer»"
 msgstr "Отображать в блоке «Спецпредложения»"
 
-#: site_commerce.module:2792
+#: site_commerce.module:2910
 msgid "No"
 msgstr "Нет"
 
-#: site_commerce.module:2792
+#: site_commerce.module:2910
 msgid "Yes"
 msgstr "Да"
 
-#: site_commerce.module:2871
+#: site_commerce.module:2989
 msgid "Contractor"
 msgstr "Поставщик"
 
-#: site_commerce.module:2890 views/site_commerce.views.inc:87
+#: site_commerce.module:3008 views/site_commerce.views.inc:87
 msgid "Category"
 msgstr "Категория"
 
-#: (duplicate) site_commerce.module:2909 site_commerce.install:767
+#: (duplicate) site_commerce.module:3027 site_commerce.install:767 
 msgid "Tags"
 msgstr "Теги"
 
-#: site_commerce.module:2911
+#: site_commerce.module:3029
 msgid "Update the categories of positions"
 msgstr "Обновить категории у позиций"
 
-#: site_commerce.module:2933
-msgid "Quantity for the order in package"
-msgstr "Количество для заказа в комплекте"
+#: site_commerce.module:3051
+msgid "Minimum quantity for order"
+msgstr "Минимальное количество для заказа"
 
-#: (duplicate) site_commerce.module:2963 site_commerce.install:547
+#: (duplicate) site_commerce.module:3081 site_commerce.install:547 
 msgid "The minimal cost"
 msgstr "Минимальная стоимость"
 
-#: site_commerce.module:2986
+#: site_commerce.module:3104
 msgid "Old cost"
 msgstr "Предыдущая стоимость"
 
-#: site_commerce.module:3077
+#: site_commerce.module:3195
 msgid "add"
 msgstr "добавить"
 
-#: site_commerce.module:3098
+#: site_commerce.module:3216
 msgid "The type of sale is changed"
 msgstr "Тип продажи изменён"
 
-#: site_commerce.module:3118
+#: site_commerce.module:3236
 msgid "The package of goods is changed"
 msgstr "Комплект товаров изменён"
 
-#: site_commerce.module:3140
+#: site_commerce.module:3258
 msgid "Displays in the block is changed"
 msgstr "Отображение в блоке изменено"
 
-#: site_commerce.module:3185
+#: site_commerce.module:3303
 msgid "The status is changed"
 msgstr "Статус изменен"
 
-#: site_commerce.module:3209
+#: site_commerce.module:3327
 msgid "Not novelty"
 msgstr "Не новинка"
 
-#: site_commerce.module:3247
+#: site_commerce.module:3365
 msgid "The contractor is changed"
 msgstr "Поставщик изменен"
 
-#: site_commerce.module:3284
+#: site_commerce.module:3402
 msgid "The category is changed"
 msgstr "Категория позиции изменена"
 
-#: site_commerce.module:3318
+#: site_commerce.module:3436
 msgid "The tags of category is changed"
 msgstr "Тэги категории обновлены"
 
-#: site_commerce.module:3353
+#: site_commerce.module:3471
 msgid "The quantity for the order in the complete set is updated"
-msgstr "Количество для заказа в комплекте обновлено"
+msgstr ""
+"Количество для заказа в комплекте "
+"обновлено"
 
-#: site_commerce.module:3384
+#: site_commerce.module:3502
 msgid "The previous cost not maybe is less than cost of the goods."
-msgstr "Предыдущая стоимость не может быть меньше стоимости товара."
+msgstr ""
+"Предыдущая стоимость не может быть "
+"меньше стоимости товара."
 
-#: site_commerce.module:3407
+#: site_commerce.module:3525
 msgid "Cost is updated"
 msgstr "Стоимость обновлена"
 
-#: site_commerce.module:3427
+#: site_commerce.module:3545
 msgid "The cost of the goods will be calculated as the sum of the value of goods, of which it is composed"
-msgstr "Стоимость товара будет вычисляться как сумма стоимости товаров, из которых он состоит"
+msgstr ""
+"Стоимость товара будет вычисляться "
+"как сумма стоимости товаров, из "
+"которых он состоит"
 
-#: site_commerce.module:3430
+#: site_commerce.module:3548
 msgid "Cost of the goods will be equal to the basic cost"
-msgstr "Стоимость товара будет равна основной стоимости"
+msgstr ""
+"Стоимость товара будет равна основной "
+"стоимости"
 
-#: site_commerce.module:3456
+#: site_commerce.module:3574
 msgid "Not published"
 msgstr "Не опубликовано"
 
-#: site_commerce.module:3463
+#: site_commerce.module:3581
 msgid "Published"
 msgstr "Опубликовано"
 
-#: site_commerce.module:3491
+#: site_commerce.module:3609
 msgid "The products is added in a special offer"
 msgstr "Товар добавлен в спецпредложение"
 
-#: site_commerce.module:3494
+#: site_commerce.module:3612
 msgid "The products is removed from special offers"
 msgstr "Товар удалён из спецпредложения"
 
-#: site_commerce.module:3724
+#: site_commerce.module:3842
 msgid "Categories are not created"
 msgstr "Категории не созданы"
 
-#: site_commerce.module:3724
+#: site_commerce.module:3842
 msgid "create now"
 msgstr "создать сейчас"
 
-#: site_commerce.module:3807
+#: site_commerce.module:3925
 msgid "Sorry, our online store to be in development. Come later."
-msgstr "Извините, наш интернет-магазин находиться в разработке. Зайдите позже."
+msgstr ""
+"Извините, наш интернет-магазин "
+"находиться в разработке. Зайдите "
+"позже."
 
-#: site_commerce.module:3811;526
+#: site_commerce.module:3929;548
 msgid "To add a position"
 msgstr "Добавить позицию"
 
-#: site_commerce.module:3832
+#: site_commerce.module:3950
 msgid "Administer adjustments"
 msgstr "Управление настройками"
 
-#: site_commerce.module:3836
+#: site_commerce.module:3954
 msgid "Management of the products"
 msgstr "Управление товарами"
 
-#: site_commerce.module:3840
+#: site_commerce.module:3958
 msgid "Management of types of the products"
 msgstr "Управление типами товаров"
 
-#: site_commerce.module:3844
+#: site_commerce.module:3962
 msgid "Viewing of results of search requests"
-msgstr "Просмотр результатов поисковых запросов"
+msgstr ""
+"Просмотр результатов поисковых "
+"запросов"
 
-#: site_commerce.module:3871
+#: site_commerce.module:3989
 msgid "%type_name: view products"
-msgstr "%type_name: просмотр опубликованных товаров"
+msgstr ""
+"%type_name: просмотр опубликованных "
+"товаров"
 
-#: site_commerce.module:3874
+#: site_commerce.module:3992
 msgid "%type_name: create new products"
 msgstr "%type_name: cоздание новых товаров"
 
-#: site_commerce.module:3877
+#: site_commerce.module:3995
 msgid "%type_name: edit own products"
-msgstr "%type_name: редактирование собственных товаров"
+msgstr ""
+"%type_name: редактирование собственных "
+"товаров"
 
-#: site_commerce.module:3880
+#: site_commerce.module:3998
 msgid "%type_name: edit any products"
 msgstr "%type_name: редактирование любых товаров"
 
-#: site_commerce.module:3883
+#: site_commerce.module:4001
 msgid "%type_name: delete own products"
 msgstr "%type_name: удаление собственных товаров"
 
-#: site_commerce.module:3886
+#: site_commerce.module:4004
 msgid "%type_name: delete any products"
 msgstr "%type_name: удаление любых товаров"
 
-#: site_commerce.module:5091
+#: site_commerce.module:5255
 msgid "Updating URL of names of categories of the catalogue is executed. It is updated categories - @count."
-msgstr "Выполнено обновление URL наименований категорий каталога. Обновлено категорий - @count."
+msgstr ""
+"Выполнено обновление URL наименований "
+"категорий каталога. Обновлено "
+"категорий - @count."
 
-#: site_commerce.module:5247
+#: site_commerce.module:5411
 msgid "New in the online store"
 msgstr "Новое в интернет-магазине"
 
-#: site_commerce.module:5253;5292;517
+#: site_commerce.module:5417;5456;539
 msgid "Search requests"
 msgstr "Поисковые запросы"
 
-#: site_commerce.module:5260;5302
+#: site_commerce.module:5424;5466
 msgid "Categories"
 msgstr "Категории"
 
-#: site_commerce.module:5284
+#: site_commerce.module:5448
 msgid "Novelties of shop"
 msgstr "Новинки магазина"
 
-#: site_commerce.module:5721
+#: site_commerce.module:5885
 msgid "On request «@request» no results were found"
 msgstr "По запросу «@request» ничего не найдено"
 
-#: site_commerce.module:5724
+#: site_commerce.module:5888
 msgid "No results were found"
 msgstr "Ничего не найдено"
 
-#: site_commerce.module:5846
+#: site_commerce.module:6010
 msgid "Completed the update URL catalog items with id @first on id @last."
-msgstr "Выполнено обновление URL позиций каталога с id @first по id @last."
+msgstr ""
+"Выполнено обновление URL позиций "
+"каталога с id @first по id @last."
 
-#: site_commerce.module:5939
+#: site_commerce.module:6103
 msgid "block IP address"
 msgstr "блокировать IP адрес"
 
-#: site_commerce.module:5946
+#: site_commerce.module:6110
 msgid "Created"
 msgstr "Создано"
 
-#: site_commerce.module:5947
+#: site_commerce.module:6111
 msgid "IP"
 msgstr "IP"
 
-#: site_commerce.module:6133
+#: site_commerce.module:6297
 msgid "You add to cart"
 msgstr "Вы добавили в корзину"
 
-#: site_commerce.module:6139 templates/site-commerce-block-cart.tpl.php:29
+#: site_commerce.module:6303 templates/site-commerce-block-cart.tpl.php:29
 msgid "To issue the order"
 msgstr "Оформить заказ"
 
-#: site_commerce.module:6140
+#: site_commerce.module:6304
 msgid "To continue purchases"
 msgstr "Продолжить покупки"
 
-#: site_commerce.module:6429
+#: site_commerce.module:6597
 msgid "Change"
 msgstr "Изменить"
 
-#: site_commerce.module:6440;6830 includes/site_commerce.select.inc:88;111;142;147 templates/site-commerce-subcategories.tpl.php:36
+#: site_commerce.module:6608;6999 includes/site_commerce.select.inc:88;111;142;147 templates/site-commerce-subcategories.tpl.php:37
 msgid "@value"
 msgstr "@value"
 
-#: site_commerce.module:7096;7125
+#: site_commerce.module:7278;7307
 msgid "It is not chosen"
 msgstr "Не выбрано"
 
-#: site_commerce.module:7232
+#: site_commerce.module:7414
 msgid "Online store site commerce paths"
 msgstr "Пути интернет-магазина SiteCommerce"
 
-#: site_commerce.module:7233
+#: site_commerce.module:7415
 msgid "Default path pattern (applies to all site_commerces with blank patterns below)"
-msgstr "Шаблон пути по умолчанию (применяется ко всем типам товаров с незаполненным полем шаблона ниже)"
+msgstr ""
+"Шаблон пути по умолчанию (применяется "
+"ко всем типам товаров с незаполненным "
+"полем шаблона ниже)"
 
-#: site_commerce.module:7244
+#: site_commerce.module:7426
 msgid "Pattern for all @label paths"
-msgstr "Шаблон для всех адресов товаров типа @label"
+msgstr ""
+"Шаблон для всех адресов товаров типа "
+"@label"
 
-#: site_commerce.module:7339
+#: site_commerce.module:7521
 msgid "Updated alias for site_commerce @pid."
 msgstr "Обновлено псевдонимов для site_commerce @pid."
 
-#: site_commerce.module:7443
+#: site_commerce.module:7625
 msgid "ID product"
 msgstr "Идентификатор товара"
 
-#: site_commerce.module:7444 templates/site-commerce.tpl.php:23
+#: site_commerce.module:7626 templates/site-commerce.tpl.php:23
 msgid "Part number"
 msgstr "Артикул"
 
-#: site_commerce.module:7301
+#: site_commerce.module:7483
 msgid "Updated URL alias for 1 product."
 msgid_plural "Updated URL aliases for @count products."
 msgstr[0] "Обновлен URL псевдонима для 1 продукта."
-msgstr[1] "Обновлен URL псевдонима для @count товаров."
+msgstr[1] ""
+"Обновлен URL псевдонима для @count "
+"товаров."
 msgstr[2] "Обновлен URL псевдонима для @count товара."
 
-#: site_commerce.module:397
+#: site_commerce.module:419
 msgid "Set up an online store"
 msgstr "Настройки интернет-магазина"
 
-#: site_commerce.module:398
+#: site_commerce.module:420
 msgid "Set up the catalog, cart, order."
-msgstr "Настройки каталога, корзины, оформление заказа."
+msgstr ""
+"Настройки каталога, корзины, "
+"оформление заказа."
 
-#: site_commerce.module:407
+#: site_commerce.module:429
 msgid "Types of products"
 msgstr "Типы товаров"
 
-#: site_commerce.module:414
+#: site_commerce.module:436
 msgid "List"
 msgstr "Список"
 
-#: site_commerce.module:420
+#: site_commerce.module:442
 msgid "Аdd a new type of products"
 msgstr "Добавить новый тип товаров"
 
-#: site_commerce.module:429
+#: site_commerce.module:451
 msgid "Edit site commerce type"
 msgstr "Редактировать тип товара"
 
-#: site_commerce.module:471
+#: site_commerce.module:493
 msgid "Associate positions"
 msgstr "Привязать позиции"
 
-#: site_commerce.module:480
+#: site_commerce.module:502
 msgid "Tags CSV import"
 msgstr "Импорт тегов из CSV"
 
-#: site_commerce.module:490
+#: site_commerce.module:512
 msgid "Import from csv"
 msgstr "Импорт из CSV"
 
-#: site_commerce.module:498
+#: site_commerce.module:520
 msgid "Import from xls"
 msgstr "Импорт из XLS"
 
-#: site_commerce.module:657
+#: site_commerce.module:690
 msgid "Add to cart"
 msgstr "В корзину"
 
-#: site_commerce.module:666
+#: site_commerce.module:699
 msgid "Go to cart"
 msgstr "В корзину"
 
-#: site_commerce.module:675
+#: site_commerce.module:708
 msgid "To buy in 1 click"
 msgstr "Купить в 1 клик"
 
-#: site_commerce.module:693
+#: site_commerce.module:726
 msgid "Select form"
 msgstr "Форма выбора"
 
-#: site_commerce.module:703
+#: site_commerce.module:736
 msgid "Load data"
 msgstr "Загрузить данные"
 
-#: site_commerce.module:713
+#: site_commerce.module:746
 msgid "Load data by category"
 msgstr "Загрузить данные по категории"
 
-#: site_commerce.module:723 includes/site_commerce.select.inc:139;142
+#: site_commerce.module:756 includes/site_commerce.select.inc:139;142
 msgid "To choose"
 msgstr "Выбрать"
 
-#: site_commerce.module:733
+#: site_commerce.module:766
 msgid "Delete parametr"
 msgstr "Удалить параметр"
 
-#: site_commerce.install:965
+#: site_commerce.install:991
 msgid "Body"
 msgstr "Содержимое"
 
-#: (duplicate) site_commerce.install:2446;254
+#: (duplicate) site_commerce.install:2472;254 
 msgid "The price is specified for the products in a base complete set. Final cost will depend on a complete set after registration of the order. We shall call back to you for specification of full cost of the products."
-msgstr "Цена указана за товар в базовой комплектации. Окончательная стоимость будет зависеть от комплектации после оформления заказа. Мы Вам перезвоним для уточнения полной стоимости товара."
+msgstr ""
+"Цена указана за товар в базовой "
+"комплектации. Окончательная "
+"стоимость будет зависеть от "
+"комплектации после оформления заказа. "
+"Мы Вам перезвоним для уточнения "
+"полной стоимости товара."
 
-#: (duplicate) site_commerce.install:2559;2744;838
+#: (duplicate) site_commerce.install:2585;2770;864 
 msgid "The dictionary of categories of online store."
-msgstr "Словарь для категорий интернет-магазина."
+msgstr ""
+"Словарь для категорий "
+"интернет-магазина."
 
-#: (duplicate) site_commerce.install:2630;911
+#: (duplicate) site_commerce.install:2656;937 
 msgid "Color"
 msgstr "Цвет"
 
-#: (duplicate) site_commerce.install:2632;913
+#: (duplicate) site_commerce.install:2658;939 
 msgid "The colors of goods."
 msgstr "Цвета товаров."
 
-#: (duplicate) site_commerce.install:2645;933
+#: (duplicate) site_commerce.install:2671;959 
 msgid "Material"
 msgstr "Материал"
 
-#: (duplicate) site_commerce.install:2647;935
+#: (duplicate) site_commerce.install:2673;961 
 msgid "The materials of goods."
 msgstr "Материалы товаров."
 
-#: (duplicate) site_commerce.install:58
+#: (duplicate) site_commerce.install:58 
 msgid "Product type, which is the main when the catalog of products. Ideal for the majority of products various internet shops."
-msgstr "Тип товара, который является основным при формировании каталога товаров. Подходит для большинства товаров различных интернет-магазинов."
+msgstr ""
+"Тип товара, который является основным "
+"при формировании каталога товаров. "
+"Подходит для большинства товаров "
+"различных интернет-магазинов."
 
-#: (duplicate) site_commerce.install:249
+#: (duplicate) site_commerce.install:249 
 msgid "Welcome to our online store!"
-msgstr "Добро пожаловать в наш интернет-магазин!"
+msgstr ""
+"Добро пожаловать в наш "
+"интернет-магазин!"
 
-#: (duplicate) site_commerce.install:251
+#: (duplicate) site_commerce.install:251 
 msgid "Check up, please, once again a complete set of your order. If necessary change the order."
-msgstr "Проверьте, пожалуйста, еще раз комплектацию Вашего заказа. При необходимости измените заказ."
+msgstr ""
+"Проверьте, пожалуйста, еще раз "
+"комплектацию Вашего заказа. При "
+"необходимости измените заказ."
 
-#: (duplicate) site_commerce.install:252
+#: (duplicate) site_commerce.install:252 
 msgid "To make out orders for our site it is temporarily forbidden. Technical works are conducted. We apologize for inconveniences."
-msgstr "Оформлять заказы на нашем сайте временно запрещено. Ведутся технические работы.  Приносим извинения за неудобства."
+msgstr ""
+"Оформлять заказы на нашем сайте "
+"временно запрещено. Ведутся "
+"технические работы.  Приносим "
+"извинения за неудобства."
 
-#: (duplicate) site_commerce.install:253
+#: (duplicate) site_commerce.install:253 
 msgid "Thanks that have issued the order. In the near future with you the manager of shop will communicate."
-msgstr "Спасибо, что оформили заказ. В ближайшее время с Вами свяжется менеджер магазина."
+msgstr ""
+"Спасибо, что оформили заказ. В "
+"ближайшее время с Вами свяжется "
+"менеджер магазина."
 
-#: (duplicate) site_commerce.install:255
+#: (duplicate) site_commerce.install:255 
 msgid "Please check the cost from the vendor consultant."
-msgstr "Стоимость уточняйте у продавца консультанта."
+msgstr ""
+"Стоимость уточняйте у продавца "
+"консультанта."
 
-#: (duplicate) site_commerce.install:256
+#: (duplicate) site_commerce.install:256 
 msgid "Please check the quantity from the vendor consultant."
-msgstr "Количество уточняйте у продавца консультанта."
+msgstr ""
+"Количество уточняйте у продавца "
+"консультанта."
 
-#: (duplicate) site_commerce.install:257
+#: (duplicate) site_commerce.install:257 
 msgid "With this product you can buy"
 msgstr "С этим товаром Вы можете купить"
 
-#: (duplicate) site_commerce.install:260
+#: (duplicate) site_commerce.install:260 
 msgid "Buy in 1 click"
 msgstr "Купить в 1 клик"
 
-#: (duplicate) site_commerce.install:263
+#: (duplicate) site_commerce.install:263 
 msgid "Buy"
 msgstr "Купить"
 
-#: (duplicate) site_commerce.install:264
+#: (duplicate) site_commerce.install:264 
 msgid "Cart is empty"
 msgstr "Корзина пуста"
 
-#: (duplicate) site_commerce.install:493
+#: (duplicate) site_commerce.install:493 ;822 
 msgid "The categories of photo albums"
 msgstr "Категории фотоальбомов"
 
-#: (duplicate) site_commerce.install:501
+#: (duplicate) site_commerce.install:501 
 msgid "Сontractor"
 msgstr "Поставщик"
 
-#: (duplicate) site_commerce.install:517
+#: (duplicate) site_commerce.install:517 
 msgid "The manufacturer"
 msgstr "Производитель"
 
-#: (duplicate) site_commerce.install:525
+#: (duplicate) site_commerce.install:525 
 msgid "The brand"
 msgstr "Торговая марка"
 
-#: (duplicate) site_commerce.install:533
+#: (duplicate) site_commerce.install:533 
 msgid "The part number"
 msgstr "Артикул"
 
-#: (duplicate) site_commerce.install:572
+#: (duplicate) site_commerce.install:572 
 msgid "The old cost"
 msgstr "Предыдущая стоимость"
 
-#: (duplicate) site_commerce.install:597
+#: (duplicate) site_commerce.install:597 
 msgid "The cost"
 msgstr "Стоимость"
 
-#: (duplicate) site_commerce.install:622
+#: (duplicate) site_commerce.install:622 
 msgid "The quantity in stock"
 msgstr "Количество на складе"
 
-#: (duplicate) site_commerce.install:640
+#: (duplicate) site_commerce.install:640 
 msgid "The quantity for the order in package"
 msgstr "Количество для заказа в комплекте"
 
-#: (duplicate) site_commerce.install:658
+#: (duplicate) site_commerce.install:658 
 msgid "The unit of measure of quantity"
 msgstr "Единица измерения количества"
 
-#: (duplicate) site_commerce.install:666
+#: (duplicate) site_commerce.install:666 
 msgid "The special offer"
 msgstr "Специальное предложение"
 
-#: (duplicate) site_commerce.install:674
+#: (duplicate) site_commerce.install:674 
 msgid "The images"
 msgstr "Изображения"
 
-#: (duplicate) site_commerce.install:693
+#: (duplicate) site_commerce.install:693 ;830 
 msgid "The files"
 msgstr "Файлы"
 
-#: (duplicate) site_commerce.install:806
+#: (duplicate) site_commerce.install:806 
 msgid "Full description"
 msgstr "Подробное описание"
 
-#: (duplicate) site_commerce.install:894
+#: (duplicate) site_commerce.install:920 
 msgid "The country of the manufacturer."
 msgstr "Страна производителя."
 
@@ -1908,7 +2322,11 @@ msgstr "Все новинки"
 
 #: templates/site-commerce-cart.tpl.php:18
 msgid "Your cart is empty! Choose the goods interesting you, push a button «To buy» and pass in a basket for registration of the order."
-msgstr "Ваша корзина пуста! Выберите интересующий Вас товар, нажмите кнопку «Купить» и перейдите в корзину для оформления заказа."
+msgstr ""
+"Ваша корзина пуста! Выберите "
+"интересующий Вас товар, нажмите "
+"кнопку «Купить» и перейдите в корзину "
+"для оформления заказа."
 
 #: templates/site-commerce-cart.tpl.php:39
 msgid "per"
@@ -1920,7 +2338,9 @@ msgstr "шт."
 
 #: templates/site-commerce-cart.tpl.php:51
 msgid "Attention! Cost of this goods has just changed."
-msgstr "Внимание! Стоимость этого товара только что изменилась."
+msgstr ""
+"Внимание! Стоимость этого товара "
+"только что изменилась."
 
 #: templates/site-commerce-cart.tpl.php:69
 msgid "Total, without delivery"
@@ -1934,19 +2354,19 @@ msgstr "Дата обновления"
 msgid "Buy now and receive the discount"
 msgstr "Купить сейчас и получить скидку"
 
-#: templates/site-commerce-cost.tpl.php:44;58
+#: templates/site-commerce-cost.tpl.php:40;54
 msgid "the discount"
 msgstr "скидка"
 
-#: templates/site-commerce-cost.tpl.php:82;91
+#: templates/site-commerce-cost.tpl.php:78;87
 msgid "by"
 msgstr "от"
 
-#: templates/site-commerce-cost.tpl.php:83
+#: templates/site-commerce-cost.tpl.php:79
 msgid "before"
 msgstr "до"
 
-#: templates/site-commerce-cost.tpl.php:99
+#: templates/site-commerce-cost.tpl.php:95
 msgid "Сost of set"
 msgstr "Стоимость комплекта"
 
@@ -1954,7 +2374,11 @@ msgstr "Стоимость комплекта"
 msgid "The similar products in category &laquo;@name&raquo;"
 msgstr "Другие товары в категории &laquo;@name&raquo;"
 
-#: templates/site-commerce-position-index-data-items.tpl.php:16 templates/site-commerce-position-index.tpl.php:20
+#: templates/site-commerce-photo-albums.tpl.php:15
+msgid "Photo albums"
+msgstr "Фотоальбомы"
+
+#: templates/site-commerce-position-index-data-items.tpl.php:16 templates/site-commerce-position-index.tpl.php:19
 msgid "This product is part of"
 msgstr "Этот товар входит в"
 
@@ -1966,7 +2390,7 @@ msgstr "Форма поиска"
 msgid "Select category"
 msgstr "Выберите категорию"
 
-#: templates/site-commerce.tpl.php:127
+#: templates/site-commerce.tpl.php:128
 msgid "Show full description"
 msgstr "Показать полное описание"
 
@@ -1980,11 +2404,16 @@ msgstr "Товар ID"
 
 #: views/site_commerce.views.inc:31
 msgid "The unique identifier of the goods in the main table site_commerce."
-msgstr "Уникальный идентификатор товаров главной таблицы site_commerce."
+msgstr ""
+"Уникальный идентификатор товаров "
+"главной таблицы site_commerce."
 
 #: views/site_commerce.views.inc:53
 msgid "The primary identifier for the imported product in other database."
-msgstr "Первичный идентификатор для импортируемого продукта в другой базе данных."
+msgstr ""
+"Первичный идентификатор для "
+"импортируемого продукта в другой базе "
+"данных."
 
 #: views/site_commerce.views.inc:69
 msgid "Type of position."
@@ -2024,7 +2453,7 @@ msgstr "Ссылка этого поля на оригинал товара"
 
 #: views/site_commerce.views.inc:201
 msgid "Enable to override this field's links."
-msgstr "Включите для переопределения ссылок этого поля."
+msgstr ""
+"Включите для переопределения ссылок "
+"этого поля."
 
-msgid "Allow button to display the detailed view on the item card."
-msgstr "Разрешить отображать кнопку подробного просмотра в карточке товара."

@@ -187,6 +187,12 @@ function site_commerce_settings_form($form, &$form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+  $form['site_commerce_catalog']['site_commerce_catalog_products_default_mode'] = array(
+    '#type' => 'select',
+    '#title' => t('Display mode products by category'),
+    '#default_value' => variable_get('site_commerce_catalog_products_default_mode', 'site_commerce_term'),
+    '#options' => array('site_commerce_term' => t('mode in one line'), 'site_commerce_term_compact' => t('mode into the net')),
+  );
   $form['site_commerce_catalog']['site_commerce_catalog_images'] = array(
     '#title'         => t('Allow to display images of categories of the catalogue'),
     '#type'          => 'checkbox',

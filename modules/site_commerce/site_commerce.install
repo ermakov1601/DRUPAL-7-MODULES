@@ -3491,5 +3491,23 @@ function site_commerce_update_7064() {
     locale_system_update(array('site_commerce'));
   }
 
+  cache_clear_all();
+
+  return 'Language updated.';
+}
+
+/**
+ * Language update.
+ */
+function site_commerce_update_7065() {
+  // Обновляем перевод модуля.
+  if (module_exists('locale')) {
+    locale_system_update(array('site_commerce'));
+  }
+
+  variable_set('site_commerce_catalog_products_default_mode', 'site_commerce_term_compact');
+
+  cache_clear_all();
+
   return 'Language updated.';
 }

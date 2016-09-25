@@ -401,6 +401,10 @@ function site_commerce_theme($existing, $type, $theme, $path) {
       'variables' => array('pids' => NULL, 'total' => NULL),
       'template' => 'templates/site-commerce-term',
     ),
+    'site_commerce_term_compact' => array(
+      'variables' => array('pids' => NULL, 'total' => NULL),
+      'template' => 'templates/site-commerce-term-compact',
+    ),
   );
 }
 
@@ -1621,6 +1625,82 @@ function template_preprocess_site_commerce_term(&$variables) {
 }
 
 /**
+ * Process variables for site-commerce-term-compact.tpl.php.
+ * @see site-commerce-term.tpl.php.
+ */
+function template_preprocess_site_commerce_term_compact(&$variables) {
+  // Идентификаторы позиций по категории товаров.
+  $pids = $variables['pids'];
+  $total = $variables['total'];
+
+  $variables['pids'] = array();
+
+  $count = 0;
+
+  // Разрешить кэширование карточек товара при просмотре каталога.
+  $cache = variable_get('site_commerce_catalog_cache', FALSE);
+
+  $parametrs = array();
+
+  foreach ($pids as $pid) {
+    $count++;
+
+    if ($cache) {
+      // Получаем карточку товара из кэша.
+      $elements = array(
+        '#theme' => 'site_commerce_category_pid',
+        '#pid' => $pid,
+        '#cache' => array(
+          'cid' => 'site_commerce_category_pid:' . $pid,
+          'bin' => 'cache_site_commerce',
+          'expire' => CACHE_PERMANENT,
+        ),
+      );
+      $data_cached = drupal_render($elements);
+      $data = unserialize($data_cached);
+    }
+    else {
+      $parametrs['elements']['#pid'] = $pid;
+      $data = theme_site_commerce_category_pid($parametrs);
+    }
+
+    // Форма действий.
+    $data->cart = '';
+    if (variable_get('site_commerce_allow_cart', TRUE) && variable_get('site_commerce_allow_button_add_to_cart_in_catalog', FALSE)) {
+      $form = drupal_get_form('site_commerce_actions_form', $pid, TRUE, FALSE, TRUE, TRUE);
+      $data->cart = drupal_render($form);
+    }
+
+    // Назначаем классы на элемент списка <li>.
+    if ($count%2) {
+      $data->classes[] = 'odd';
+    }
+    else {
+      $data->classes[] = 'even';
+    }
+    $data->classes = drupal_implode_tags($data->classes);
+
+    // Формируем панель администрирования.
+    $data->form_admin = '';
+    if (user_access('administer site commerce products')) {
+      $form_admin = drupal_get_form('site_commerce_admin_actions_form', $pid);
+      $data->form_admin = drupal_render($form_admin);
+    }
+
+    $variables['pids'][$pid] = $data;
+  }
+
+  // Выводим постраничную навигацию.
+  $variables['pager'] = '';
+  if ($total && variable_get('site_commerce_allow_pager', TRUE)) {
+    $num_per_page = variable_get('site_commerce_num_per_page', 20);
+    $page = pager_default_initialize($total, $num_per_page);
+    $variables['pager'] = theme('pager', array('quantity' => 3));
+  }
+
+}
+
+/**
  * Получает параметры позиции для вывода их в каталоге.
  * @param (int) $pid
  *   Идентификатор позиции.
@@ -2390,7 +2470,13 @@ function theme_site_commerce_position_index_content($data) {
       $output .= '<div class="site-commerce-note-index-position">' . $text . '</div>';
     }
 
-    $output .= theme('site_commerce_term', array('pids' => $pids));
+    // Определяем стиль отображения товаров в каталоге.
+    $theme_catalog_name = variable_get('site_commerce_catalog_products_default_mode', 'site_commerce_term');
+    if (user_access('administer site commerce products')) {
+      $theme_catalog_name = 'site_commerce_term';
+    }
+
+    $output .= theme($theme_catalog_name, array('pids' => $pids));
   }
 
   return $output;
@@ -2470,16 +2556,17 @@ function site_commerce_actions_form($form, &$form_state, $pid, $quantity_access 
   if (!$cid) {
     // Статусы, для которых разрешено добавлять в корзину.
     $allow_execute_statuses = variable_get('site_commerce_add_to_cart_allow_statuses', site_commerce_position_status());
+    $min_quantity = $position->field_site_commerce_min_quantity;
     if (in_array($position->status, $allow_execute_statuses) && $position->type_sale < 5) {
       // Отображение поля указания количества.
       if ($quantity_access) {
         $form['site_commerce_quantity'] = array(
           '#title' => t('Quantity'),
           '#type' => 'numberfield',
-          '#default_value' => '',
+          '#default_value' => $min_quantity > 1 ? $min_quantity : '',
           '#maxlength' => 6,
           '#size' => 3,
-          '#attributes' => array('min' => 1, 'max' => 1000, 'step' => 1, 'placeholder' => 1, 'cart_value' => 1, 'cid' => $position->pid),
+          '#attributes' => array('min' => $min_quantity, 'max' => 1000, 'step' => 1, 'placeholder' => $min_quantity, 'cart_value' => 1, 'cid' => $position->pid),
           '#access' => variable_get('site_commerce_allow_quantity_cart', TRUE) && variable_get('site_commerce_allow_button_add_to_cart', TRUE),
         );
       }
@@ -2961,7 +3048,7 @@ function site_commerce_admin_actions_form($form, &$form_state, $pid) {
   }
   $form['min-quantity-' . $pid] = array(
     '#type' => 'textfield',
-    '#title' => t('Quantity for the order in package'),
+    '#title' => t('Minimum quantity for order'),
     '#default_value' => $default_value_min_quantity,
     '#ajax' => array(
       'callback' => 'site_commerce_admin_actions_form_quantity_ajax_callback',
@@ -2971,14 +3058,14 @@ function site_commerce_admin_actions_form($form, &$form_state, $pid) {
       ),
       'effect' => 'fade',
     ),
-    '#states' => array(
-      'visible' => array(
-        array(
-          array(':input[name=type_sale-' . $pid . ']' => array('value' => 2)),
-          array(':input[name=type_sale-' . $pid . ']' => array('value' => 3)),
-        ),
-      ),
-    ),
+//    '#states' => array(
+//      'visible' => array(
+//        array(
+//          array(':input[name=type_sale-' . $pid . ']' => array('value' => 2)),
+//          array(':input[name=type_sale-' . $pid . ']' => array('value' => 3)),
+//        ),
+//      ),
+//    ),
   );
 
   // Поле для вывода минимальной стоимости.
@@ -6238,6 +6325,10 @@ function site_commerce_add_position($form_state) {
       $quantity = 1;
     }
   }
+  $min_quantity = $position->field_site_commerce_min_quantity;
+  if ($quantity < $min_quantity) {
+    $quantity = $min_quantity;
+  }
 
   // Получаем идентификатор пользователя.
   $user_id = site_commerce_user_id();
@@ -6911,7 +7002,14 @@ function site_commerce_term_page($term) {
 
   // Перечень позиций каталога для отображения.
   $variables = site_commerce_get_pids_by_term($term->tid);
-  $output .= theme('site_commerce_term', array('pids' => $variables['pids'], 'total' => $variables['total']));
+
+  // Определяем стиль отображения товаров в каталоге.
+  $theme_catalog_name = variable_get('site_commerce_catalog_products_default_mode', 'site_commerce_term');
+  if (user_access('administer site commerce products')) {
+    $theme_catalog_name = 'site_commerce_term';
+  }
+
+  $output .= theme($theme_catalog_name, array('pids' => $variables['pids'], 'total' => $variables['total']));
 
   // Вывод полного описания категории.
   $full_description = kvantstudio_field_value('taxonomy_term', $term, 'field_site_commerce_description', NULL, 'value');
@@ -6972,7 +7070,13 @@ function site_commerce_catalog_novelties($tid = 0) {
   // Перечень позиций каталога для отображения.
   $variables = site_commerce_get_pids_by_term($tid, TRUE);
 
-  $output = theme('site_commerce_term', array('pids' => $variables['pids'], 'total' => $variables['total']));
+  // Определяем стиль отображения товаров в каталоге.
+  $theme_catalog_name = variable_get('site_commerce_catalog_products_default_mode', 'site_commerce_term');
+  if (user_access('administer site commerce products')) {
+    $theme_catalog_name = 'site_commerce_term';
+  }
+
+  $output = theme($theme_catalog_name, array('pids' => $variables['pids'], 'total' => $variables['total']));
 
   return $output;
 }
