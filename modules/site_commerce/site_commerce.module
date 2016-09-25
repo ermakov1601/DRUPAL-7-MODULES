@@ -2556,7 +2556,12 @@ function site_commerce_actions_form($form, &$form_state, $pid, $quantity_access 
   if (!$cid) {
     // Статусы, для которых разрешено добавлять в корзину.
     $allow_execute_statuses = variable_get('site_commerce_add_to_cart_allow_statuses', site_commerce_position_status());
+
     $min_quantity = $position->field_site_commerce_min_quantity;
+    if (!$min_quantity) {
+      $min_quantity = 1;
+    }
+
     if (in_array($position->status, $allow_execute_statuses) && $position->type_sale < 5) {
       // Отображение поля указания количества.
       if ($quantity_access) {
