@@ -34,13 +34,16 @@
       </div>
       <!-- Блок с кнопками действий: количество, удаление, перенос в отложенные товары. -->
       <div id="site-commerce-cart__item-action-<?php print $cid; ?>" class="site-commerce-cart__item-action clearfix">
-        <!-- Текущая стоимость с учётом количества. Не изменяйте имя id элемента. -->
-        <span id="site-commerce-cart__item-cost-<?php print $cid; ?>" class="site-commerce-cart__item-cost"><?php print $cart['cost_all']; ?></span> <?php print $cart['position']->currency; ?>
-        <?php print t('per') ?>
-        <!--<a class="site-commerce-cart__link site-commerce-cart__link_minus" сid="<?php print $cid; ?>" id="minus-<?php print $cid; ?>" href="javascript:void(0);"><img src="/<?php print $directory; ?>/images/minus.png" alt=""></a>-->
+        <?php if ($cart['cost_all']): ?>
+          <!-- Текущая стоимость с учётом количества. Не изменяйте имя id элемента. -->
+          <span id="site-commerce-cart__item-cost-<?php print $cid; ?>" class="site-commerce-cart__item-cost"><?php print $cart['cost_all']; ?></span> <?php print $cart['position']->currency; ?>
+          <?php print t('per') ?>
+        <?php endif; ?>
+
         <input type="number" class="site-commerce-cart__item-quantity" id="quantity-<?php print $cid; ?>" сid="<?php print $cid; ?>" min="<?php print $cart['min_quantity']; ?>" max="1000" value="<?php print $cart['quantity']; ?>" step="1" cart_value="<?php print $cart['quantity']; ?>">
-        <!--<a class="site-commerce-cart__link site-commerce-cart__link_plus" сid="<?php print $cid; ?>" id="plus-<?php print $cid; ?>" href="javascript:void(0);"><img src="/<?php print $directory; ?>/images/plus.png" alt=""></a>-->
-        <?php print t('piece') ?>
+
+        <?php print str_replace("/ ", "", $cart['measure']); ?>
+
         <a class="site-commerce-cart__link site-commerce-cart__link_delete" сid="<?php print $cid; ?>" id="delete-<?php print $cid; ?>" href="javascript:void(0);">
           <span class="link-js"><?php print mb_strtolower(t('Delete'), 'UTF-8'); ?></span>
         </a>

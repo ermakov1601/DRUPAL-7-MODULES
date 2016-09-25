@@ -105,6 +105,12 @@ function template_preprocess_site_commerce_cart(&$variables) {
       }
     }
 
+    // Единица измерения количества.
+    $variables['cart'][$row->status][$row->cid]['measure'] = '';
+    if ($position->field_site_commerce_measure) {
+      $variables['cart'][$row->status][$row->cid]['measure'] = trim($position->field_site_commerce_measure);
+    }
+
     // Определяем стоимость дополнительных опций.
     $cost_result_markup = 0;
     $text_markup = "";
