@@ -2524,6 +2524,10 @@ function site_commerce_actions_form($form, &$form_state, $pid, $quantity_access 
   }
   else {
     $class = 'site-commerce-actions__button';
+
+    if ($type) {
+      $class = $class . '_' . $type;
+    }
   }
 
   // Если позиция находится в корзине.
@@ -2841,7 +2845,7 @@ function site_commerce_goto_cart_form($form, &$form_state, $pid, $type = 'card')
       ),
       'effect' => 'fade',
     ),
-    '#attributes' => array('class' => array($class, variable_get('site_commerce_cart_button_submit_css', 'btn btn-default'), 'use-ajax-submit')),
+    '#attributes' => array('class' => array($class, 'site-commerce-actions__button-goto-cart', variable_get('site_commerce_cart_button_submit_css', 'btn btn-default'), 'use-ajax-submit')),
   );
 
   return $form;
