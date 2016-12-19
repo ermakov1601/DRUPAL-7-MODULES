@@ -1,6 +1,6 @@
 name = KVANTSTUDIO
 description = "Library of functions."
-version = "1.39"
+version = "1.40"
 core = 7.x
 package = Kvantstudio
 configure = admin/config/kvantstudio/settings
@@ -9,8 +9,6 @@ files[] = kvantstudio.module
 files[] = kvantstudio.install
 files[] = kvantstudio.settings.inc
 
-dependencies[] = imageapi
-dependencies[] = imageapi_gd
 dependencies[] = imagecache_profiles
 dependencies[] = imagecache_canvasactions
 dependencies[] = transliteration
