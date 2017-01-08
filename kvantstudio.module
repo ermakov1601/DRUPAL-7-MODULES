@@ -867,9 +867,6 @@ function kvantstudio_mail($key, &$message, $params) {
     'langcode' => $message['language']->language,
   );
 
-  // Заголовок письма в формате HTML.
-  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
-
   // HTML тело сообщения.
   $body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\">\n";
   $body .= '<html>' . "\n" .
@@ -959,6 +956,13 @@ function kvantstudio_mail($key, &$message, $params) {
       $message['body'][] = $body;
       break;
   }
+
+    $message['headers'] = array(
+        'Content-Type' => 'text/html; charset=UTF-8',
+        'From' => $message['from'],
+        'Sender' => $message['from'],
+        'Return-Path' => $message['from'],
+    );
 }
 
 /**
