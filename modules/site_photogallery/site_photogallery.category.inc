@@ -55,7 +55,7 @@ function theme_site_photogallery_terms($variables) {
   // Загружаем профайл фотоальбома.
   $terms = entity_load('taxonomy_term', array($tid));
   $term = $terms[$tid];
-
+  
   $admin_access = user_access('administer site photogallery');
 
   // Проверяем разрещено ли отображать текущий фотоальбом.
@@ -71,7 +71,7 @@ function theme_site_photogallery_terms($variables) {
   if (!$view_access) {
     return '';
   }
-
+  
   $row_data = '';
 
   // Количество изображений в альбоме.
@@ -186,7 +186,7 @@ function site_photogallery_category($tid, $page_view = TRUE) {
   $query->innerJoin('taxonomy_index', 't', 'n.nid = t.nid');
   $query->condition('t.tid', $tid);
   $result = $query->execute()->rowCount();
-
+  
   if ($result > 0) {
     $array_tid = array($tid);
   }
@@ -217,7 +217,8 @@ function site_photogallery_category($tid, $page_view = TRUE) {
     $query->orderBy('w.field_site_photogallery_weight_value', 'ASC');
 
     if (!user_access('administer site photogallery')) {
-      $query->innerJoin('field_revision_field_site_photogallery_status', 's', 'n.nid = s.entity_id');
+      $query->innerJoin('field_data_field_site_photogallery_status', 's', 'n.nid = s.entity_id');
+      $query->condition('s.entity_type', 'node');
       $query->condition('s.field_site_photogallery_status_value', 1);
     }
 

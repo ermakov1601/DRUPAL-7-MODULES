@@ -6040,7 +6040,7 @@ function site_commerce_index_site_commerce($site_commerce) {
   $taxonomy_alias = "";
   if (isset($site_commerce->tid)) {
     $term = taxonomy_term_load($site_commerce->tid);
-    if (isset($term) && $term->name) {
+    if (isset($term) && isset($term->name)) {
       $parents = taxonomy_get_parents_all($site_commerce->tid);
       while ($parents) {
         $current = array_shift($parents);
