@@ -405,6 +405,10 @@ function site_commerce_theme($existing, $type, $theme, $path) {
       'variables' => array('pids' => NULL, 'total' => NULL),
       'template' => 'templates/site-commerce-term-compact',
     ),
+    'site_commerce_prices' => array(
+      'variables' => array('files' => NULL),
+      'template' => 'templates/site-commerce-prices',
+    ),
   );
 }
 
@@ -683,6 +687,15 @@ function site_commerce_menu() {
     'page callback' => 'site_commerce_search_autocomplete',
     'access callback' => 'site_commerce_view_access',
     'type' => MENU_CALLBACK,
+  );
+
+  // Прайс-листы.
+  $items['prices'] = array(
+    'title' => 'Prices and catalogs',
+    'page callback' => 'site_commerce_prices',
+    'access callback' => 'site_commerce_view_access',
+    'type' => MENU_CALLBACK,
+    'file' => 'site_commerce.prices.inc',
   );
 
   // Ajax меню добавить товар в корзину.
