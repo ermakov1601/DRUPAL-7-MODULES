@@ -712,6 +712,13 @@ function site_commerce_settings_form($form, &$form_state) {
     '#default_value' => variable_get('site_commerce_buy_in_one_click_title'),
     '#required' => TRUE,
   );
+  $form['site_commerce_buy_in_one_click']['site_commerce_buy_in_one_click_form_data'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Form data'),
+    '#default_value' => variable_get('site_commerce_buy_in_one_click_form_data'),
+    '#rows' => 2,
+    '#required' => FALSE,
+  );
 
   //----------------------------------------------------------------------------
   // Настройки модуля спецпредложения.

@@ -835,8 +835,11 @@ function site_commerce_buy_in_one_click_ajax_callback($pid, $mode = NULL) {
   $commands = array();
 
   // Отображение всплывающего окна: продолжить покупки или оформить заказ.
-  $form = drupal_get_form('site_commerce_buy_in_one_click_form', $pid);
-  $form = drupal_render($form);
+  $form = trim(variable_get('site_commerce_buy_in_one_click_form_data'));
+  if (!$form) {
+      $form = drupal_get_form('site_commerce_buy_in_one_click_form', $pid);
+      $form = drupal_render($form);
+  }
 
   $commands[] = ajax_command_append('body', '<div class="element-hidden"><div id="site-commerce-buy-in-one-click-order-confirm-' . $pid . '"></div></div>');
   $commands[] = ajax_command_html('#site-commerce-buy-in-one-click-order-confirm-' . $pid, $form);
@@ -4853,22 +4856,24 @@ function template_preprocess_site_commerce(&$variables) {
   $variables['site_commerce_files'] = '';
 
   $term = taxonomy_term_load($site_commerce->tid);
-  if (count($term->field_site_commerce_file)) {
-    foreach ($term->field_site_commerce_file['und'] as $file) {
-      // Описание файла.
-      if ($file['description']) {
-        $description = $file['description'];
+  if (isset($term->field_site_commerce_file)) {
+      if (count($term->field_site_commerce_file)) {
+        foreach ($term->field_site_commerce_file['und'] as $file) {
+          // Описание файла.
+          if ($file['description']) {
+            $description = $file['description'];
+          }
+          else {
+            $description = $file['filename'];
+          }
+          // Иконка файла.
+          $file_object = file_load($file['fid']);
+          $file_icon_url = file_icon_url($file_object);
+          $file_icon = '<img class="file-icon" alt="" title="' . $file['filemime'] . '" src="' . $file_icon_url . '" />';
+          $filesize = format_size($file['filesize']);
+          $variables['site_commerce_files'] .= '<a class="site-commerce__header-file" type="' . $file['filemime'] . '" href="' . file_create_url($file['uri']) . '" target="_blank">' . $file_icon . " " . $description . ' <span class="site-commerce__header-filesize">(' . $filesize . ')</span>' . '</a>';
+        }
       }
-      else {
-        $description = $file['filename'];
-      }
-      // Иконка файла.
-      $file_object = file_load($file['fid']);
-      $file_icon_url = file_icon_url($file_object);
-      $file_icon = '<img class="file-icon" alt="" title="' . $file['filemime'] . '" src="' . $file_icon_url . '" />';
-      $filesize = format_size($file['filesize']);
-      $variables['site_commerce_files'] .= '<a class="site-commerce__header-file" type="' . $file['filemime'] . '" href="' . file_create_url($file['uri']) . '" target="_blank">' . $file_icon . " " . $description . ' <span class="site-commerce__header-filesize">(' . $filesize . ')</span>' . '</a>';
-    }
   }
 
   if (count($site_commerce->field_site_commerce_file)) {
